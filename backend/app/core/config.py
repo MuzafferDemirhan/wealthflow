@@ -11,8 +11,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # Database
-    DATABASE_URL: str = "postgresql://wealthflow:wealthflow@localhost:5432/wealthflow"
+    # Database — MS SQL Server 2022
+    # Format: mssql+pyodbc://user:password@host:1433/db?driver=ODBC+Driver+18+for+SQL+Server
+    DATABASE_URL: str = (
+        "mssql+pyodbc://sa:YourPassword@localhost:1433/wealthflow"
+        "?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+    )
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -23,7 +27,7 @@ class Settings(BaseSettings):
     # Plaid
     PLAID_CLIENT_ID: str = ""
     PLAID_SECRET: str = ""
-    PLAID_ENV: str = "sandbox"  # sandbox | development | production
+    PLAID_ENV: str = "sandbox"
 
     # Anthropic
     CLAUDE_API_KEY: str = ""

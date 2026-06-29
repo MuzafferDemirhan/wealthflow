@@ -30,7 +30,7 @@ flowchart TD
     %% ─── DATA LAYER ─────────────────────────────────────────────
     subgraph DATA["🗄️  Data Layer"]
         direction LR
-        PG[("PostgreSQL 16\nPrimary Database\nusers · accounts\ntransactions · budgets\nportfolio · categories")]
+        PG[("MS SQL Server 2022\nPrimary Database\nusers · accounts\ntransactions · budgets\nportfolio · categories")]
         REDIS[("Redis 7\nCache · Sessions\nRate limit counters\nWebSocket pub/sub")]
     end
 

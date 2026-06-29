@@ -66,7 +66,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 ### 2.3 Operating Environment
 - **Frontend:** Modern browsers (Chrome 120+, Firefox 120+, Safari 17+)
 - **Backend:** Linux (Ubuntu 22.04 LTS) via Docker
-- **Database:** PostgreSQL 16
+- **Database:** MS SQL Server 2022
 - **Deployment:** Railway (MVP), scalable to AWS/GCP
 
 ---
@@ -179,7 +179,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 └───────┬───────┴────────┬─────────┴──────────────────┘
         │                │
 ┌───────▼──────┐  ┌──────▼───────┐  ┌────────────────┐
-│  PostgreSQL  │  │    Redis     │  │  Celery Worker │
+│  MS SQL Server  │  │    Redis     │  │  Celery Worker │
 │  (Primary)   │  │  (Cache +    │  │  (Async tasks: │
 │              │  │   Sessions)  │  │  reports, notif│
 └──────────────┘  └──────────────┘  └────────────────┘
@@ -199,72 +199,72 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 ```sql
 -- Users
 CREATE TABLE users (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT NEWID(),
     email       VARCHAR(255) UNIQUE NOT NULL,
     hashed_pw   VARCHAR(255),
     full_name   VARCHAR(255),
-    is_active   BOOLEAN DEFAULT TRUE,
-    is_admin    BOOLEAN DEFAULT FALSE,
-    created_at  TIMESTAMPTZ DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ DEFAULT NOW()
+    is_active   BIT DEFAULT 1,
+    is_admin    BIT DEFAULT 0,
+    created_at  DATETIME2 DEFAULT GETUTCDATE(),
+    updated_at  DATETIME2 DEFAULT GETUTCDATE()
 );
 
 -- Bank Accounts
 CREATE TABLE accounts (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID PRIMARY KEY DEFAULT NEWID(),
     user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
     provider        VARCHAR(50) NOT NULL, -- 'plaid' | 'nordigen'
     external_id     VARCHAR(255) NOT NULL,
     institution     VARCHAR(255),
     account_type    VARCHAR(50), -- checking | savings | credit
-    balance         NUMERIC(15,2),
+    balance         DECIMAL(15,2),
     currency        VARCHAR(3) DEFAULT 'PLN',
-    last_synced_at  TIMESTAMPTZ,
-    created_at      TIMESTAMPTZ DEFAULT NOW()
+    last_synced_at  DATETIME2,
+    created_at      DATETIME2 DEFAULT GETUTCDATE()
 );
 
 -- Transactions
 CREATE TABLE transactions (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID PRIMARY KEY DEFAULT NEWID(),
     account_id      UUID REFERENCES accounts(id) ON DELETE CASCADE,
     external_id     VARCHAR(255) UNIQUE,
-    amount          NUMERIC(15,2) NOT NULL,
+    amount          DECIMAL(15,2) NOT NULL,
     currency        VARCHAR(3) DEFAULT 'PLN',
-    description     TEXT,
+    description     NVARCHAR(MAX),
     category_id     UUID REFERENCES categories(id),
-    is_manual       BOOLEAN DEFAULT FALSE,
+    is_manual       BIT DEFAULT 0,
     date            DATE NOT NULL,
-    created_at      TIMESTAMPTZ DEFAULT NOW()
+    created_at      DATETIME2 DEFAULT GETUTCDATE()
 );
 
 -- Categories
 CREATE TABLE categories (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT NEWID(),
     name        VARCHAR(100) NOT NULL,
     icon        VARCHAR(50),
     color       VARCHAR(7),
-    is_default  BOOLEAN DEFAULT FALSE
+    is_default  BIT DEFAULT 0
 );
 
 -- Budgets
 CREATE TABLE budgets (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          UUID PRIMARY KEY DEFAULT NEWID(),
     user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
     category_id UUID REFERENCES categories(id),
-    amount      NUMERIC(15,2) NOT NULL,
+    amount      DECIMAL(15,2) NOT NULL,
     period      VARCHAR(20) DEFAULT 'monthly',
-    created_at  TIMESTAMPTZ DEFAULT NOW()
+    created_at  DATETIME2 DEFAULT GETUTCDATE()
 );
 
 -- Portfolio Holdings
 CREATE TABLE holdings (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id              UUID PRIMARY KEY DEFAULT NEWID(),
     user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
     ticker          VARCHAR(20) NOT NULL,
-    shares          NUMERIC(15,6) NOT NULL,
-    avg_cost        NUMERIC(15,2) NOT NULL,
+    shares          DECIMAL(15,6) NOT NULL,
+    avg_cost        DECIMAL(15,2) NOT NULL,
     asset_type      VARCHAR(20), -- stock | crypto | etf | fund
-    created_at      TIMESTAMPTZ DEFAULT NOW()
+    created_at      DATETIME2 DEFAULT GETUTCDATE()
 );
 ```
 
@@ -332,7 +332,7 @@ GET    /reports/csv            Download transactions CSV
 | Charts | Recharts | React-native charting |
 | Backend | FastAPI (Python 3.12) | Async, auto-docs, ML-friendly |
 | ORM | SQLAlchemy 2.0 + Alembic | Type-safe queries, migrations |
-| Database | PostgreSQL 16 | ACID, JSON support, mature |
+| Database | MS SQL Server 2022 | ACID, JSON support, mature |
 | Cache | Redis 7 | Session store, rate limiting |
 | Task Queue | Celery + Redis broker | Async jobs (reports, notifications) |
 | ML | scikit-learn | Transaction classifier |
@@ -354,9 +354,9 @@ GET    /reports/csv            Download transactions CSV
 
 ### Sprint 1 — Backend Core (Weeks 2–3)
 - [ ] FastAPI project setup with folder structure
-- [ ] PostgreSQL + Alembic migrations
+- [ ] MS SQL Server + Alembic migrations
 - [ ] User model + JWT auth endpoints
-- [ ] Docker Compose (FastAPI + PostgreSQL + Redis)
+- [ ] Docker Compose (FastAPI + MS SQL Server + Redis)
 - [ ] GitHub Actions CI (lint + test)
 
 ### Sprint 2 — Data Layer (Weeks 4–5)

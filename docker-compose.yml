@@ -6,12 +6,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://wealthflow:wealthflow@db:5432/wealthflow
+      - DATABASE_URL=mssql+pyodbc://sa:WealthFlow_2024!@mssql:1433/wealthflow?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - ./backend/.env
     depends_on:
-      db:
+      mssql:
         condition: service_healthy
       redis:
         condition: service_started
@@ -25,10 +25,10 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql://wealthflow:wealthflow@db:5432/wealthflow
+      - DATABASE_URL=mssql+pyodbc://sa:WealthFlow_2024!@mssql:1433/wealthflow?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
       - REDIS_URL=redis://redis:6379/0
     depends_on:
-      - db
+      - mssql
       - redis
     volumes:
       - ./backend:/app
@@ -43,36 +43,43 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: wealthflow
-      POSTGRES_PASSWORD: wealthflow
-      POSTGRES_DB: wealthflow
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "5432:5432"
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "WealthFlow_2024!"
+      MSSQL_PID: "Developer"  # Free Developer Edition
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wealthflow"]
-      interval: 5s
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "WealthFlow_2024!" -Q "SELECT 1" -No
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+
+  mssql_init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: "WealthFlow_2024!"
+    command: >
+      /opt/mssql-tools18/bin/sqlcmd
+      -S mssql -U sa -P "WealthFlow_2024!" -No
+      -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name='wealthflow') CREATE DATABASE wealthflow;"
+    restart: "no"
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
 
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - "5050:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@wealthflow.dev
-      PGADMIN_DEFAULT_PASSWORD: admin
-    depends_on:
-      - db
+  # SQL Server Management Studio alternative — Azure Data Studio via web
+  # Use SSMS on Windows connecting to localhost:1433 with sa / WealthFlow_2024!
 
 volumes:
-  postgres_data:
+  mssql_data:

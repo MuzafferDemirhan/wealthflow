@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![MS SQL Server](https://img.shields.io/badge/MS SQL Server-16-blue)
 
 ---
 
@@ -30,7 +30,7 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 |-------|------------|
 | Frontend | Next.js 15, TypeScript, Tailwind CSS, Recharts |
 | Backend | FastAPI, Python 3.12, SQLAlchemy 2.0 |
-| Database | PostgreSQL 16 + Redis 7 |
+| Database | MS SQL Server 2022 + Redis 7 |
 | ML | scikit-learn (transaction classifier) |
 | Task Queue | Celery + Redis |
 | Auth | JWT (python-jose) + OAuth2 |
@@ -47,7 +47,7 @@ Next.js (Frontend)
       ▼ REST + WebSocket
 FastAPI (Backend)
       │
-      ├── PostgreSQL  (primary data)
+      ├── MS SQL Server  (primary data)
       ├── Redis       (cache + sessions)
       └── Celery      (async: reports, notifications)
             │
@@ -83,6 +83,8 @@ docker compose up --build
 ### 4. Run database migrations
 ```bash
 docker compose exec backend alembic upgrade head
+
+# Connect via SSMS: localhost,1433 | User: sa | Password: WealthFlow_2024!
 ```
 
 ### 5. Access the app
@@ -90,7 +92,7 @@ docker compose exec backend alembic upgrade head
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | API docs | http://localhost:8000/docs |
-| pgAdmin | http://localhost:5050 |
+| SSMS (Windows) | localhost,1433 — sa / WealthFlow_2024! |
 
 ### 6. Run tests
 ```bash

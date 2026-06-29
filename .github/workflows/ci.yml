@@ -32,19 +32,20 @@ jobs:
     needs: backend-lint
 
     services:
-      postgres:
-        image: postgres:16-alpine
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
         env:
-          POSTGRES_USER: wealthflow
-          POSTGRES_PASSWORD: wealthflow
-          POSTGRES_DB: wealthflow_test
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "WealthFlow_2024!"
+          MSSQL_PID: "Developer"
         ports:
-          - 5432:5432
+          - 1433:1433
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'WealthFlow_2024!' -Q 'SELECT 1' -No"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
+          --health-start-period 30s
 
       redis:
         image: redis:7-alpine
@@ -59,14 +60,28 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install MS ODBC Driver 18
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
+            | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+
+      - name: Create test database
+        run: |
+          /opt/mssql-tools18/bin/sqlcmd \
+            -S localhost -U sa -P "WealthFlow_2024!" -No \
+            -Q "CREATE DATABASE wealthflow_test;"
+
+      - name: Install Python dependencies
         run: |
           cd backend
           pip install -r requirements.txt
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://wealthflow:wealthflow@localhost:5432/wealthflow_test
+          DATABASE_URL: "mssql+pyodbc://sa:WealthFlow_2024!@localhost:1433/wealthflow_test?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
           REDIS_URL: redis://localhost:6379/0
           SECRET_KEY: test-secret-key
           PLAID_CLIENT_ID: placeholder
