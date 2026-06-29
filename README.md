@@ -12,7 +12,7 @@
 
 ## What is this?
 
-WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization, and monitors your investment portfolio — all in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem (Poland and EU).
+WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem (Poland and EU).
 
 **Core features:**
 -  Bank account connection via Open Banking (Plaid / Nordigen)
@@ -132,10 +132,10 @@ wealthflow/
 ## Roadmap
 
 - [x] SRS & architecture design
-- [ ] Sprint 1 — Backend core (auth, DB, Docker)
-- [ ] Sprint 2 — Open Banking integration + ML classifier
-- [ ] Sprint 3 — Frontend dashboard
-- [ ] Sprint 4 — AI chatbot + reports + deployment
+- [ ] Sprint 1 - Backend core (auth, DB, Docker)
+- [ ] Sprint 2 - Open Banking integration + ML classifier
+- [ ] Sprint 3 - Frontend dashboard
+- [ ] Sprint 4 - AI chatbot + reports + deployment
 
 ---
 
