@@ -41,9 +41,9 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ## System Architecture
 
-![WealthFlow System Architecture](./architecture/architecture.png)
+![WealthFlow System Architecture](./architecture/WealthFlow_SystemArchitecture.png)
 
-> Note: You can access the code-based version of the architecture in the (./architecture/architecture.md) file.
+> **Note:** You can access the code-based version of the architecture in the [architecture.md](./architecture/architecture.md) file.
 
 ---
 
