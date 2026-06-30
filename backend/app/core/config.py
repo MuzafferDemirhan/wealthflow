@@ -1,9 +1,11 @@
 from typing import List
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     # App
     APP_NAME: str = "WealthFlow"
     DEBUG: bool = False
@@ -34,9 +36,6 @@ class Settings(BaseSettings):
 
     # Market data
     ALPHA_VANTAGE_KEY: str = ""
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
