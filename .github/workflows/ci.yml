@@ -89,6 +89,13 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
+      - name: Run database migrations against MS SQL Server
+        env:
+          DATABASE_URL: "mssql+pyodbc://sa:WealthFlow_2024!@localhost:1433/wealthflow_test?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+        run: |
+          cd backend
+          alembic upgrade head
+
       - name: Run tests
         env:
           DATABASE_URL: "mssql+pyodbc://sa:WealthFlow_2024!@localhost:1433/wealthflow_test?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
@@ -100,4 +107,4 @@ jobs:
           ALPHA_VANTAGE_KEY: placeholder
         run: |
           cd backend
-          pytest -v || echo "No tests yet — skipping"
+          pytest -v
