@@ -60,14 +60,23 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Detect Ubuntu version
+        run: lsb_release -a
+
       - name: Install MS ODBC Driver 18 + sqlcmd
         run: |
+          UBUNTU_VERSION=$(lsb_release -rs)
+          echo "Detected Ubuntu version: $UBUNTU_VERSION"
+
           curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
             | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
+
+          curl -fsSL "https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/prod.list" \
+            | sed 's/\[arch=amd64,armhf,arm64\]/[arch=amd64,armhf,arm64 signed-by=\/usr\/share\/keyrings\/microsoft-prod.gpg]/g' \
             | sudo tee /etc/apt/sources.list.d/mssql-release.list
+
           sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 unixodbc-dev
+          sudo ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools18 unixodbc-dev
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
       - name: Wait for SQL Server and create test database
