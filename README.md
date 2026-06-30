@@ -70,7 +70,7 @@ cd Example
 
 ### 2. Set up environment variables
 ```bash
-cp backend/.env.example backend/.env
+copy backend\.env.example backend\.env
 # Fill in: DATABASE_URL, REDIS_URL, PLAID_CLIENT_ID, PLAID_SECRET, CLAUDE_API_KEY
 ```
 
