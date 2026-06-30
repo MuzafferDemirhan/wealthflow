@@ -1,5 +1,16 @@
 # Database Migrations (Alembic + MS SQL Server 2022)
 
+## Automatic migrations (Docker Compose)
+The `backend` service runs `alembic upgrade head` automatically on
+container startup, before the API starts serving — see
+`backend/entrypoint.sh`. This means `docker compose up` is enough to
+get a fully migrated database; no manual `alembic upgrade head` step
+is required when running via Docker.
+
+Other services built from the same image (e.g. `celery_worker`) set
+`RUN_MIGRATIONS=false` so migrations only ever run from one place,
+avoiding concurrent DDL races against SQL Server.
+
 ## Prerequisites
 - A running MS SQL Server 2022 instance (`docker compose up mssql` from the repo root).
 - The Microsoft ODBC Driver 18 for SQL Server installed locally if running
