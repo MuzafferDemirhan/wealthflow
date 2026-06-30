@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     %% Infrastructure & CI/CD Subgraph
     subgraph Infra ["Infrastructure & CI/CD"]
@@ -87,3 +88,4 @@ graph TD
     ML_Mod --> MSSQL
     Auth_Mod --> MSSQL
     Rep_Mod --> MSSQL
+```
