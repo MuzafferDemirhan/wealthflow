@@ -60,19 +60,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Detect Ubuntu version
-        run: lsb_release -a
-
       - name: Install MS ODBC Driver 18 + sqlcmd
         run: |
-          UBUNTU_VERSION=$(lsb_release -rs)
-          echo "Detected Ubuntu version: $UBUNTU_VERSION"
+          set -ex
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
 
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-            | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-
-          curl -fsSL "https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/prod.list" \
-            | sed 's/\[arch=amd64,armhf,arm64\]/[arch=amd64,armhf,arm64 signed-by=\/usr\/share\/keyrings\/microsoft-prod.gpg]/g' \
+          # Use Ubuntu 22.04 packages explicitly — Microsoft's repo for 24.04
+          # is not consistently published, but 22.04 packages are compatible
+          # with 24.04 runners for these specific tools.
+          echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" \
             | sudo tee /etc/apt/sources.list.d/mssql-release.list
 
           sudo apt-get update
