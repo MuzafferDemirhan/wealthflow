@@ -1,0 +1,1 @@
+This folder icludes Entity Relationships diagrams visual file (.png) and mermaid code in markdown file(.md).

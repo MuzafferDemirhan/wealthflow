@@ -47,6 +47,14 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ---
 
+## Entity-Relationship Diagram
+
+![WealthFlow Entity Relationship Diagram](./docs/ER%20diagram/WealthFlow_ERDiagram.png)
+
+> **Note:** You can access the code-based version of the architecture in the [erd.md](./docs/ER%20diagram/erd.md) file.
+
+---
+
 ## How to Run
 
 ### Prerequisites
