@@ -5,10 +5,10 @@
 | Version | Description of Change | Author | Date |
 |---------|-----------------------|--------|------|
 | 1.0.0 | First draft including core functional requirements and system architecture. | Muzaffer Demirhan | 29.06.2026 |
-| 1.1.0 | Reformatted document structure for improved readability. | Muzaffer Demirhan | 30.06.2026 |
+| 1.1.0 | Reformatted document structure for improved readability. Added System Architecture and ER Diagram. | Muzaffer Demirhan | 30.06.2026 |
 
 **Date:** 2026-06-29  
-**Status:** Draft  
+**Status:** Working in Progress (WIP) Draft  
 
 ---
 
@@ -33,7 +33,7 @@ WealthFlow allows users to:
 ### 1.4 Definitions
 | Term | Definition |
 |------|------------|
-| Open Banking | Standard allowing third-party access to bank data via APIs under PSD2. |
+| Open Banking | Standart allowing third-party access to bank data via APIs under PSD2. |
 | PSD2 | EU Payment Services Directive 2 - mandates Open Banking. |
 | JWT | JSON Web Token - stateless authentication mechanism. |
 | ML | Machine Learning model for transaction classification. |
@@ -64,7 +64,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-01 | User registration with email + password | High |
-| FR-02 | Login with JWT access + refresh tokens | High |
+| FR-01 | Login with JWT access + refresh tokens | High |
 | FR-03 | Oauth2 social login (Google) | Medium |
 | FR-04 | Password reset via email | Medium |
 | FR-05 | Role-based access control (user/admin) | High |
@@ -117,7 +117,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-30 | Chatbot powered by Claude API | Medium |
-| FR-31 | Context-aware (knows user’s transactions/budgets) | Medium |
+| FR-31 | Context-aware (knows user's transactions/budgets) | Medium |
 | FR-32 | Suggest savings opportunities | Low |
 | FR-33 | Persistent chat history | Low |
 
@@ -131,7 +131,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 ## 4. Non-Functional Requirements
 | ID | Requirement | Target |
 |----|-------------|--------|
-| NFR-01 | API response time (p95) | < 200ms |
+| NFR-01 | API respons time (p95) | < 200ms |
 | NFR-02 | Uptime SLA | 99.9% |
 | NFR-03 | Data encryption at rest | AES-256 |
 | NFR-04 | Data encryption in transit | TLS 1.3 |
@@ -146,140 +146,131 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 *(System Architecture Diagram Placeholder - A comprehensive infrastructure and CI/CD map covering the Client Layer, API Gateway, Async Workers, App Modules, Data Layer, and External Services.)*
 
 ## 6. Database Schema
-### 6.1 Core Tables
-These are SQL codes that have been produced within MS SQL Server 2022.
+### 6.1 Entity Relationship Diagram
+*(Entity Relationship Diagram Placeholder)*
 
-#### User
-```sql
-CREATE TABLE [user] (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    hashed_pw VARCHAR(255),
-    full_name VARCHAR(255),
-    is_active BIT DEFAULT 1,
-    is_admin BIT DEFAULT 0,
-    created_at DATETIME2 DEFAULT GETUTCDATE(),
-    updated_at DATETIME2 DEFAULT GETUTCDATE()
-);
-```
+### 6.2 Core Tables
+These are SQL codes that has been created within MS SQL Server 2022.
 
-#### Category
-```sql
-CREATE TABLE category (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name VARCHAR(100) NOT NULL,
-    icon VARCHAR(50),
-    color VARCHAR(7),
-    is_default BIT DEFAULT 0
-);
-```
+#### User Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| email | VARCHAR(255) | UNIQUE NOT NULL |
+| hashed_pw | VARCHAR(255) | |
+| full_name | VARCHAR(255) | |
+| is_active | BIT | DEFAULT 1 |
+| is_admin | BIT | DEFAULT 0 |
+| created_at | DATETIME2 | DEFAULT GETUTCDATE() |
+| updated_at | DATETIME2 | DEFAULT GETUTCDATE() |
 
-#### Bank Account
-```sql
-CREATE TABLE account (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    user_id UNIQUEIDENTIFIER REFERENCES [user](id) ON DELETE CASCADE,
-    provider VARCHAR(50) NOT NULL, -- 'plaid' | 'nordigen'
-    external_id VARCHAR(255) NOT NULL,
-    institution VARCHAR(255),
-    account_type VARCHAR(50), -- checking | savings | credit
-    balance DECIMAL(15,2),
-    currency VARCHAR(3) DEFAULT 'PLN',
-    last_synced_at DATETIME2,
-    created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-```
+#### Category Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| name | VARCHAR(100) | NOT NULL |
+| icon | VARCHAR(50) | |
+| color | VARCHAR(7) | |
+| is_default | BIT | DEFAULT 0 |
 
-#### Transaction
-```sql
-CREATE TABLE [transaction] (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    account_id UNIQUEIDENTIFIER REFERENCES account(id) ON DELETE CASCADE,
-    external_id VARCHAR(255) UNIQUE,
-    amount DECIMAL(15,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'PLN',
-    description VARCHAR(MAX),
-    category_id UNIQUEIDENTIFIER REFERENCES category(id),
-    is_manual BIT DEFAULT 0,
-    date DATE NOT NULL,
-    created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-```
+#### Bank Account Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| user_id | UNIQUEIDENTIFIER | REFERENCES users(id) ON DELETE CASCADE |
+| provider | VARCHAR(50) | NOT NULL |
+| external_id | VARCHAR(255) | NOT NULL |
+| institution | VARCHAR(255) | |
+| account_type | VARCHAR(50) | checking, savings, credit |
+| balance | DECIMAL(15,2) | |
+| currency | VARCHAR(3) | DEFAULT 'PLN' |
+| last_synced_at | DATETIME2 | |
+| created_at | DATETIME2 | DEFAULT GETUTCDATE() |
 
-#### Budget
-```sql
-CREATE TABLE budget (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    user_id UNIQUEIDENTIFIER REFERENCES [user](id) ON DELETE CASCADE,
-    category_id UNIQUEIDENTIFIER REFERENCES category(id),
-    amount DECIMAL(15,2) NOT NULL,
-    period VARCHAR(20) DEFAULT 'monthly',
-    created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-```
+#### Transaction Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| account_id | UNIQUEIDENTIFIER | REFERENCES accounts(id) ON DELETE CASCADE |
+| external_id | VARCHAR(255) | UNIQUE |
+| amount | DECIMAL(15,2) | NOT NULL |
+| currency | VARCHAR(3) | DEFAULT 'PLN' |
+| description | VARCHAR(MAX) | |
+| category_id | UNIQUEIDENTIFIER | REFERENCES categories(id) |
+| is_manual | BIT | DEFAULT 0 |
+| date | DATE | NOT NULL |
+| created_at | DATETIME2 | DEFAULT GETUTCDATE() |
 
-#### Portfolio Holding
-```sql
-CREATE TABLE holding (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    user_id UNIQUEIDENTIFIER REFERENCES [user](id) ON DELETE CASCADE,
-    ticker VARCHAR(20) NOT NULL,
-    shares DECIMAL(15,6) NOT NULL,
-    avg_cost DECIMAL(15,2) NOT NULL,
-    asset_type VARCHAR(20), -- stock | crypto | etf | fund
-    created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-```
+#### Budget Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| user_id | UNIQUEIDENTIFIER | REFERENCES users(id) ON DELETE CASCADE |
+| category_id | UNIQUEIDENTIFIER | REFERENCES categories(id) |
+| amount | DECIMAL(15,2) | NOT NULL |
+| period | VARCHAR(20) | DEFAULT 'monthly' |
+| created_at | DATETIME2 | DEFAULT GETUTCDATE() |
+
+#### Portfolio Holding Table
+| Column Name | Data Type | Constraints |
+|-------------|-----------|-------------|
+| id | UNIQUEIDENTIFIER | PRIMARY KEY DEFAULT NEWID() |
+| user_id | UNIQUEIDENTIFIER | REFERENCES users(id) ON DELETE CASCADE |
+| ticker | VARCHAR(20) | NOT NULL |
+| shares | DECIMAL(15,6) | NOT NULL |
+| avg_cost | DECIMAL(15,2) | NOT NULL |
+| asset_type | VARCHAR(20) | stock, crypto, etf, fund |
+| created_at | DATETIME2 | DEFAULT GETUTCDATE() |
 
 ## 7. API Specification
-**Base URL:** `/api/v1`
+**Base URL:** /api/v1
 
 ### Authentication
-```http
-POST   /auth/register          Register new user
-POST   /auth/login             Login, returns JWT pair
-POST   /auth/refresh           Refresh access token
-POST   /auth/logout            Invalidate refresh token
-POST   /auth/password-reset    Send reset email
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /auth/register | Register new user |
+| POST | /auth/login | Login, returns JWT pair |
+| POST | /auth/refresh | Refresh access token |
+| POST | /auth/logout | Invalidate refresh token |
+| POST | /auth/password-reset | Send reset email |
 
 ### Account
-```http
-GET    /account                List user's connected accounts
-POST   /account/connect        Initiate Open Banking connection
-DELETE /account/{id}           Disconnect account
-GET    /account/{id}/sync      Force sync transactions
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /account | List user's connected accounts |
+| POST | /account/connect | Initiate Open Banking connection |
+| DELETE | /account/{id} | Disconnect account |
+| GET | /account/{id}/sync | Force sync transactions |
 
 ### Transaction
-```http
-GET    /transaction            List (filter: date, category, account)
-GET    /transaction/{id}       Get single transaction
-PATCH  /transaction/{id}       Update category
-POST   /transaction            Create manual transaction
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /transaction | List (filter: date, category, account) |
+| GET | /transaction/{id} | Get single transaction |
+| PATCH | /transaction/{id} | Update category |
+| POST | /transaction | Create manual transaction |
 
 ### Budget
-```http
-GET    /budget                 List budgets with progress
-POST   /budget                 Create budget
-PUT    /budget/{id}            Update budget
-DELETE /budget/{id}            Delete budget
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /budget | List budgets with progress |
+| POST | /budget | Create budget |
+| PUT | /budget/{id} | Update budget |
+| DELETE | /budget/{id} | Delete budget |
 
 ### Portfolio
-```http
-GET    /portfolio              Holdings with current prices + P&L
-POST   /portfolio/holding      Add holding
-DELETE /portfolio/holding/{id} Remove holding
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /portfolio | Holdings with current prices + P&L |
+| POST | /portfolio/holding | Add holding |
+| DELETE | /portfolio/holding/{id} | Remove holding |
 
 ### Report
-```http
-GET    /report/monthly         Monthly summary (JSON)
-GET    /report/pdf             Download PDF report
-GET    /report/csv             Download transactions CSV
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /report/monthly | Monthly summary (JSON) |
+| GET | /report/pdf | Download PDF report |
+| GET | /report/csv | Download transactions CSV |
 
 ## 8. Tech Stack
 | Layer | Technology | Rationale |
@@ -303,24 +294,24 @@ GET    /report/csv             Download transactions CSV
 ### Sprint 0 - Foundation (Week 1)
 - [x] SRS document
 - [x] System architecture diagram
-- [ ] Database ERD
+- [x] Database ERD
 - [x] Project scaffolding (repo structure, Docker Compose)
 
-### Sprint 1 - Backend Core (Weeks 2–3)
+### Sprint 1 - Backend Core (Weeks 2-3)
 - [ ] FastAPI project setup with folder structure
 - [ ] MS SQL Server 2022+ Alembic migrations
 - [ ] User model + JWT auth endpoints
 - [ ] Docker Compose (FastAPI + MS SQL Server 2022 + Redis)
 - [ ] GitHub Actions CI (lint + test)
 
-### Sprint 2 - Data Layer (Weeks 4–5)
+### Sprint 2 - Data Layer (Weeks 4-5)
 - [ ] Plaid/Nordigen integration (sandbox)
 - [ ] Transaction ingestion pipeline
 - [ ] ML classifier for categories (scikit-learn)
 - [ ] Celery worker setup
 - [ ] REST endpoints: accounts, transactions, budgets
 
-### Sprint 3 - Frontend (Weeks 6–7)
+### Sprint 3 - Frontend (Weeks 6-7)
 - [ ] Next.js project setup + Tailwind
 - [ ] Auth pages (login, register)
 - [ ] Dashboard with Recharts
