@@ -27,8 +27,14 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN chmod +x entrypoint.sh
+
+# Copy entrypoint to /usr/local/bin so the volume mount (./backend:/app)
+# cannot shadow it, and strip Windows CRLF line endings that Git on
+# Windows may introduce (they cause "no such file or directory" in bash).
+RUN cp entrypoint.sh /usr/local/bin/entrypoint.sh \
+    && sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 8000
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
