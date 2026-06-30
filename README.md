@@ -2,11 +2,11 @@
 
 > A full-stack personal finance and investment tracking platform built for the European market.
 
-[![CI](https://github.com/MuzafferDemirhan/Example/actions/workflows/ci.yml/badge.svg)](https://github.com/MuzafferDemirhan/Example/actions)
+[![CI](https://github.com/MuzafferDemirhan/WealthFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/MuzafferDemirhan/WealthFlow/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![MS SQL Server](https://img.shields.io/badge/MS SQL Server-16-blue)
+![MS SQL Server](https://img.shields.io/badge/MS%20SQL%20Server-2022-blue)
 
 ---
 
