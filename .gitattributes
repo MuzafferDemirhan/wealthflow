@@ -1,0 +1,36 @@
+# Force LF line endings for files that must not have CRLF.
+# This prevents Windows Git clients from converting LF→CRLF on checkout,
+# which breaks shell scripts inside Linux Docker containers.
+
+# Shell scripts — always LF, even on Windows
+*.sh        text eol=lf
+
+# Python source
+*.py        text eol=lf
+
+# Config / data formats
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.toml      text eol=lf
+*.ini       text eol=lf
+*.cfg       text eol=lf
+*.json      text eol=lf
+*.env       text eol=lf
+*.env.*     text eol=lf
+
+# Docs
+*.md        text eol=lf
+*.rst       text eol=lf
+
+# Docker
+Dockerfile  text eol=lf
+*.dockerfile text eol=lf
+
+# SQL / Alembic
+*.sql       text eol=lf
+*.mako      text eol=lf
+
+# Windows-specific files keep CRLF
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
