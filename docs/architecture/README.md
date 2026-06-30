@@ -1,0 +1,1 @@
+This folder contains visual (.png) and markdown (.md) files that describe the project's system architecture.

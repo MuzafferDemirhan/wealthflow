@@ -39,20 +39,11 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ---
 
-## Architecture
+## System Architecture
 
-```
-Next.js (Frontend)
-      │
-      ▼ REST + WebSocket
-FastAPI (Backend)
-      │
-      ├── MS SQL Server  (primary data)
-      ├── Redis       (cache + sessions)
-      └── Celery      (async: reports, notifications)
-            │
-            └── External: Plaid · Alpha Vantage · Claude API
-```
+![WealthFlow System Architecture](./architecture/architecture.png)
+
+> Note: You can access the code-based version of the architecture in the (./architecture/architecture.md) file.
 
 ---
 
