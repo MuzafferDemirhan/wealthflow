@@ -1,114 +1,89 @@
-```mermaid
-flowchart TD
-    %% ─── CLIENTS ───────────────────────────────────────────────
-    subgraph CLIENT["🖥️  Client Layer"]
-        direction LR
-        BROWSER["Browser\nNext.js 15 · TypeScript\nTailwind · Recharts"]
-        PWA["PWA / Mobile\n(v2 Roadmap)"]
+graph TD
+    %% Infrastructure & CI/CD Subgraph
+    subgraph Infra ["Infrastructure & CI/CD"]
+        GHA["GitHub Actions <br> CI: lint · test · build <br> CD: deploy on merge"]
+        Railway["Railway <br> Production deployment <br> Auto-scaling"]
+        Docker["Docker · Docker Compose <br> Local dev environment"]
     end
 
-    %% ─── CDN / EDGE ────────────────────────────────────────────
-    CDN["🌐 CDN / Edge\nVercel Edge Network\nStatic assets · SSR cache"]
-
-    %% ─── API GATEWAY ───────────────────────────────────────────
-    subgraph GATEWAY["⚡ API Gateway"]
-        direction LR
-        FASTAPI["FastAPI · Uvicorn\nPython 3.12\nREST + WebSocket"]
-        CORS["CORS Middleware\nRate Limiter\n100 req/min per user"]
+    %% Client Layer Subgraph
+    subgraph Client ["Client Layer"]
+        PWA["PWA / Mobile"]
+        Browser["Browser <br> Next.js 15 - TypeScript <br> Tailwind - Recharts"]
     end
 
-    %% ─── APPLICATION MODULES ────────────────────────────────────
-    subgraph APP["🧩 Application Modules"]
-        direction LR
-        AUTH["Auth Module\nJWT · OAuth2\npasslib · python-jose"]
-        FINANCE["Finance Module\nTransactions\nBudgets · Portfolio"]
-        ML["ML Module\nscikit-learn\nCategory Classifier"]
-        REPORT["Report Module\nPDF · CSV\nReportLab"]
-        CHAT["AI Advisor\nClaude API\nContext-aware chat"]
+    %% CDN / Edge Subgraph
+    subgraph CDN_Layer ["CDN / Edge"]
+        Vercel["Vercel Edge Network <br> Static assets - SSR cache"]
     end
 
-    %% ─── DATA LAYER ─────────────────────────────────────────────
-    subgraph DATA["🗄️  Data Layer"]
-        direction LR
-        PG[("MS SQL Server 2022\nPrimary Database\nusers · accounts\ntransactions · budgets\nportfolio · categories")]
-        REDIS[("Redis 7\nCache · Sessions\nRate limit counters\nWebSocket pub/sub")]
+    %% API Gateway Subgraph
+    subgraph Gateway ["API Gateway"]
+        CORS["CORS Middleware <br> Rate Limiter <br> 100 req/min per user"]
+        FastAPI["FastAPI - Uvicorn <br> Python 3.12 <br> REST + WebSocket"]
     end
 
-    %% ─── ASYNC WORKERS ──────────────────────────────────────────
-    subgraph WORKERS["⚙️  Async Workers"]
-        direction LR
-        CELERY["Celery Worker\nTask Queue"]
-        TASKS["Tasks\n• PDF report generation\n• Budget alert notifications\n• Transaction sync\n• ML re-training"]
+    %% Async Workers Subgraph
+    subgraph Async ["Async Workers"]
+        Celery["Celery Worker <br> Task Queue"]
+        Tasks["Tasks <br> • PDF report generation <br> • Budget alert notifications <br> • Transaction sync <br> • ML re-training"]
     end
 
-    %% ─── EXTERNAL SERVICES ──────────────────────────────────────
-    subgraph EXT["🔌 External Services"]
-        direction LR
-        PLAID["Plaid / Nordigen\nOpen Banking API\nPSD2 · EU Compliant"]
-        MARKET["Alpha Vantage\nMarket Data API\nStocks · Crypto prices"]
-        CLAUDE["Anthropic Claude API\nFinancial Advisor\nContext-aware responses"]
-        EMAIL["SMTP / SendGrid\nEmail notifications\nReport delivery"]
+    %% Application Modules Subgraph
+    subgraph Modules ["Application Modules"]
+        AI_Adv["AI Advisor <br> Claude API <br> Context aware chat"]
+        Fin_Mod["Finance Module <br> Transactions <br> Budgets - Portfolio"]
+        Rep_Mod["Report Module <br> PDF - CSV <br> ReportLab"]
+        ML_Mod["ML Module <br> scikit-learn <br> Category Classifier"]
+        Auth_Mod["Auth Module <br> JWT - OAuth2 <br> passlib - python jose"]
     end
 
-    %% ─── INFRA / CI-CD ──────────────────────────────────────────
-    subgraph INFRA["🚀 Infrastructure & CI/CD"]
-        direction LR
-        DOCKER["Docker · Docker Compose\nLocal dev environment"]
-        GHA["GitHub Actions\nCI: lint · test · build\nCD: deploy on merge"]
-        RAILWAY["Railway\nProduction deployment\nAuto-scaling"]
+    %% External Services Subgraph
+    subgraph External ["External Services"]
+        Claude["Anthropic Claude API <br> Financial Advisor <br> Context-aware responses"]
+        Alpha["Alpha Vantage <br> Market Data API <br> Stocks - Crypto prices"]
+        SMTP["SMTP / SendGrid <br> Email notifications <br> Report delivery"]
+        Plaid["Plaid / Nordigen <br> Open Banking API <br> PSD2 - EU Compliant"]
     end
 
-    %% ─── CONNECTIONS ────────────────────────────────────────────
-    BROWSER -- "HTTPS / WebSocket" --> CDN
-    PWA     -- "HTTPS"             --> CDN
-    CDN     -- "Proxy"             --> FASTAPI
-    CORS    -. "wraps"             .-> FASTAPI
+    %% Data Layer Subgraph
+    subgraph Data ["Data Layer"]
+        Redis["Redis 7 <br> Cache - Sessions <br> Rate limit counters <br> WebSocket pub/sub"]
+        MSSQL["MS SQL Server 2022 <br> Primary Database <br> users - accounts <br> transactions - budgets <br> portfolio - categories"]
+    end
 
-    FASTAPI --> AUTH
-    FASTAPI --> FINANCE
-    FASTAPI --> ML
-    FASTAPI --> REPORT
-    FASTAPI --> CHAT
+    %% Akışlar ve Bağlantılar
+    GHA --> Railway
+    GHA --> Docker
+    Railway --> FastAPI
+    Docker --> FastAPI
 
-    AUTH    --> PG
-    FINANCE --> PG
-    FINANCE --> REDIS
-    ML      --> PG
-    REPORT  --> PG
-    CHAT    --> REDIS
+    PWA -->|HTTPS| Vercel
+    Browser -->|"HTTPS / WebSocket"| Vercel
+    Vercel -->|Proxy| FastAPI
 
-    FASTAPI  -- "enqueue jobs" --> CELERY
-    CELERY   --> TASKS
-    TASKS    --> PG
-    TASKS    --> REDIS
-    CELERY   -- "broker"       --> REDIS
+    CORS -.->|wraps| FastAPI
+    
+    FastAPI -->|enqueue jobs| Celery
+    Celery --- Tasks
+    Tasks -->|send email| SMTP
 
-    FINANCE  -- "bank data"      --> PLAID
-    FINANCE  -- "price fetch"    --> MARKET
-    CHAT     -- "LLM inference"  --> CLAUDE
-    TASKS    -- "send email"     --> EMAIL
+    FastAPI --- AI_Adv
+    FastAPI --- Fin_Mod
+    FastAPI --- Rep_Mod
+    FastAPI --- ML_Mod
+    FastAPI --- Auth_Mod
 
-    DOCKER  --> FASTAPI
-    GHA     --> DOCKER
-    GHA     --> RAILWAY
-    RAILWAY --> FASTAPI
+    AI_Adv -->|LLM inference| Claude
+    Fin_Mod -->|price fetch| Alpha
+    Plaid -->|bank data| Fin_Mod
 
-    %% ─── STYLES ─────────────────────────────────────────────────
-    classDef clientStyle  fill:#1e3a5f,stroke:#378ADD,stroke-width:1.5px,color:#B5D4F4
-    classDef gatewayStyle fill:#1a3a2a,stroke:#1D9E75,stroke-width:1.5px,color:#9FE1CB
-    classDef appStyle     fill:#2a1a3a,stroke:#7F77DD,stroke-width:1.5px,color:#CECBF6
-    classDef dataStyle    fill:#3a2a10,stroke:#BA7517,stroke-width:1.5px,color:#FAC775
-    classDef workerStyle  fill:#1a2a3a,stroke:#378ADD,stroke-width:1px,color:#85B7EB
-    classDef extStyle     fill:#2a1a1a,stroke:#D85A30,stroke-width:1.5px,color:#F5C4B3
-    classDef infraStyle   fill:#1a1a2a,stroke:#5F5E5A,stroke-width:1px,color:#D3D1C7
-    classDef cdnStyle     fill:#0f2a1a,stroke:#3B6D11,stroke-width:1px,color:#C0DD97
-
-    class BROWSER,PWA clientStyle
-    class FASTAPI,CORS gatewayStyle
-    class AUTH,FINANCE,ML,REPORT,CHAT appStyle
-    class PG,REDIS dataStyle
-    class CELERY,TASKS workerStyle
-    class PLAID,MARKET,CLAUDE,EMAIL extStyle
-    class DOCKER,GHA,RAILWAY infraStyle
-    class CDN cdnStyle
-```
+    FastAPI --> Redis
+    FastAPI --> MSSQL
+    Fin_Mod --> Redis
+    Fin_Mod --> MSSQL
+    Tasks --> Redis
+    Tasks --> MSSQL
+    ML_Mod --> MSSQL
+    Auth_Mod --> MSSQL
+    Rep_Mod --> MSSQL
