@@ -1,8 +1,29 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import OperationalError
 
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.db.seed_categories import seed_categories
+from app.db.session import SessionLocal
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db = SessionLocal()
+    try:
+        seed_categories(db)
+    except OperationalError:
+        logger.warning("Skipping category seeding: database not available")
+    finally:
+        db.close()
+    yield
+
 
 app = FastAPI(
     title="WealthFlow API",
@@ -10,6 +31,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(

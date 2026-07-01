@@ -17,13 +17,15 @@ if TYPE_CHECKING:
 
 class BankProvider(str, enum.Enum):
     """
-    Open banking aggregator behind a connection. Only NORDIGEN is
-    wired up in Sprint 2; the column exists as an enum (not hardcoded)
-    so a second provider can be added later without a schema change —
-    `app/services/providers/` follows the same abstraction.
+    Open banking aggregator behind a connection. NORDIGEN is wired up
+    in Sprint 2; PLAID is reserved for future use. The column uses an
+    enum (not hardcoded) so a second provider can be added later without
+    a schema migration — `app/services/providers/` follows the same
+    abstraction.
     """
 
     NORDIGEN = "nordigen"
+    PLAID = "plaid"
 
 
 class ConnectionStatus(str, enum.Enum):

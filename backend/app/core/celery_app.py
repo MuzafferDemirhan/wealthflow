@@ -4,18 +4,20 @@ Celery application instance.
 Redis is used as both broker and result backend — it's already a
 hard dependency (docker-compose) and there's no need for a separate
 result store at this scale. Tasks are organized by domain under
-`app/tasks/` (e.g. `app.tasks.ingestion` for the transaction sync
-pipeline); `include` below is how Celery discovers them, since we're
-not using Django-style autodiscovery.
+``app/tasks/``; ``include`` below is how Celery discovers them, since
+we're not using Django-style autodiscovery.
 
-Run the worker with:
+Run the worker with::
+
     celery -A app.core.celery_app worker --loglevel=info
 
-Run the beat scheduler (for periodic account syncs) with:
+Run the beat scheduler (for periodic account syncs) with::
+
     celery -A app.core.celery_app beat --loglevel=info
 """
 
 from celery import Celery
+from celery.schedules import crontab
 
 from app.core.config import settings
 
@@ -25,6 +27,7 @@ celery_app = Celery(
     backend=settings.REDIS_URL,
     include=[
         "app.tasks.ingestion",
+        "app.tasks.classification",
     ],
 )
 
@@ -43,4 +46,11 @@ celery_app.conf.update(
     # workers can hold several in flight per process without
     # contention; keep it conservative until we have real timing data.
     worker_prefetch_multiplier=4,
+    # Periodic task schedule — sync all due bank connections every 4h.
+    beat_schedule={
+        "sync-all-due-connections": {
+            "task": "ingestion.sync_all_due_connections",
+            "schedule": crontab(minute=0, hour="*/4"),
+        },
+    },
 )

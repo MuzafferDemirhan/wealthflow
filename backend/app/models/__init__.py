@@ -18,6 +18,7 @@ from app.models.bank_connection import (  # noqa: F401
 )
 from app.models.budget import Budget  # noqa: F401
 from app.models.category import Category  # noqa: F401
+from app.models.holding import AssetType, Holding  # noqa: F401
 from app.models.refresh_token import RefreshToken  # noqa: F401
 from app.models.transaction import (  # noqa: F401
     CategorySource,
@@ -41,4 +42,6 @@ __all__ = [
     "TransactionStatus",
     "CategorySource",
     "Budget",
+    "Holding",
+    "AssetType",
 ]

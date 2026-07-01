@@ -4,6 +4,8 @@ from app.api.v1.endpoints import (
     accounts,
     auth,
     budgets,
+    categories,
+    connect,
     portfolio,
     reports,
     transactions,
@@ -13,7 +15,9 @@ api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(accounts.router, prefix="/accounts", tags=["Accounts"])
+api_router.include_router(categories.router, prefix="/categories", tags=["Categories"])
 api_router.include_router(transactions.router, prefix="/transactions", tags=["Transactions"])
 api_router.include_router(budgets.router, prefix="/budgets", tags=["Budgets"])
 api_router.include_router(portfolio.router, prefix="/portfolio", tags=["Portfolio"])
 api_router.include_router(reports.router, prefix="/reports", tags=["Reports"])
+api_router.include_router(connect.router, prefix="/connect", tags=["Connect"])

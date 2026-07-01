@@ -57,8 +57,10 @@ def get_user_budgets(db: Session, *, user_id: uuid.UUID) -> list[dict]:
 
     results = []
     for budget in budgets:
-        spent = _compute_spending(
-            db, user_id=user_id, category_id=budget.category_id, period_month=budget.period_month
+        spent = abs(
+            _compute_spending(
+                db, user_id=user_id, category_id=budget.category_id, period_month=budget.period_month
+            )
         )
         remaining = budget.amount_limit - spent
         progress_pct = (
