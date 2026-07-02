@@ -12,7 +12,6 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
   - App Router (`src/app/` directory)
   - ESLint with `eslint-config-next`
 - **Folder structure**:
-  ```
   frontend/src/
     app/
       (auth)/             # login, register
@@ -33,23 +32,22 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
       auth-context.tsx    # AuthProvider + useAuth hook
       types.ts            # TypeScript types matching all backend schemas
     hooks/
-  ```
-- **Dockerfile** (multi-stage: deps -> build -> standalone)
+- **Dockerfile** (multi-stage: deps → build → standalone)
 - **Docker Compose** frontend service updated for HMR volume mounts
 
 ### 2. API Client & Auth Layer (`frontend/src/lib/`)
 - **`api-client.ts`** — fetch wrapper:
-  - Base URL from `NEXT_PUBLIC_API_URL`
-  - Auto `Authorization: Bearer <access_token>` header
-  - 401 interceptor: refresh token -> retry -> redirect on fail
+- Base URL from `NEXT_PUBLIC_API_URL`
+- Auto `Authorization: Bearer <access_token>` header
+- 401 interceptor: refresh token → retry → redirect on fail
 - **`auth-context.tsx`** — `AuthProvider`:
-  - `login()`, `register()`, `logout()`, `refresh()`
-  - Tokens in memory + `localStorage`
-  - Validates session on mount via `GET /auth/me`
-  - Exposes `user`, `isAuthenticated`, `isLoading`
+- `login()`, `register()`, `logout()`, `refresh()`
+- Tokens in memory + `localStorage`
+- Validates session on mount via `GET /auth/me`
+- Exposes `user`, `isAuthenticated`, `isLoading`
 - **`AuthGuard`** — redirects to `/login` if unauthenticated
 
-### 3. Shared UI Primitives (`frontend/src/components/ui/`)
+### 3. Shared UI Primitives (8 components)
 
 | Component | Props | Notes |
 |-----------|-------|-------|
@@ -95,7 +93,7 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 
 **Reports (4 pages)** — Each has date range/month count selector + appropriate Recharts chart (PieChart, BarChart, LineChart). Data from report endpoints.
 
-**Bank Connect** — Institution grid with logos. Requisition flow: select institution -> redirect to Nordigen -> poll status -> accounts created. Connections list with disconnect.
+**Bank Connect** — Institution grid with logos. Requisition flow: select institution → redirect to Nordigen → poll status → accounts created. Connections list with disconnect.
 
 ### 6. Testing Strategy
 
@@ -105,10 +103,10 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 - 10 page/feature tests (Login, Dashboard, Transactions, Budgets)
 
 **E2E (Playwright) — 8-10 tests:**
-- Auth flow: register -> login -> dashboard -> logout
-- Transaction CRUD: list -> filter -> edit category
-- Budget CRUD: create -> verify progress -> delete
-- Portfolio CRUD: add holding -> verify -> delete
+- Auth flow: register → login → dashboard → logout
+- Transaction CRUD: list → filter → edit category
+- Budget CRUD: create → verify progress → delete
+- Portfolio CRUD: add holding → verify → delete
 
 **CI Integration:**
 - Frontend lint job (`npm run lint`)
@@ -126,7 +124,6 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 | Testing | Vitest + RTL + Playwright | Fast, modern, Next.js compatible |
 | Auth storage | `localStorage` + memory | Simple for MVP |
 | Data fetching pattern | `DataLoader` component | Loading/empty/error/success in one place |
-| Form validation | Native HTML5 + manual checks | Avoids Formik overhead |
 
 ### 8. Implementation Order
 
@@ -149,3 +146,36 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 17. Manual E2E verification against running backend
 
 ### 9. Test Target: 45+ total (35 unit + 10 E2E)
+
+
+## Phases
+
+# Todos
+[ ] Scaffold Next.js 15 project with TypeScript + Tailwind + App Router
+[ ] Create frontend folder structure (components/ui, components/layout, lib, hooks)
+[ ] Write frontend Dockerfile (multi-stage) and update docker-compose.yml
+[ ] Define TypeScript types matching all backend Pydantic schemas
+[ ] Build api-client.ts (fetch wrapper with auth interceptor, 401 refresh)
+[ ] Build auth-context.tsx (AuthProvider, useAuth, login/register/logout/refresh)
+[ ] Build AuthGuard component and authenticated route layout (sidebar + header)
+[ ] Build shared UI primitives (Button, Input, Card, Table, Badge, Modal, Spinner, Select, Pagination, Toast)
+[ ] Build Login and Register auth pages
+[ ] Build Dashboard page (net worth, income vs expenses chart, accounts, recent transactions)
+[ ] Build Accounts page (list, sync, disconnect)
+[ ] Build Transactions page (filterable table, pagination, category override, manual add)
+[ ] Build Budgets page (CRUD, progress bars with color thresholds)
+[ ] Build Portfolio page (holdings table, summary card, allocation donut chart, CRUD)
+[ ] Build Reports pages (category-breakdown, income-vs-expenses, monthly-trends, net-worth with Recharts)
+[ ] Build Connect page (institution grid, requisition flow, connections list)
+[ ] Build Profile page
+[ ] Set up Vitest + React Testing Library, write 35+ unit tests
+[ ] Set up Playwright, write 8-10 E2E tests
+[ ] Add frontend CI jobs to .github/workflows/ci.yml (lint + test + build)
+[ ] Manual E2E verification against running backend
+
+Phase 1 — Foundation (tasks 1-4): Scaffold Next.js, folder structure, Docker, TypeScript types  
+Phase 2 — Core Infrastructure (tasks 5-8): API client, auth context, AuthGuard, layout, UI primitives  
+Phase 3 — Pages (tasks 9-17): Login/Register → Dashboard → Accounts → Transactions → Budgets → Portfolio → Reports → Connect → Profile  
+Phase 4 — Quality (tasks 18-21): Vitest unit tests, Playwright E2E, CI integration, manual verification 
+
+
