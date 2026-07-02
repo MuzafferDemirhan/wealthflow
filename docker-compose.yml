@@ -67,14 +67,16 @@ services:
       - ./backend:/app
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: runner
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
