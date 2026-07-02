@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build: ./backend
@@ -40,12 +38,11 @@ services:
     depends_on:
       mssql_init:
         condition: service_completed_successfully
-      backend:
-        condition: service_healthy
       redis:
         condition: service_started
     volumes:
       - ./backend:/app
+    restart: unless-stopped
 
   celery_beat:
     build: ./backend
@@ -59,12 +56,11 @@ services:
     depends_on:
       mssql_init:
         condition: service_completed_successfully
-      backend:
-        condition: service_healthy
       redis:
         condition: service_started
     volumes:
       - ./backend:/app
+    restart: unless-stopped
 
   frontend:
     build:

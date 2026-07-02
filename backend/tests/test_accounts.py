@@ -27,8 +27,8 @@ def user_with_accounts(db_session):
 
     conn = BankConnection(
         id=uuid.uuid4(), user_id=u.id,
-        provider=BankProvider.NORDIGEN,
-        institution_id="TEST", institution_name="Test Bank",
+        provider=BankProvider.ENABLE_BANKING,
+        institution_id="Test Bank|PL", institution_name="Test Bank",
         external_reference="ref-acctest",
         status=ConnectionStatus.LINKED,
     )

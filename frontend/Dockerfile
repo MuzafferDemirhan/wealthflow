@@ -1,7 +1,7 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm config set ignore-scripts true && npm ci
+RUN npm ci
 
 FROM node:24-alpine AS builder
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-RUN npm config set ignore-scripts true && npm run build
+RUN npm run build
 
 FROM node:24-alpine AS runner
 WORKDIR /app

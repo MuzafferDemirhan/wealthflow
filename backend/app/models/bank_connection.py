@@ -16,25 +16,14 @@ if TYPE_CHECKING:
 
 
 class BankProvider(str, enum.Enum):
-    """
-    Open banking aggregator behind a connection. NORDIGEN is wired up
-    in Sprint 2; PLAID is reserved for future use. The column uses an
-    enum (not hardcoded) so a second provider can be added later without
-    a schema migration — `app/services/providers/` follows the same
-    abstraction.
-    """
+    """Open banking aggregator behind a connection."""
 
-    NORDIGEN = "nordigen"
+    ENABLE_BANKING = "enable_banking"
     PLAID = "plaid"
 
 
 class ConnectionStatus(str, enum.Enum):
-    """
-    Our own simplified state machine, mapped from the provider's
-    native status strings (Nordigen requisition status: CR, GC, UA,
-    GA, LN, RJ, EX, SA, EX...) inside the provider adapter rather
-    than leaking those codes into the domain model.
-    """
+    """Simplified state machine mapped from the provider's native status strings."""
 
     PENDING = "pending"  # requisition created, awaiting end-user bank auth
     LINKED = "linked"  # end-user completed auth, accounts available
@@ -44,12 +33,7 @@ class ConnectionStatus(str, enum.Enum):
 
 
 class BankConnection(UUIDPrimaryKeyMixin, TimestampMixin, Base):
-    """
-    One open-banking "link" session between a WealthFlow user and a
-    financial institution via an aggregator (FR — Plaid/Nordigen
-    integration). A single connection can yield multiple `Account`
-    rows (a bank may expose several accounts under one consent).
-    """
+    """One open-banking link session between a user and a financial institution."""
 
     __tablename__ = "bank_connection"
 
@@ -66,8 +50,8 @@ class BankConnection(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     institution_id: Mapped[str] = mapped_column(Unicode(100), nullable=False)
     institution_name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
-    # Nordigen "requisition_id" — the handle used to poll status and
-    # list accounts after the end-user completes the bank's auth flow.
+    # "authorization_id" before code exchange, then "session_id" after
+    # the user completes the bank's auth flow and the code is exchanged.
     external_reference: Mapped[str] = mapped_column(
         Unicode(255), unique=True, nullable=False
     )

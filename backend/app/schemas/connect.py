@@ -26,6 +26,11 @@ class RequisitionCreateResponse(BaseModel):
     requisition_id: str
     link: str
     status: ConnectionStatus
+    state: str
+
+
+class AuthorizeRequest(BaseModel):
+    code: str = Field(..., min_length=1)
 
 
 class RequisitionRead(BaseModel):

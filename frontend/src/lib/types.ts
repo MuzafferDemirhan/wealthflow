@@ -41,7 +41,7 @@ export enum ConnectionStatus {
 }
 
 export enum BankProvider {
-  NORDIGEN = "nordigen",
+  ENABLE_BANKING = "enable_banking",
   PLAID = "plaid",
 }
 
@@ -280,6 +280,7 @@ export interface RequisitionCreateResponse {
   requisition_id: string;
   link: string;
   status: ConnectionStatus;
+  state: string;
 }
 
 export interface RequisitionRead {

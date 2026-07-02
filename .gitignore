@@ -43,6 +43,13 @@ Thumbs.db
 htmlcov/
 coverage.xml
 .pytest_cache/
+.ruff_cache/
+celerybeat-schedule
+
+# Certificates (Enable Banking)
+*.key
+*.crt
+*.csr
 
 # Logs
 *.log

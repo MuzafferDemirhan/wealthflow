@@ -1,21 +1,5 @@
 """
 Transaction ingestion pipeline (Celery tasks).
-
-Pipeline shape::
-
-    sync_all_due_connections()            [periodic via celery beat, e.g. every 4h]
-        -> finds BankConnection rows with status=LINKED whose
-           last_synced_at is stale
-        -> fan-out: sync_account_transactions.delay(account_id) per account
-
-    sync_account_transactions(account_id)  [per-account task]
-        -> provider.fetch_transactions(external_account_id, since=...)
-        -> for each raw transaction:
-             - compute dedupe_hash
-             - upsert Transaction (skip if dedupe_hash already exists)
-        -> refresh Account.current_balance / balance_as_of
-        -> enqueue classify_transaction.delay(txn_id) for any
-           newly-inserted, uncategorized rows
 """
 
 import uuid
@@ -32,24 +16,15 @@ from app.models.account import Account
 from app.models.bank_connection import BankConnection, ConnectionStatus
 from app.models.transaction import Transaction, TransactionStatus
 from app.services.providers.base import ProviderTransaction
-from app.services.providers.nordigen import NordigenAdapter, ProviderError
+from app.services.providers.enable_banking import EnableBankingAdapter, ProviderError
 from app.services.transaction_service import compute_dedupe_hash
 
-# Default lookback window for first sync (calendar days)
 _INITIAL_LOOKBACK_DAYS = 90
-
-# How recently a "due" connection must have been synced to skip
 _STALE_AFTER_HOURS = 4
-
-
-# ------------------------------------------------------------------
-# Per-account sync
-# ------------------------------------------------------------------
 
 
 @celery_app.task(name="ingestion.sync_account_transactions", bind=True, max_retries=3)
 def sync_account_transactions(self, account_id: str) -> dict:
-    """Fetch and persist new transactions for a single linked account."""
     db = SessionLocal()
     try:
         parsed_id = uuid.UUID(account_id)
@@ -57,7 +32,6 @@ def sync_account_transactions(self, account_id: str) -> dict:
         return {"ok": False, "error": f"invalid account_id: {account_id}"}
 
     try:
-        # 1. Load Account + parent BankConnection (eagerly)
         stmt = (
             select(Account)
             .options(joinedload(Account.bank_connection))
@@ -70,43 +44,36 @@ def sync_account_transactions(self, account_id: str) -> dict:
         if conn.status != ConnectionStatus.LINKED:
             return {"ok": False, "error": f"connection status is {conn.status.value}, not LINKED"}
 
-        # 2. Build the provider adapter
-        if conn.provider.value != "nordigen":
+        if conn.provider.value != "enable_banking":
             return {"ok": False, "error": f"unsupported provider: {conn.provider.value}"}
 
         provider = _build_provider()
 
-        # 3. Determine date range
         since = _compute_since(conn.last_synced_at)
 
-        # 4. Fetch raw transactions from the provider
         try:
             raw_txns = provider.fetch_transactions(account.external_account_id, since)
         except ProviderError as exc:
             raise self.retry(exc=exc)
 
-        # 5. Upsert transactions
         new_ids: list[str] = []
         for raw in raw_txns:
             txn_id = _upsert_transaction(db, account_id=parsed_id, raw=raw)
             if txn_id is not None:
                 new_ids.append(str(txn_id))
 
-        # 6. Refresh balance from provider
         try:
             balance, balance_as_of = provider.fetch_balances(account.external_account_id)
             account.current_balance = balance
             account.balance_as_of = balance_as_of
         except ProviderError:
-            pass  # non-fatal — balances will be retried on next sync
+            pass
 
-        # 7. Update last_synced_at
         conn.last_synced_at = datetime.now(timezone.utc)
         db.add(account)
         db.add(conn)
         db.commit()
 
-        # 8. Enqueue classification for newly-inserted uncategorized transactions
         for txn_id_str in new_ids:
             celery_app.send_task("ingestion.classify_transaction", args=[txn_id_str])
 
@@ -124,14 +91,8 @@ def sync_account_transactions(self, account_id: str) -> dict:
         db.close()
 
 
-# ------------------------------------------------------------------
-# Fan-out: sync all due connections
-# ------------------------------------------------------------------
-
-
 @celery_app.task(name="ingestion.sync_all_due_connections")
 def sync_all_due_connections() -> dict:
-    """Periodic fan-out: find stale LINKED connections, enqueue per-account syncs."""
     db = SessionLocal()
     try:
         cutoff = datetime.now(timezone.utc) - timedelta(hours=_STALE_AFTER_HOURS)
@@ -163,25 +124,14 @@ def sync_all_due_connections() -> dict:
         db.close()
 
 
-# ------------------------------------------------------------------
-# Helpers
-# ------------------------------------------------------------------
-
-
-def _build_provider() -> NordigenAdapter:
-    return NordigenAdapter(
-        secret_id=settings.NORDIGEN_SECRET_ID,
-        secret_key=settings.NORDIGEN_SECRET_KEY,
+def _build_provider() -> EnableBankingAdapter:
+    return EnableBankingAdapter(
+        app_id=settings.ENABLE_BANKING_APP_ID,
+        private_key_pem=settings.ENABLE_BANKING_PRIVATE_KEY,
     )
 
 
 def _compute_since(last_synced_at: Optional[datetime]) -> date:
-    """Earliest date for which to fetch transactions.
-
-    - If the connection has been synced before: 90 days before that
-      sync or 90 days ago, whichever is *earlier* — guarantees no gap.
-    - If never synced: 90 days ago from today.
-    """
     now = date.today()
     earliest = now - timedelta(days=_INITIAL_LOOKBACK_DAYS)
     if last_synced_at is not None:
@@ -196,11 +146,6 @@ def _upsert_transaction(
     account_id: uuid.UUID,
     raw: "ProviderTransaction",
 ) -> Optional[uuid.UUID]:
-    """Insert a new transaction if its dedupe_hash is not yet stored.
-
-    Returns the new transaction's UUID, or ``None`` if it was a
-    duplicate (already existed).
-    """
     dedupe = compute_dedupe_hash(
         account_id=account_id,
         amount=raw.amount,
@@ -209,7 +154,6 @@ def _upsert_transaction(
         description=raw.description,
     )
 
-    # Check for existing
     existing = db.scalar(
         select(Transaction.id).where(
             Transaction.account_id == account_id,

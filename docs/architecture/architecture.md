@@ -52,7 +52,7 @@ graph TD
         MSSQL["MS SQL Server 2022 <br> Primary Database <br> users - accounts <br> transactions - budgets <br> portfolio - categories"]
     end
 
-    %% Akışlar ve Bağlantılar
+    %% Flows & Connections
     GHA --> Railway
     GHA --> Docker
     Railway --> FastAPI

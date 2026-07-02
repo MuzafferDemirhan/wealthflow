@@ -8,19 +8,57 @@ import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
 import type { InstitutionRead, RequisitionCreateResponse } from "@/lib/types";
 
+const STATUS_KEY = "eb_conn_status";
+
+const COUNTRIES = [
+  { code: "PL", name: "Poland" },
+  { code: "TR", name: "Turkey" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "ES", name: "Spain" },
+  { code: "IT", name: "Italy" },
+  { code: "NL", name: "Netherlands" },
+  { code: "BE", name: "Belgium" },
+  { code: "PT", name: "Portugal" },
+  { code: "SE", name: "Sweden" },
+  { code: "NO", name: "Norway" },
+  { code: "DK", name: "Denmark" },
+  { code: "FI", name: "Finland" },
+  { code: "IE", name: "Ireland" },
+  { code: "AT", name: "Austria" },
+  { code: "RO", name: "Romania" },
+  { code: "BG", name: "Bulgaria" },
+  { code: "GR", name: "Greece" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "HU", name: "Hungary" },
+  { code: "SK", name: "Slovakia" },
+  { code: "SI", name: "Slovenia" },
+  { code: "HR", name: "Croatia" },
+  { code: "LT", name: "Lithuania" },
+  { code: "LV", name: "Latvia" },
+  { code: "EE", name: "Estonia" },
+  { code: "CY", name: "Cyprus" },
+  { code: "LU", name: "Luxembourg" },
+  { code: "MT", name: "Malta" },
+];
+
 export default function InstitutionsPage() {
   const { toast } = useToast();
+  const [country, setCountry] = useState("TR");
   const [institutions, setInstitutions] = useState<InstitutionRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get<InstitutionRead[]>("/connect/institutions", { country: "PL" })
+    setLoading(true);
+    setError("");
+    api.get<InstitutionRead[]>("/connect/institutions", { country })
       .then(setInstitutions)
       .catch((e) => setError(e.detail ?? "Failed to load institutions"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [country]);
 
   const handleConnect = async (institutionId: string) => {
     setConnecting(institutionId);
@@ -30,7 +68,7 @@ export default function InstitutionsPage() {
         institution_id: institutionId,
         redirect_uri: redirectUri,
       });
-      // Redirect to Nordigen consent page
+      sessionStorage.setItem(STATUS_KEY, JSON.stringify({ id: result.id, state: result.state }));
       window.location.href = result.link;
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to initiate connection", "error");
@@ -52,7 +90,20 @@ export default function InstitutionsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">Connect a Bank</h1>
-      <p className="text-sm text-zinc-500">Select your bank to connect via Open Banking (PSD2).</p>
+      <p className="text-sm text-zinc-500">Select your country and bank to connect via Open Banking (PSD2).</p>
+
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-zinc-700">Country:</label>
+        <select
+          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+        >
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>{c.name}</option>
+          ))}
+        </select>
+      </div>
 
       {institutions.length === 0 ? (
         <Card>
