@@ -47,6 +47,25 @@ services:
     volumes:
       - ./backend:/app
 
+  celery_beat:
+    build: ./backend
+    command: celery -A app.core.celery_app beat --loglevel=info
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=mssql+pyodbc://sa:WealthFlow_2024!@mssql:1433/wealthflow?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
+      - REDIS_URL=redis://redis:6379/0
+      - RUN_MIGRATIONS=false
+    depends_on:
+      mssql_init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+
   frontend:
     build: ./frontend
     ports:

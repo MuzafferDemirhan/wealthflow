@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     # CORS
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
 
+    # Nordigen (GoCardless Bank Account Data API)
+    NORDIGEN_SECRET_ID: str = ""
+    NORDIGEN_SECRET_KEY: str = ""
+
     # Plaid
     PLAID_CLIENT_ID: str = ""
     PLAID_SECRET: str = ""
