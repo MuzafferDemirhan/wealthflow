@@ -60,11 +60,11 @@ class Transaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         index=True,
     )
-    # NOTE: no ondelete=SET NULL here (deliberately) — `users` already
-    # reaches `categories` via CASCADE, and `categories` would then
-    # reach `transactions` via this FK's SET NULL, a second cascading
+    # NOTE: no ondelete=SET NULL here (deliberately) — `user` already
+    # reaches `category` via CASCADE, and `category` would then
+    # reach `transaction` via this FK's SET NULL, a second cascading
     # path into a table SQL Server already reaches through
-    # `bank_connections` -> `accounts` -> `transactions` CASCADE.
+    # `bank_connection` -> `account` -> `transaction` CASCADE.
     # The service layer must null out `category_id` on affected
     # transactions before a category can be deleted.
     category_id: Mapped[Optional[uuid.UUID]] = mapped_column(

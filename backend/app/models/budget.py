@@ -38,12 +38,12 @@ class Budget(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    # NOTE: no ondelete=CASCADE here (deliberately) — `users` already
-    # reaches `categories` via CASCADE and `budgets` directly via
+    # NOTE: no ondelete=CASCADE here (deliberately) — `user` already
+    # reaches `category` via CASCADE and `budget` directly via
     # CASCADE; adding a third cascading path users -> categories ->
     # budgets triggers SQL Server's "multiple cascade paths" error.
     # The service layer must delete/reassign budgets before a

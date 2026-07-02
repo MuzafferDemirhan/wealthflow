@@ -18,7 +18,6 @@ from app.services.budget_service import (
     update_budget,
 )
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -78,8 +77,8 @@ class TestGetNextMonthStart:
 
 class TestComputeSpending:
     def test_returns_sum_for_category(self, db_session, user, category):
-        from app.services.budget_service import _compute_spending
         from app.models.account import Account, AccountType
+        from app.services.budget_service import _compute_spending
 
         acc = Account(
             id=uuid.uuid4(), user_id=user.id, bank_connection_id=uuid.uuid4(),
@@ -110,8 +109,8 @@ class TestComputeSpending:
         assert spent == Decimal("-165.99")
 
     def test_excludes_next_month(self, db_session, user, category):
-        from app.services.budget_service import _compute_spending
         from app.models.account import Account, AccountType
+        from app.services.budget_service import _compute_spending
 
         acc = Account(
             id=uuid.uuid4(), user_id=user.id, bank_connection_id=uuid.uuid4(),
@@ -253,7 +252,7 @@ class TestDeleteBudget:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/budgets"
+API_PREFIX = "/api/v1/budget"
 
 
 class TestBudgetAPI:

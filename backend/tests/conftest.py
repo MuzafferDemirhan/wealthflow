@@ -41,9 +41,9 @@ def db_session(monkeypatch):
     # Patch SessionLocal so that any code importing it (e.g. Celery
     # tasks in ingestion, classification, main) gets the test session
     # maker instead of the real one that points at MS SQL Server.
-    import app.tasks.ingestion
-    import app.tasks.classification
     import app.main as app_main
+    import app.tasks.classification
+    import app.tasks.ingestion
 
     monkeypatch.setattr(app.tasks.ingestion, "SessionLocal", TestingSessionLocal)
     monkeypatch.setattr(app.tasks.classification, "SessionLocal", TestingSessionLocal)

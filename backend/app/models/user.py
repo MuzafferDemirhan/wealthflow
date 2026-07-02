@@ -20,7 +20,7 @@ class UserRole(str, enum.Enum):
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """An authenticated WealthFlow user (FR-01, FR-05)."""
 
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     email: Mapped[str] = mapped_column(
         Unicode(255), unique=True, index=True, nullable=False

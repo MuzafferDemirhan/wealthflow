@@ -38,20 +38,20 @@ class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     endpoint, transaction ingestion target). `user_id` is denormalized
     from the parent connection so account-scoped queries (list my
     accounts, list transactions for account X owned by user Y) don't
-    need a join through `bank_connections` on every request.
+    need a join through `bank_connection` on every request.
     """
 
     __tablename__ = "account"
 
     # NOTE: no ondelete=CASCADE here (deliberately). SQL Server refuses
     # to create a schema where a table is reachable via more than one
-    # cascading path from the same root — and `users` already reaches
+    # cascading path from the same root — and `user` already reaches
     # this table via `bank_connection.user_id` CASCADE ->
     # `account.bank_connection_id` CASCADE. This FK exists for
     # query convenience (denormalized owner), not as a cleanup path.
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("users.id"),
+        ForeignKey("user.id"),
         nullable=False,
         index=True,
     )

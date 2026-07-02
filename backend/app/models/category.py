@@ -35,7 +35,7 @@ class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     # NOTE: no ondelete=SET NULL here (deliberately). SQL Server
     # rejects a self-referencing FK with a cascading action on a
     # table that's already reachable via a cascading path from
-    # another root (`users.id` -> `category.user_id` CASCADE, see
+    # another root (`user.id` -> `category.user_id` CASCADE, see
     # below) — combining the two triggers a "cycles or multiple
     # cascade paths" error at CREATE TABLE time. Deleting a parent
     # category with children must be handled in the service layer
@@ -48,7 +48,7 @@ class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("user.id", ondelete="CASCADE"),
         nullable=True,
         index=True,
     )

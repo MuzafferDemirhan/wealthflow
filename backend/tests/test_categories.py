@@ -71,7 +71,7 @@ class TestSeedCategories:
 class TestCategoryAPI:
     def test_list_categories_returns_all_seeded(self, db_session, client):
         seed_categories(db_session)
-        response = client.get("/api/v1/categories")
+        response = client.get("/api/v1/category")
         assert response.status_code == 200
         data = response.json()
         slugs = {c["slug"] for c in data}
@@ -80,7 +80,7 @@ class TestCategoryAPI:
 
     def test_list_categories_includes_icon_and_name(self, db_session, client):
         seed_categories(db_session)
-        response = client.get("/api/v1/categories")
+        response = client.get("/api/v1/category")
         data = response.json()
         for cat in data:
             assert "id" in cat
@@ -92,7 +92,7 @@ class TestCategoryAPI:
 
     def test_get_category_by_slug_found(self, db_session, client):
         seed_categories(db_session)
-        response = client.get("/api/v1/categories/groceries")
+        response = client.get("/api/v1/category/groceries")
         assert response.status_code == 200
         data = response.json()
         assert data["slug"] == "groceries"
@@ -100,12 +100,12 @@ class TestCategoryAPI:
 
     def test_get_category_by_slug_not_found(self, db_session, client):
         seed_categories(db_session)
-        response = client.get("/api/v1/categories/nonexistent")
+        response = client.get("/api/v1/category/nonexistent")
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
     def test_list_categories_empty_db(self, db_session, client):
-        response = client.get("/api/v1/categories")
+        response = client.get("/api/v1/category")
         assert response.status_code == 200
         assert response.json() == []
 

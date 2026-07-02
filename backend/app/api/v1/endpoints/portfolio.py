@@ -6,7 +6,12 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.holding import HoldingCreate, HoldingRead, HoldingUpdate, PortfolioSummary
+from app.schemas.holding import (
+    HoldingCreate,
+    HoldingRead,
+    HoldingUpdate,
+    PortfolioSummary,
+)
 from app.services import portfolio_service
 
 router = APIRouter()

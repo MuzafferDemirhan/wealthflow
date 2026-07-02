@@ -9,7 +9,6 @@ from app.models.account import Account, AccountType
 from app.models.bank_connection import BankConnection, BankProvider, ConnectionStatus
 from app.models.user import User, UserRole
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -63,7 +62,7 @@ def token_header(client, user):
 # Integration: Account API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/accounts"
+API_PREFIX = "/api/v1/account"
 
 
 class TestAccountAPI:

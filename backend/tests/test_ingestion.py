@@ -10,13 +10,13 @@ from app.models.bank_connection import BankConnection, BankProvider, ConnectionS
 from app.models.transaction import Transaction, TransactionStatus
 from app.models.user import User, UserRole
 from app.services.providers.base import ProviderTransaction
+from app.services.providers.nordigen import ProviderError
 from app.tasks.ingestion import (
     _compute_since,
     _upsert_transaction,
     sync_account_transactions,
     sync_all_due_connections,
 )
-
 
 # ------------------------------------------------------------------
 # Helpers
@@ -308,17 +308,20 @@ class TestSyncAccountTransactions:
         assert "not LINKED" in result["error"]
 
     def test_provider_error_triggers_retry(self, db_with_account):
+        """When called directly (not via .delay()/a worker), Celery's
+        Task.request.called_directly is True, and self.retry() re-raises
+        the original exception instead of queuing a real retry — there's
+        no broker to retry through outside of a worker context. So the
+        observable, correct behavior here is that the ProviderError
+        propagates rather than being swallowed."""
         db_session, user, conn, account = db_with_account
 
         mock_provider = MagicMock()
-        from app.services.providers.nordigen import ProviderError
         mock_provider.fetch_transactions.side_effect = ProviderError("API down")
 
         with patch("app.tasks.ingestion._build_provider", return_value=mock_provider):
-            with pytest.raises(Exception) as excinfo:
+            with pytest.raises(ProviderError, match="API down"):
                 sync_account_transactions(str(account.id))
-            # retry is raised by self.retry()
-            assert True
 
 
 # ------------------------------------------------------------------
@@ -416,8 +419,5 @@ class TestSyncAccountTransactionsEdgeCases:
         result = sync_account_transactions(str(account.id))
         assert result["ok"] is False
         assert "unsupported provider" in result["error"].lower()
-
-
-from app.services.providers.nordigen import ProviderError  # noqa: E402
 
 

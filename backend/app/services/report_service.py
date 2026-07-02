@@ -10,7 +10,6 @@ from app.models.account import Account, AccountType
 from app.models.holding import Holding
 from app.models.transaction import Transaction, TransactionStatus
 
-
 # ------------------------------------------------------------------
 # Category breakdown
 # ------------------------------------------------------------------

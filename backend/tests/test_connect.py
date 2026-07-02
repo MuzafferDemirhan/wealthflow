@@ -23,7 +23,6 @@ from app.services.connect_service import (
 from app.services.providers.base import ProviderAccount
 from app.services.providers.nordigen import ProviderError
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -485,7 +484,3 @@ class TestPollRequisitionDedup:
         )
         assert result["status"] == ConnectionStatus.LINKED
         assert len(result["accounts_created"]) == 0  # no new accounts created
-
-
-from datetime import datetime, timezone  # noqa: E402
-from app.services.providers.base import ProviderAccount  # noqa: E402

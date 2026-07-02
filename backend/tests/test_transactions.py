@@ -22,7 +22,6 @@ from app.services.transaction_service import (
     update_transaction_category,
 )
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -247,7 +246,7 @@ class TestCreateManualTransaction:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/transactions"
+API_PREFIX = "/api/v1/transaction"
 
 
 class TestTransactionAPI:

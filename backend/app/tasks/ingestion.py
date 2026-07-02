@@ -31,6 +31,7 @@ from app.db.session import SessionLocal
 from app.models.account import Account
 from app.models.bank_connection import BankConnection, ConnectionStatus
 from app.models.transaction import Transaction, TransactionStatus
+from app.services.providers.base import ProviderTransaction
 from app.services.providers.nordigen import NordigenAdapter, ProviderError
 from app.services.transaction_service import compute_dedupe_hash
 

@@ -20,7 +20,6 @@ from app.services.report_service import (
     get_net_worth,
 )
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -365,7 +364,7 @@ class TestNetWorth:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/reports"
+API_PREFIX = "/api/v1/report"
 
 
 class TestReportsAPI:

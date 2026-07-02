@@ -17,7 +17,6 @@ from app.services.portfolio_service import (
     update_holding,
 )
 
-
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
@@ -45,6 +44,7 @@ def auth_header(user_id: uuid.UUID) -> dict:
     avoids needing to create a real access token for every test.
     """
     import jwt
+
     from app.core.config import settings
     from app.core.security import ALGORITHM
 
