@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 import { api, __registerTokenStore, ApiError } from "@/lib/api-client";
 import type { UserRead, TokenPair } from "@/lib/types";
 
@@ -48,32 +48,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserRead | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mutable refs for token storage (passed to api-client)
-  const [tokens, setTokens] = useState<{ access: string | null; refresh: string | null }>({ access: null, refresh: null });
+  // Refs always hold the latest token values so __registerTokenStore closures stay fresh
+  const accessRef = useRef<string | null>(null);
+  const refreshRef = useRef<string | null>(null);
 
   const handleTokenRefreshed = useCallback((access: string, refresh: string) => {
     saveTokens(access, refresh);
-    setTokens({ access, refresh });
+    accessRef.current = access;
+    refreshRef.current = refresh;
   }, []);
 
   const handleLogout = useCallback(() => {
     clearTokens();
-    setTokens({ access: null, refresh: null });
+    accessRef.current = null;
+    refreshRef.current = null;
     setUser(null);
   }, []);
 
-  // Register token store with api-client on mount
+  // Register token store with api-client once on mount
   useEffect(() => {
     const stored = loadTokens();
-    setTokens(stored);
+    accessRef.current = stored.access;
+    refreshRef.current = stored.refresh;
 
     __registerTokenStore({
-      getAccessToken: () => tokens.access ?? loadTokens().access,
-      getRefreshToken: () => tokens.refresh ?? loadTokens().refresh,
+      getAccessToken: () => accessRef.current ?? loadTokens().access,
+      getRefreshToken: () => refreshRef.current ?? loadTokens().refresh,
       onTokenRefreshed: handleTokenRefreshed,
       onLogout: handleLogout,
     });
-    // only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -89,7 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .get<UserRead>("/auth/me")
       .then((u) => {
         setUser(u);
-        setTokens(stored);
+        accessRef.current = stored.access;
+        refreshRef.current = stored.refresh;
       })
       .catch(() => {
         clearTokens();
@@ -103,14 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     formData.set("username", email);
     formData.set("password", password);
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1"}/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData,
-      },
-    );
+    let res: Response;
+    try {
+      res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1"}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: formData,
+        },
+      );
+    } catch {
+      throw new ApiError(0, "Cannot reach the server. Did you start the backend? (docker compose up -d mssql redis backend)");
+    }
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: "Login failed" }));
@@ -119,7 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data: TokenPair = await res.json();
     saveTokens(data.access_token, data.refresh_token);
-    setTokens({ access: data.access_token, refresh: data.refresh_token });
+    accessRef.current = data.access_token;
+    refreshRef.current = data.refresh_token;
 
     const me = await api.get<UserRead>("/auth/me");
     setUser(me);
@@ -130,16 +140,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    const refreshToken = tokens.refresh ?? loadTokens().refresh;
+    const refreshToken = refreshRef.current ?? loadTokens().refresh;
     if (refreshToken) {
       try {
         await api.post("/auth/logout", { refresh_token: refreshToken });
       } catch {
-        // ignore errors — clear local state regardless
+        // ignore errors
       }
     }
     handleLogout();
-  }, [tokens.refresh, handleLogout]);
+  }, [handleLogout]);
 
   return (
     <AuthContext.Provider

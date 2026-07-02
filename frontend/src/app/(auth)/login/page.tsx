@@ -1,25 +1,34 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { Spinner } from "@/components/ui/Spinner";
 import { ApiError } from "@/lib/api-client";
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  if (isAuthenticated) {
-    router.replace("/");
-    return null;
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/accounts");
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-24"><Spinner size="lg" /></div>;
   }
+
+  if (isAuthenticated) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -30,14 +39,14 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await login(email, password);
-      router.replace("/");
+      router.replace("/accounts");
     } catch (err) {
       setError(err instanceof ApiError ? err.detail : "Login failed. Please try again.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -62,16 +71,15 @@ export default function LoginPage() {
           required
         />
 
-        <Input
+        <PasswordInput
           label="Password"
-          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
           required
         />
 
-        <Button type="submit" loading={loading} className="w-full">
+        <Button type="submit" loading={submitting} className="w-full">
           Sign In
         </Button>
       </form>

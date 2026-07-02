@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { ApiError } from "@/lib/api-client";
 
 export default function RegisterPage() {
@@ -77,18 +78,16 @@ export default function RegisterPage() {
           required
         />
 
-        <Input
+        <PasswordInput
           label="Password"
-          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
           required
         />
 
-        <Input
+        <PasswordInput
           label="Confirm Password"
-          type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Repeat your password"

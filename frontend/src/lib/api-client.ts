@@ -25,7 +25,7 @@ export function __registerTokenStore(opts: {
 // Helpers
 // ──────────────────────────────────────────────
 
-class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   detail: string;
 
@@ -80,22 +80,32 @@ async function request<T>(
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method,
+      headers,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch (err) {
+    throw new ApiError(0, `Unable to connect to the server. Make sure the backend is running at ${BASE_URL}. (${err instanceof Error ? err.message : "Network error"})`);
+  }
 
   // 401 → try refresh once, then retry
   if (res.status === 401 && _getRefreshToken()) {
     const refreshed = await tryRefreshToken();
     if (refreshed) {
       headers["Authorization"] = `Bearer ${_getAccessToken()}`;
-      const retryRes = await fetch(url, { method, headers, body: JSON.stringify(body) });
-      if (retryRes.ok) return retryRes.json();
-      if (retryRes.status === 401) _onLogout();
-      const retryErr = await parseError(retryRes);
-      throw new ApiError(retryErr.status, retryErr.detail);
+      try {
+        const retryRes = await fetch(url, { method, headers, body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined });
+        if (retryRes.ok) return retryRes.json();
+        if (retryRes.status === 401) _onLogout();
+        const retryErr = await parseError(retryRes);
+        throw new ApiError(retryErr.status, retryErr.detail);
+      } catch (e) {
+        if (e instanceof ApiError) throw e;
+        throw new ApiError(0, "Network error during retry");
+      }
     } else {
       _onLogout();
     }
@@ -144,5 +154,3 @@ export const api = {
     return request<T>("DELETE", path);
   },
 };
-
-export { ApiError };
