@@ -18,6 +18,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1  # passlib 1.7.4's backend detection breaks on bcrypt>=4.1
 python-multipart==0.0.12
+PyJWT==2.7.0  # used directly in tests to decode/inspect tokens issued via python-jose
 
 # Cache & queue
 redis==5.1.1
