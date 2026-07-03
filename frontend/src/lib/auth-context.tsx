@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       );
     } catch {
-      throw new ApiError(0, "Cannot reach the server. Did you start the backend? (docker compose up -d mssql redis backend)");
+      throw new ApiError(0, "Cannot reach the server.)");
     }
 
     if (!res.ok) {

@@ -149,7 +149,7 @@ export default function TransactionsPage() {
 
   const handleAdd = async () => {
     if (!addForm.account_id || !addForm.amount || !addForm.booking_date) {
-      toast("Account, amount, and date are required", "error");
+      toast("Account, amount and date are required", "error");
       return;
     }
     setAdding(true);

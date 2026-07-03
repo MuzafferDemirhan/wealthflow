@@ -66,7 +66,7 @@ export default function RegisterPage() {
           label="Full Name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          placeholder="John Doe"
+          placeholder="Name Surname"
           required
         />
 

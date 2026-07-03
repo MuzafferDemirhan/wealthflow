@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WealthFlow — Personal Finance & Investment Platform",
+  title: "WealthFlow - Personal Finance & Investment Platform",
   description: "Track your finances, connect bank accounts, manage budgets and monitor investments.",
 };
 
