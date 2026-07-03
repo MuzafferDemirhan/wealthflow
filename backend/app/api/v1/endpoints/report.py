@@ -84,7 +84,7 @@ async def net_worth(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Net worth — total assets minus liabilities, with account type breakdown."""
+    """Net worth - total assets minus liabilities, with account type breakdown."""
     return report_service.get_net_worth(
         db,
         user_id=current_user.id,

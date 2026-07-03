@@ -12,7 +12,7 @@ router = APIRouter()
 async def list_categories(
     db: Session = Depends(get_db),
 ):
-    """List all system categories (FR — ML categorization, budgets)."""
+    """List all system categories (FR - ML categorization, budgets)."""
     return category_service.get_all_categories(db)
 
 

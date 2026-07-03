@@ -72,7 +72,7 @@ def create_access_token(user_id: uuid.UUID, role: str) -> str:
 
 
 def create_refresh_token(user_id: uuid.UUID) -> tuple[str, str, datetime]:
-    """Returns (token, jti, expires_at) — caller persists the hash + expiry."""
+    """Returns (token, jti, expires_at) - caller persists the hash + expiry."""
     return _create_token(
         subject=str(user_id),
         token_type=TokenType.REFRESH,
@@ -92,8 +92,7 @@ def hash_token(raw_token: str) -> str:
     """
     SHA-256 digest used to store/look up refresh tokens at rest.
 
-    Refresh tokens are JWTs (often >72 bytes), so bcrypt — which
-    silently truncates input — is not appropriate here. SHA-256 is
+    Refresh tokens are JWTs (often >72 bytes), so bcrypt is not appropriate here. SHA-256 is
     fine for this purpose because the token itself already carries
     high entropy (it isn't a low-entropy user-chosen secret).
     """

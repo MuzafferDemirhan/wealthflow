@@ -1,4 +1,4 @@
-# Sprint 0 — Project Scaffolding
+# Sprint 0 - Project Scaffolding
 
 ## Goal
 Set up the full-stack project foundation: Docker environment, database schema, CI/CD, and core application structure.
@@ -6,7 +6,7 @@ Set up the full-stack project foundation: Docker environment, database schema, C
 ## Deliverables
 
 ### Docker Infrastructure
-- `docker-compose.yml` — MS SQL Server 2022, Redis 7, backend (FastAPI), frontend (Next.js)
+- `docker-compose.yml` - MS SQL Server 2022, Redis 7, backend (FastAPI), frontend (Next.js)
 - Dockerfiles for backend and frontend
 - Volume mounts for persistent DB data
 - Health checks and dependency ordering
@@ -31,7 +31,7 @@ Set up the full-stack project foundation: Docker environment, database schema, C
 - `RefreshToken` (id, user_id, token, expires_at)
 
 ### CI/CD
-- GitHub Actions workflow (`ci.yml`) — lint (ruff), type-check (pyright), test (pytest), Docker build
+- GitHub Actions workflow (`ci.yml`) - lint (ruff), type-check (pyright), test (pytest), Docker build
 
 ### Project Documentation
 - Software Requirements Specification (`docs/SRS/`)
@@ -41,7 +41,7 @@ Set up the full-stack project foundation: Docker environment, database schema, C
 ## Key Decisions
 - **MS SQL Server 2022** as primary database (mssql+pyodbc)
 - **SQLite in-memory** for tests (conftest.py pattern with `override_get_db`)
-- **Sync SQLAlchemy engine** (not async) — pyodbc/aioodbc async stack is immature
+- **Sync SQLAlchemy engine** (not async) - pyodbc/aioodbc async stack is immature
 - **ruff** for linting (select E, F, I; ignore E501, F401)
 - **JWT token pair** (access + refresh) for auth
 - **python-jose** for JWT handling

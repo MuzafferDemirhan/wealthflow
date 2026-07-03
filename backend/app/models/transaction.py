@@ -23,7 +23,7 @@ class TransactionStatus(str, enum.Enum):
 
 class CategorySource(str, enum.Enum):
     """
-    Where `category_id` came from — lets the UI show a "suggested by
+    Where `category_id` came from - lets the UI show a "suggested by
     AI, tap to confirm" affordance for ML-assigned categories, and
     lets the classifier's training pipeline pull only USER-confirmed
     (or RULE-confirmed) rows as ground truth, excluding its own
@@ -37,7 +37,7 @@ class CategorySource(str, enum.Enum):
 
 class Transaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
-    A single ledger entry ingested from a provider (FR — transaction
+    A single ledger entry ingested from a provider (FR - transaction
     ingestion pipeline, ML categorization, transactions endpoint).
 
     Idempotency: Nordigen does not guarantee a stable `transactionId`
@@ -45,7 +45,7 @@ class Transaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     on `external_id` alone for dedup. `dedupe_hash` is a deterministic
     hash of (account_id, amount, currency, booking_date, description)
     computed by the ingestion pipeline and uniquely constrained per
-    account — this is the actual dedup key; `external_id` is stored
+    account - this is the actual dedup key; `external_id` is stored
     when available for provider-side lookups/debugging.
     """
 
@@ -60,7 +60,7 @@ class Transaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         index=True,
     )
-    # NOTE: no ondelete=SET NULL here (deliberately) — `user` already
+    # NOTE: no ondelete=SET NULL here (deliberately) - `user` already
     # reaches `category` via CASCADE, and `category` would then
     # reach `transaction` via this FK's SET NULL, a second cascading
     # path into a table SQL Server already reaches through
@@ -77,7 +77,7 @@ class Transaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     external_id: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True, index=True)
     dedupe_hash: Mapped[str] = mapped_column(Unicode(64), nullable=False)
 
-    # Signed amount: negative = money out, positive = money in — this
+    # Signed amount: negative = money out, positive = money in - this
     # matches Nordigen's `transactionAmount.amount` convention, so the
     # provider adapter can pass it through without sign-flipping logic.
     amount: Mapped[Decimal] = mapped_column(Numeric(19, 4), nullable=False)

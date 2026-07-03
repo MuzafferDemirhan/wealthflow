@@ -3,7 +3,7 @@ set -euo pipefail
 
 # RUN_MIGRATIONS gates whether this container runs `alembic upgrade
 # head` before starting its main process. Only one service in
-# docker-compose (the `backend` API) should have this set to "true" —
+# docker-compose (the `backend` API) should have this set to "true" -
 # if multiple containers (e.g. backend + celery_worker) raced to run
 # migrations concurrently against SQL Server, they could conflict on
 # DDL locks / the alembic_version table.
@@ -28,7 +28,7 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
 
     echo "[entrypoint] Migrations applied successfully."
 else
-    echo "[entrypoint] RUN_MIGRATIONS is not 'true' — skipping migrations for this container."
+    echo "[entrypoint] RUN_MIGRATIONS is not 'true' - skipping migrations for this container."
 fi
 
 echo "[entrypoint] Starting: $*"

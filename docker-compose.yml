@@ -109,7 +109,7 @@ services:
     ports:
       - "6379:6379"
 
-  # SQL Server Management Studio alternative — Azure Data Studio via web
+  # SQL Server Management Studio alternative - Azure Data Studio via web
   # Use SSMS on Windows connecting to localhost:1433 with sa / WealthFlow_2024!
 
 volumes:

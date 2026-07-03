@@ -21,7 +21,7 @@ class AccountType(str, enum.Enum):
     """
     Our normalized account type. Mapped from Nordigen's `cashAccountType`
     (ISO 20022 ExternalCashAccountType1Code, e.g. CACC/SVGS/CARD) inside
-    the provider adapter — raw codes never reach the domain layer.
+    the provider adapter - raw codes never reach the domain layer.
     """
 
     CHECKING = "checking"
@@ -34,7 +34,7 @@ class AccountType(str, enum.Enum):
 
 class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
-    A single bank account linked via a `BankConnection` (FR — accounts
+    A single bank account linked via a `BankConnection` (FR - accounts
     endpoint, transaction ingestion target). `user_id` is denormalized
     from the parent connection so account-scoped queries (list my
     accounts, list transactions for account X owned by user Y) don't
@@ -45,7 +45,7 @@ class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     # NOTE: no ondelete=CASCADE here (deliberately). SQL Server refuses
     # to create a schema where a table is reachable via more than one
-    # cascading path from the same root — and `user` already reaches
+    # cascading path from the same root - and `user` already reaches
     # this table via `bank_connection.user_id` CASCADE ->
     # `account.bank_connection_id` CASCADE. This FK exists for
     # query convenience (denormalized owner), not as a cleanup path.
@@ -62,7 +62,7 @@ class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         index=True,
     )
 
-    # Nordigen account UUID — stable identifier used to fetch
+    # Nordigen account UUID - stable identifier used to fetch
     # balances/transactions for this account from the provider.
     external_account_id: Mapped[str] = mapped_column(
         Unicode(255), unique=True, nullable=False
@@ -77,7 +77,7 @@ class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     iban: Mapped[Optional[str]] = mapped_column(Unicode(34), nullable=True)
     currency: Mapped[str] = mapped_column(Unicode(3), nullable=False)
 
-    # Last known balance snapshot, refreshed on each sync — kept
+    # Last known balance snapshot, refreshed on each sync - kept
     # denormalized here for cheap "account list with balances" reads
     # without aggregating transactions on every request.
     current_balance: Mapped[Decimal] = mapped_column(

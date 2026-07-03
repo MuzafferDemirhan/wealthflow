@@ -1,5 +1,5 @@
 """
-Smoke tests — verify the app can be imported and basic config loads.
+Smoke tests - verify the app can be imported and basic config loads.
 Real endpoint tests will be added in Sprint 1.
 """
 

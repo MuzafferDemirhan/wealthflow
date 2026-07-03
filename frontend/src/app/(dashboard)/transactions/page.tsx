@@ -100,7 +100,7 @@ export default function TransactionsPage() {
     { key: "booking_date", header: "Date", render: (t) => t.booking_date },
     {
       key: "description", header: "Description",
-      render: (t) => <span className="font-medium text-text-primary">{t.description || "—"}</span>,
+      render: (t) => <span className="font-medium text-text-primary">{t.description || "-"}</span>,
     },
     { key: "counterparty_name", header: "Counterparty" },
     {
@@ -223,8 +223,8 @@ export default function TransactionsPage() {
           <div className="space-y-4">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-text-muted">Date</span><span className="text-text-primary">{selectedTx.booking_date}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Description</span><span className="text-text-primary">{selectedTx.description || "—"}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Counterparty</span><span className="text-text-primary">{selectedTx.counterparty_name || "—"}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Description</span><span className="text-text-primary">{selectedTx.description || "-"}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Counterparty</span><span className="text-text-primary">{selectedTx.counterparty_name || "-"}</span></div>
               <div className="flex justify-between"><span className="text-text-muted">Amount</span><span className={selectedTx.amount < 0 ? "text-error" : "text-success"}>{formatCurrency(Math.abs(selectedTx.amount))}</span></div>
               <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={statusVariant[selectedTx.status] ?? "neutral"}>{selectedTx.status}</Badge></div>
               {selectedTx.category_source && (

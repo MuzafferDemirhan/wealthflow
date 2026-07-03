@@ -10,7 +10,7 @@ from app.ml.classifier import train_default
 from app.models.category import Category
 from app.models.transaction import CategorySource, Transaction
 
-# Lazy-loaded singleton — trained once per worker process
+# Lazy-loaded singleton - trained once per worker process
 _CLASSIFIER = None
 
 

@@ -1,7 +1,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 // ──────────────────────────────────────────────
-// Token storage — set by AuthProvider on mount
+// Token storage - set by AuthProvider on mount
 // ──────────────────────────────────────────────
 
 let _getAccessToken: () => string | null = () => null;

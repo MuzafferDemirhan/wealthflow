@@ -89,7 +89,7 @@ export default function PortfolioPage() {
   };
 
   const formatCurrency = (n: number | null | undefined) =>
-    n != null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n) : "—";
+    n != null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n) : "-";
 
   const allocationData = summary
     ? Object.entries(summary.allocation).map(([name, value]) => ({

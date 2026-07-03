@@ -1,5 +1,5 @@
 """
-Sprint 1 — JWT authentication endpoint tests.
+Sprint 1 - JWT authentication endpoint tests.
 """
 
 VALID_USER = {

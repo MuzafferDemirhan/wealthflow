@@ -1,7 +1,7 @@
 """
 Celery application instance.
 
-Redis is used as both broker and result backend — it's already a
+Redis is used as both broker and result backend - it's already a
 hard dependency (docker-compose) and there's no need for a separate
 result store at this scale. Tasks are organized by domain under
 ``app/tasks/``; ``include`` below is how Celery discovers them, since
@@ -37,7 +37,7 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    # Tasks touch MSSQL + external bank APIs — ack-late + reject-on-
+    # Tasks touch MSSQL + external bank APIs - ack-late + reject-on-
     # worker-lost means a crashed worker's in-flight sync gets
     # redelivered rather than silently dropped.
     task_acks_late=True,
@@ -46,7 +46,7 @@ celery_app.conf.update(
     # workers can hold several in flight per process without
     # contention; keep it conservative until we have real timing data.
     worker_prefetch_multiplier=4,
-    # Periodic task schedule — sync all due bank connections every 4h.
+    # Periodic task schedule - sync all due bank connections every 4h.
     beat_schedule={
         "sync-all-due-connections": {
             "task": "ingestion.sync_all_due_connections",

@@ -4,7 +4,7 @@ Revision ID: aa4ceb322f08
 Revises:
 Create Date: 2026-06-30 00:00:00.000000
 
-Initial schema for Sprint 1 — JWT authentication.
+Initial schema for Sprint 1 - JWT authentication.
 
 NOTE: This revision was authored by hand rather than via
 `alembic revision --autogenerate`, because no live MS SQL Server

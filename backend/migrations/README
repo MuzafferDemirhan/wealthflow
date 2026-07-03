@@ -2,7 +2,7 @@
 
 ## Automatic migrations (Docker Compose)
 The `backend` service runs `alembic upgrade head` automatically on
-container startup, before the API starts serving — see
+container startup, before the API starts serving - see
 `backend/entrypoint.sh`. This means `docker compose up` is enough to
 get a fully migrated database; no manual `alembic upgrade head` step
 is required when running via Docker.
@@ -46,7 +46,7 @@ alembic revision --autogenerate -m "short description"
   `app/models/__init__.py` for Alembic autogeneration to see them.
 - A naming convention (`app/db/base_class.py`) is attached to the
   metadata so constraint/index names are deterministic across
-  environments — important on SQL Server, which otherwise generates
+  environments - important on SQL Server, which otherwise generates
   names like `PK__users__3213E83F...` that differ per run.
 - SQL Server's DDL transaction semantics differ from Postgres, so
   `env.py` runs with `transaction_per_migration=True`.

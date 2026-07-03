@@ -91,7 +91,7 @@ docker compose exec backend alembic upgrade head
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | API docs | http://localhost:8000/docs |
-| SSMS (Windows) | localhost,1433 — sa / WealthFlow_2024! |
+| SSMS (Windows) | localhost,1433 - sa / WealthFlow_2024! |
 
 ### 6. Run tests
 ```bash

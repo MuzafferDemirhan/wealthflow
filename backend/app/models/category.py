@@ -14,13 +14,13 @@ if TYPE_CHECKING:
 
 class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
-    Transaction category taxonomy (FR — ML categorization, budgets).
+    Transaction category taxonomy (FR - ML categorization, budgets).
 
     Two-level hierarchy via self-referential `parent_id` (e.g.
     "Food & Drink" -> "Groceries", "Restaurants"). `is_system` marks
     seeded categories the ML classifier's label set is trained
     against; those are not user-editable/deletable. `user_id` is
-    null for system categories and set for a user's custom ones —
+    null for system categories and set for a user's custom ones -
     custom categories are excluded from ML training data but can
     still be assigned manually and budgeted against.
     """
@@ -36,7 +36,7 @@ class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     # rejects a self-referencing FK with a cascading action on a
     # table that's already reachable via a cascading path from
     # another root (`user.id` -> `category.user_id` CASCADE, see
-    # below) — combining the two triggers a "cycles or multiple
+    # below) - combining the two triggers a "cycles or multiple
     # cascade paths" error at CREATE TABLE time. Deleting a parent
     # category with children must be handled in the service layer
     # (reparent or reject the delete) rather than at the DB level.

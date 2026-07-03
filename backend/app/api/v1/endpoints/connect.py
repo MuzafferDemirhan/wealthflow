@@ -40,7 +40,7 @@ async def create_requisition(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Initiate a bank link session — returns a redirect URL."""
+    """Initiate a bank link session - returns a redirect URL."""
     try:
         return connect_service.create_requisition(
             db,

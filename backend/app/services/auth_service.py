@@ -115,7 +115,7 @@ def refresh_access_token(db: Session, *, raw_refresh_token: str) -> tuple[str, s
 
 
 def revoke_refresh_token(db: Session, *, raw_refresh_token: str) -> None:
-    """Idempotent logout — unknown/already-revoked tokens are silently accepted."""
+    """Idempotent logout - unknown/already-revoked tokens are silently accepted."""
     token_hash = hash_token(raw_refresh_token)
     stored = db.scalar(select(RefreshToken).where(RefreshToken.token_hash == token_hash))
     if stored is not None and not stored.revoked:

@@ -2,7 +2,7 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 
-# Database — MS SQL Server
+# Database - MS SQL Server
 sqlalchemy==2.0.35
 alembic==1.13.3
 pyodbc==5.1.0
@@ -19,7 +19,7 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1  # passlib 1.7.4's backend detection breaks on bcrypt>=4.1
 python-multipart==0.0.12
 
-# Open Banking — Enable Banking uses JWT (RS256) for auth
+# Open Banking - Enable Banking uses JWT (RS256) for auth
 PyJWT[crypto]==2.7.0
 
 # Cache & queue

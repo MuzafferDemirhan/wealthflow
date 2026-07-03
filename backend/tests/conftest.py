@@ -2,7 +2,7 @@
 Shared pytest fixtures.
 
 Tests run against an in-memory SQLite database rather than the real
-MS SQL Server instance — fast, no external dependency, no shared
+MS SQL Server instance - fast, no external dependency, no shared
 state between tests. The app's `get_db` dependency is overridden so
 endpoint tests exercise the real FastAPI app + routing + dependency
 graph, just swapping out where the data lives.

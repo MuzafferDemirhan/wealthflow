@@ -291,7 +291,7 @@ def get_net_worth(
         elif atype in asset_types:
             total_assets += balance if balance > 0 else Decimal("0")
         else:
-            # OTHER — treat as asset if positive, ignore if negative
+            # OTHER - treat as asset if positive, ignore if negative
             if balance > 0:
                 total_assets += balance
 

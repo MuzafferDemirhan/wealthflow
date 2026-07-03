@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
 class Budget(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
-    A monthly spending limit (FR — budgets endpoint), optionally
+    A monthly spending limit (FR - budgets endpoint), optionally
     scoped to a category. `category_id = NULL` represents an overall
     "all spending" budget for that month.
 
     Granularity is a fixed calendar month (`period_month`, always the
-    1st of the month) rather than a free-form date range — this is
+    1st of the month) rather than a free-form date range - this is
     what the budgets endpoint and any progress/rollover calculation
     will key off of. Weekly/custom-period budgets are out of scope
     for Sprint 2; revisit if product requirements call for it.
@@ -42,7 +42,7 @@ class Budget(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         index=True,
     )
-    # NOTE: no ondelete=CASCADE here (deliberately) — `user` already
+    # NOTE: no ondelete=CASCADE here (deliberately) - `user` already
     # reaches `category` via CASCADE and `budget` directly via
     # CASCADE; adding a third cascading path users -> categories ->
     # budgets triggers SQL Server's "multiple cascade paths" error.

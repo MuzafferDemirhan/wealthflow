@@ -66,7 +66,7 @@ async def refresh_token(payload: RefreshRequest, db: Session = Depends(get_db)) 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(payload: LogoutRequest, db: Session = Depends(get_db)) -> None:
-    """Revoke a refresh token. Idempotent — always succeeds."""
+    """Revoke a refresh token. Idempotent - always succeeds."""
     auth_service.revoke_refresh_token(db, raw_refresh_token=payload.refresh_token)
 
 

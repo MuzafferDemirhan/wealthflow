@@ -2,7 +2,7 @@
 # This prevents Windows Git clients from converting LF→CRLF on checkout,
 # which breaks shell scripts inside Linux Docker containers.
 
-# Shell scripts — always LF, even on Windows
+# Shell scripts - always LF, even on Windows
 *.sh        text eol=lf
 
 # Python source

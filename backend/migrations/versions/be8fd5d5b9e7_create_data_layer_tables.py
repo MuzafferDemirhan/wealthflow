@@ -4,16 +4,16 @@ Revision ID: be8fd5d5b9e7
 Revises: aa4ceb322f08
 Create Date: 2026-07-01 00:00:00.000000
 
-Sprint 2 — data layer schema for open-banking sync, transaction
+Sprint 2 - data layer schema for open-banking sync, transaction
 ingestion, ML categorization, and budgets.
 
 Table names are singular by convention (`category`, not `categories`),
-matching the models. Two of them are SQL Server reserved words —
-`transaction` (T-SQL statement) — which SQLAlchemy automatically
+matching the models. Two of them are SQL Server reserved words -
+`transaction` (T-SQL statement) - which SQLAlchemy automatically
 bracket-quotes (`[transaction]`) in every DDL/DML statement it emits,
 so this is handled transparently as long as all access goes through
 SQLAlchemy/Alembic. The existing Sprint 1 tables (`users`,
-`refresh_tokens`) are intentionally left plural/unchanged here — they
+`refresh_tokens`) are intentionally left plural/unchanged here - they
 belong to an already-merged migration; renaming them (`user` is also
 a T-SQL reserved word, used as a niladic function) is a separate
 decision tracked outside this revision.
@@ -23,7 +23,7 @@ this environment), same as aa4ceb322f08. Each table's DDL was
 compiled against `sqlalchemy.dialects.mssql` and validated end-to-end
 against an in-memory SQLite engine via `Base.metadata.create_all()`.
 
-IMPORTANT — cascade design: several FKs below deliberately omit
+IMPORTANT - cascade design: several FKs below deliberately omit
 `ondelete=CASCADE`/`SET NULL` even where it would be semantically
 natural, because SQL Server refuses to create a schema where a table
 is reachable via more than one cascading path from the same root, or
@@ -35,7 +35,7 @@ spine kept is:
     users -> category                                      (CASCADE)
     users -> budget                                        (CASCADE)
 `account.user_id`, `category.parent_id`, `transaction.category_id`,
-and `budget.category_id` are NO ACTION — cleanup across those edges
+and `budget.category_id` are NO ACTION - cleanup across those edges
 (e.g. deleting a category that budgets/transactions still reference)
 is the service layer's responsibility, not the database's.
 

@@ -183,7 +183,7 @@ class TestGetTransaction:
 class TestUpdateTransactionCategory:
     def test_updates_category(self, db_session, user_with_data):
         user, acc, cat, txns = user_with_data
-        uncategorized = txns[2]  # Salary — no category
+        uncategorized = txns[2]  # Salary - no category
         updated = update_transaction_category(
             db_session,
             transaction_id=uncategorized.id,

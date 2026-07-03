@@ -231,7 +231,7 @@ class TestSyncAccountTransactions:
     def test_duplicate_transactions_skipped(self, db_with_account):
         db_session, user, conn, account = db_with_account
 
-        # Insert one transaction first — compute the real dedupe_hash
+        # Insert one transaction first - compute the real dedupe_hash
         # so the dedup mechanism can find it.
         from app.services.transaction_service import compute_dedupe_hash
         expected_hash = compute_dedupe_hash(
@@ -310,7 +310,7 @@ class TestSyncAccountTransactions:
     def test_provider_error_triggers_retry(self, db_with_account):
         """When called directly (not via .delay()/a worker), Celery's
         Task.request.called_directly is True, and self.retry() re-raises
-        the original exception instead of queuing a real retry — there's
+        the original exception instead of queuing a real retry - there's
         no broker to retry through outside of a worker context. So the
         observable, correct behavior here is that the ProviderError
         propagates rather than being swallowed."""

@@ -40,7 +40,7 @@ def auth_header(user_id: uuid.UUID) -> dict:
 
     The ``get_current_user`` dependency decodes the token via
     ``decode_token`` and reads ``sub`` as the user ID.  For tests we
-    forge a token payload that ``decode_token`` will accept — this
+    forge a token payload that ``decode_token`` will accept - this
     avoids needing to create a real access token for every test.
     """
     import jwt

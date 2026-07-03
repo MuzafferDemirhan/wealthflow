@@ -5,7 +5,7 @@ Uses a synchronous engine (pyodbc) rather than the async driver
 (aioodbc). The async MS SQL Server driver stack is still immature
 (no native async pyodbc, aioodbc wraps blocking calls in a thread
 pool anyway), so a sync engine run through FastAPI's threadpool via
-plain `def` endpoints — or wrapped with `run_in_threadpool` — is the
+plain `def` endpoints - or wrapped with `run_in_threadpool` - is the
 more reliable choice for SQL Server. This can be revisited later if
 a specific endpoint needs true async DB I/O.
 """

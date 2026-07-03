@@ -8,7 +8,7 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 ### 1. Next.js Project Scaffolding (`frontend/`)
 - **Init** via `npx create-next-app@latest frontend` with:
   - TypeScript (strict mode)
-  - Tailwind CSS (v4 or v3 — match latest)
+  - Tailwind CSS (v4 or v3 - match latest)
   - App Router (`src/app/` directory)
   - ESLint with `eslint-config-next`
 - **Folder structure**:
@@ -36,16 +36,16 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 - **Docker Compose** frontend service updated for HMR volume mounts
 
 ### 2. API Client & Auth Layer (`frontend/src/lib/`)
-- **`api-client.ts`** — fetch wrapper:
+- **`api-client.ts`** - fetch wrapper:
 - Base URL from `NEXT_PUBLIC_API_URL`
 - Auto `Authorization: Bearer <access_token>` header
 - 401 interceptor: refresh token → retry → redirect on fail
-- **`auth-context.tsx`** — `AuthProvider`:
+- **`auth-context.tsx`** - `AuthProvider`:
 - `login()`, `register()`, `logout()`, `refresh()`
 - Tokens in memory + `localStorage`
 - Validates session on mount via `GET /auth/me`
 - Exposes `user`, `isAuthenticated`, `isLoading`
-- **`AuthGuard`** — redirects to `/login` if unauthenticated
+- **`AuthGuard`** - redirects to `/login` if unauthenticated
 
 ### 3. Shared UI Primitives (8 components)
 
@@ -83,21 +83,21 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 
 ### 5. Key Pages Detail
 
-**Dashboard** — Net worth card, income vs expenses bar chart (Recharts), account summary cards, recent transactions (compact table). Loading skeletons per section. Error boundaries isolate failing sections.
+**Dashboard** - Net worth card, income vs expenses bar chart (Recharts), account summary cards, recent transactions (compact table). Loading skeletons per section. Error boundaries isolate failing sections.
 
-**Transactions** — Filterable table (date range, account, category, status, search text). Pagination via offset/limit. Row click opens detail modal with category override. "Add Manual" button opens create modal.
+**Transactions** - Filterable table (date range, account, category, status, search text). Pagination via offset/limit. Row click opens detail modal with category override. "Add Manual" button opens create modal.
 
-**Budgets** — Card grid with progress bars (color shift at 80%/100%). CRUD via modals. Computed `spent`, `remaining`, `progress_pct` from backend.
+**Budgets** - Card grid with progress bars (color shift at 80%/100%). CRUD via modals. Computed `spent`, `remaining`, `progress_pct` from backend.
 
-**Portfolio** — Summary card (market value, gain/loss, allocation donut chart via Recharts). Holdings table with computed market_value. Add/edit/delete via modals.
+**Portfolio** - Summary card (market value, gain/loss, allocation donut chart via Recharts). Holdings table with computed market_value. Add/edit/delete via modals.
 
-**Reports (4 pages)** — Each has date range/month count selector + appropriate Recharts chart (PieChart, BarChart, LineChart). Data from report endpoints.
+**Reports (4 pages)** - Each has date range/month count selector + appropriate Recharts chart (PieChart, BarChart, LineChart). Data from report endpoints.
 
-**Bank Connect** — Institution grid with logos. Requisition flow: select institution → redirect to Nordigen → poll status → accounts created. Connections list with disconnect.
+**Bank Connect** - Institution grid with logos. Requisition flow: select institution → redirect to Nordigen → poll status → accounts created. Connections list with disconnect.
 
 ### 6. Testing Strategy
 
-**Unit (Vitest + React Testing Library) — 40 tests (all passing):**
+**Unit (Vitest + React Testing Library) - 40 tests (all passing):**
 - 6 Button tests (variants, loading, disabled, click)
 - 4 Input tests (label, error, onChange, ref)
 - 2 Badge tests (renders children, variant styles)
@@ -109,15 +109,15 @@ Build the full Next.js 15 frontend with TypeScript and Tailwind CSS, covering al
 - 5 Select tests (label, options, placeholder, onChange, error)
 - 2 Toast tests (message display, throws outside provider)
 
-**E2E (Playwright) — 15 tests:**
+**E2E (Playwright) - 15 tests:**
 - 6 Auth tests (landing page, login form, register form, invalid login, navigation between auth pages)
 - 7 Navigation tests (redirect to login for all protected routes)
 - 2 Dashboard tests (landing page content)
 
 **CI Integration (`.github/workflows/ci.yml`):**
-- `frontend-lint` — ESLint with `eslint-config-next`
-- `frontend-test` — Vitest unit tests (parallel, no DB needed)
-- `frontend-build` — `next build` (type-check + production build, depends on lint + test passing)
+- `frontend-lint` - ESLint with `eslint-config-next`
+- `frontend-test` - Vitest unit tests (parallel, no DB needed)
+- `frontend-build` - `next build` (type-check + production build, depends on lint + test passing)
 
 ### 7. Key Decisions
 

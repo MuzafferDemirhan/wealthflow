@@ -10,7 +10,7 @@ convention adopted for the Sprint 2 data layer (`category`,
 
 This is a *separate* migration rather than an edit to `aa4ceb322f08`
 (which created `users`/`refresh_tokens`) because that revision is
-already merged to `main` — any environment that has already run it
+already merged to `main` - any environment that has already run it
 has physical tables named `users`/`refresh_tokens`. Rewriting that
 migration's DDL in place would silently diverge for those
 environments (Alembic tracks applied state by revision id, not by
@@ -19,7 +19,7 @@ migration is the correct, environment-safe way to get everyone to
 the same end state.
 
 Uses `op.rename_table`, which Alembic's MSSQL dialect implementation
-compiles to `EXEC sp_rename` — this preserves the underlying object
+compiles to `EXEC sp_rename` - this preserves the underlying object
 id, so existing foreign keys (`refresh_token.user_id`, and every FK
 added in `be8fd5d5b9e7`/`a1b2c3d4e5f6` referencing `users.id`:
 `category.user_id`, `bank_connection.user_id`, `account.user_id`,
@@ -30,12 +30,12 @@ new output (`pk_user`, `ix_user_email`, `fk_category_user_id_user`,
 etc).
 
 `user` is a T-SQL reserved word (used as a niladic function), same
-situation as `transaction` in `be8fd5d5b9e7` — SQLAlchemy/Alembic
+situation as `transaction` in `be8fd5d5b9e7` - SQLAlchemy/Alembic
 bracket-quote it automatically wherever needed, and `sp_rename`
 receives it as a plain string parameter (not parsed as an
 identifier), so no quoting is required in the raw SQL below either.
 
-NOTE: authored by hand — `EXEC sp_rename` is MSSQL-specific T-SQL and
+NOTE: authored by hand - `EXEC sp_rename` is MSSQL-specific T-SQL and
 cannot be exercised against the SQLite fixture used to sanity-check
 the other migrations in this project. Run this against a real SQL
 Server 2022 instance (`docker compose up mssql mssql_init && alembic

@@ -119,5 +119,5 @@ async def portfolio_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Aggregate portfolio summary — total value, cost basis, gain/loss, allocation."""
+    """Aggregate portfolio summary - total value, cost basis, gain/loss, allocation."""
     return portfolio_service.compute_summary(db, user_id=current_user.id)

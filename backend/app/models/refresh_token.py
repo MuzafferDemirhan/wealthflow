@@ -18,7 +18,7 @@ class RefreshToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     A persisted, revocable refresh token (FR-02).
 
     We store a hash of the token rather than the raw value, and only
-    ever compare hashes — mirroring how `hashed_password` is handled
+    ever compare hashes - mirroring how `hashed_password` is handled
     for users. Each refresh additionally rotates the token (old one
     revoked, new one issued) to limit the blast radius of a leaked
     token.

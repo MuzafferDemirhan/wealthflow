@@ -88,7 +88,7 @@ class TestMLClassifier:
         clf = TransactionClassifier(seed_data=SEED_TRANSACTIONS)
         clf.train()
         result = clf.predict("Lidl", "", -50.00)
-        # ML or rule — either is fine
+        # ML or rule - either is fine
         assert result["slug"] in ("groceries", "other")
         assert result["confidence"] >= 0.0
 
