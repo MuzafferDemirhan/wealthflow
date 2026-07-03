@@ -7,6 +7,7 @@ from app.api.deps import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.connect import (
+    AuthorizeRequest,
     ConnectionRead,
     InstitutionRead,
     RequisitionCreate,
@@ -23,7 +24,7 @@ async def list_institutions(
     country: str = Query("PL", min_length=2, max_length=2),
     current_user: User = Depends(get_current_active_user),
 ):
-    """List supported banks/institutions available for linking (FR-05)."""
+    """List supported banks/institutions available for linking."""
     try:
         return connect_service.list_institutions(country=country)
     except connect_service.ConnectError as exc:
@@ -39,7 +40,7 @@ async def create_requisition(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Initiate a bank link session — returns a redirect URL (FR-06)."""
+    """Initiate a bank link session — returns a redirect URL."""
     try:
         return connect_service.create_requisition(
             db,
@@ -59,13 +60,40 @@ async def create_requisition(
         )
 
 
+@router.post("/requisitions/{connection_id}/authorize", response_model=RequisitionRead)
+async def authorize_requisition(
+    connection_id: uuid.UUID,
+    payload: AuthorizeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Exchange authorization code for a session after bank auth redirect."""
+    try:
+        return connect_service.authorize_requisition(
+            db,
+            connection_id=connection_id,
+            user_id=current_user.id,
+            code=payload.code,
+        )
+    except connect_service.RequisitionNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requisition not found",
+        )
+    except connect_service.ConnectError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        )
+
+
 @router.get("/requisitions/{connection_id}", response_model=RequisitionRead)
 async def get_requisition(
     connection_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Poll a requisition status and complete linking if Nordigen reports LINKED (FR-06)."""
+    """Poll a requisition status and complete linking if bank reports LINKED."""
     try:
         return connect_service.poll_requisition(
             db,
@@ -89,7 +117,7 @@ async def list_connections(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """List the user's bank connections (FR-08)."""
+    """List the user's bank connections."""
     return connect_service.get_user_connections(db, user_id=current_user.id)
 
 
@@ -99,7 +127,7 @@ async def disconnect_connection(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Revoke a bank connection and deactivate its accounts (FR-10)."""
+    """Revoke a bank connection and deactivate its accounts."""
     try:
         connect_service.disconnect_connection(
             db,

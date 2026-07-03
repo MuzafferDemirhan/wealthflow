@@ -220,8 +220,8 @@ class TestClassificationWithDB:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-1",
             status=ConnectionStatus.LINKED,
@@ -277,8 +277,8 @@ class TestClassificationWithDB:
         db_session.add(user)
         db_session.flush()
 
-        conn = BankConnection(id=uuid.uuid4(), user_id=user.id, provider=BankProvider.NORDIGEN,
-                              institution_id="T", institution_name="T", external_reference="r2",
+        conn = BankConnection(id=uuid.uuid4(), user_id=user.id, provider=BankProvider.ENABLE_BANKING,
+                              institution_id="T|PL", institution_name="T", external_reference="r2",
                               status=ConnectionStatus.LINKED)
         db_session.add(conn)
         db_session.flush()

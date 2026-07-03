@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.ruff_cache
+.pytest_cache
+celerybeat-schedule
+.env
+*.egg-info
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md

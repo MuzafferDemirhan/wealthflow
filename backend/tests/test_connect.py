@@ -18,10 +18,9 @@ from app.services.connect_service import (
     ConnectionNotFoundError,
     InstitutionNotFoundError,
     RequisitionNotFoundError,
-    _normalise_status,
 )
 from app.services.providers.base import ProviderAccount
-from app.services.providers.nordigen import ProviderError
+from app.services.providers.enable_banking import ProviderError
 
 # ------------------------------------------------------------------
 # Helpers
@@ -51,35 +50,9 @@ def auth_header(user_id: uuid.UUID) -> dict:
 
 
 MOCK_INSTITUTIONS = [
-    {"id": "SANDBOX_BANK", "name": "Sandbox Bank", "logo": None},
-    {"id": "TEST_BANK", "name": "Test Bank", "logo": "https://example.com/logo.png"},
+    {"name": "Sandbox Bank", "country": "PL", "logo_url": None},
+    {"name": "Test Bank", "country": "PL", "logo_url": "https://example.com/logo.png"},
 ]
-
-
-# ------------------------------------------------------------------
-# Unit: _normalise_status
-# ------------------------------------------------------------------
-
-
-class TestNormaliseStatus:
-    def test_linked(self):
-        assert _normalise_status("LN") == ConnectionStatus.LINKED
-
-    def test_pending(self):
-        for s in ["CR", "GC", "UA", "GA"]:
-            assert _normalise_status(s) == ConnectionStatus.PENDING
-
-    def test_error(self):
-        assert _normalise_status("RJ") == ConnectionStatus.ERROR
-
-    def test_expired(self):
-        assert _normalise_status("EX") == ConnectionStatus.EXPIRED
-
-    def test_revoked(self):
-        assert _normalise_status("SA") == ConnectionStatus.REVOKED
-
-    def test_unknown(self):
-        assert _normalise_status("XX") == ConnectionStatus.ERROR
 
 
 # ------------------------------------------------------------------
@@ -96,7 +69,8 @@ class TestListInstitutions:
 
         result = connect_service.list_institutions(country="PL")
         assert len(result) == 2
-        assert result[0]["name"] == "Sandbox Bank"  # alphabetical
+        assert result[0]["id"] == "Sandbox Bank|PL"
+        assert result[1]["id"] == "Test Bank|PL"
 
     @patch("app.services.connect_service._build_provider")
     def test_provider_error_raises_connect_error(self, mock_build):
@@ -114,26 +88,26 @@ class TestCreateRequisition:
         mock_provider = MagicMock()
         mock_provider.list_institutions.return_value = MOCK_INSTITUTIONS
         mock_provider.create_requisition.return_value = {
-            "id": "req-123",
-            "link": "https://bank.link/start",
+            "authorization_id": "auth-456",
+            "url": "https://enablebanking.com/auth/start",
         }
         mock_build.return_value = mock_provider
 
         result = connect_service.create_requisition(
             db_session,
             user_id=user.id,
-            institution_id="SANDBOX_BANK",
+            institution_id="Sandbox Bank|PL",
             redirect_uri="https://example.com/callback",
         )
-        assert result["requisition_id"] == "req-123"
-        assert result["link"] == "https://bank.link/start"
+        assert result["requisition_id"] == "auth-456"
+        assert result["link"] == "https://enablebanking.com/auth/start"
         assert result["status"] == ConnectionStatus.PENDING
+        assert "state" in result
 
-        # Verify DB
         conn = db_session.scalar(select(BankConnection))
         assert conn is not None
         assert conn.user_id == user.id
-        assert conn.external_reference == "req-123"
+        assert conn.external_reference == "auth-456"
         assert conn.status == ConnectionStatus.PENDING
 
     @patch("app.services.connect_service._build_provider")
@@ -146,7 +120,7 @@ class TestCreateRequisition:
             connect_service.create_requisition(
                 db_session,
                 user_id=user.id,
-                institution_id="NONEXISTENT",
+                institution_id="Nonexistent|PL",
                 redirect_uri="https://example.com/callback",
             )
 
@@ -158,17 +132,17 @@ class TestPollRequisition:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="SANDBOX_BANK",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Sandbox Bank|PL",
             institution_name="Sandbox Bank",
-            external_reference="req-456",
+            external_reference="session-456",
             status=ConnectionStatus.PENDING,
         )
         db_session.add(conn)
         db_session.commit()
 
         mock_provider = MagicMock()
-        mock_provider.get_requisition.return_value = {"status": "LN"}
+        mock_provider.get_requisition.return_value = {"status": "AUTHORIZED"}
         mock_provider.fetch_accounts.return_value = [
             ProviderAccount(
                 external_account_id="ext-acc-1",
@@ -188,7 +162,6 @@ class TestPollRequisition:
         assert result["status"] == ConnectionStatus.LINKED
         assert len(result["accounts_created"]) == 1
 
-        # Verify DB
         db_session.refresh(conn)
         assert conn.status == ConnectionStatus.LINKED
 
@@ -202,10 +175,10 @@ class TestPollRequisition:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="SANDBOX_BANK",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Sandbox Bank|PL",
             institution_name="Sandbox Bank",
-            external_reference="req-789",
+            external_reference="session-789",
             status=ConnectionStatus.LINKED,
         )
         db_session.add(conn)
@@ -229,8 +202,8 @@ class TestGetUserConnections:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-1",
             status=ConnectionStatus.LINKED,
@@ -253,8 +226,8 @@ class TestGetUserConnections:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=other_user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-other",
             status=ConnectionStatus.LINKED,
@@ -271,8 +244,8 @@ class TestDisconnectConnection:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-disconnect",
             status=ConnectionStatus.LINKED,
@@ -341,23 +314,23 @@ class TestConnectAPI:
         mock_provider = MagicMock()
         mock_provider.list_institutions.return_value = MOCK_INSTITUTIONS
         mock_provider.create_requisition.return_value = {
-            "id": "req-api-1",
-            "link": "https://bank.link/auth",
+            "authorization_id": "auth-api-1",
+            "url": "https://enablebanking.com/auth/start",
         }
         mock_build.return_value = mock_provider
 
         resp = client.post(
             f"{API_PREFIX}/requisitions",
             json={
-                "institution_id": "SANDBOX_BANK",
+                "institution_id": "Sandbox Bank|PL",
                 "redirect_uri": "https://app.example.com/callback",
             },
             headers=auth_header(user.id),
         )
         assert resp.status_code == 201
         data = resp.json()
-        assert data["requisition_id"] == "req-api-1"
-        assert data["link"] == "https://bank.link/auth"
+        assert data["requisition_id"] == "auth-api-1"
+        assert data["link"] == "https://enablebanking.com/auth/start"
         assert data["status"] == "pending"
 
     @patch("app.services.connect_service._build_provider")
@@ -365,10 +338,10 @@ class TestConnectAPI:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="SANDBOX_BANK",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Sandbox Bank|PL",
             institution_name="Sandbox Bank",
-            external_reference="req-poll",
+            external_reference="session-poll",
             status=ConnectionStatus.LINKED,
         )
         db_session.add(conn)
@@ -381,14 +354,14 @@ class TestConnectAPI:
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "linked"
-        assert data["requisition_id"] == "req-poll"
+        assert data["requisition_id"] == "session-poll"
 
     def test_list_connections(self, db_session, client, user):
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-list",
             status=ConnectionStatus.LINKED,
@@ -409,8 +382,8 @@ class TestConnectAPI:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="TEST",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test Bank|PL",
             institution_name="Test Bank",
             external_reference="ref-del",
             status=ConnectionStatus.LINKED,
@@ -446,10 +419,10 @@ class TestPollRequisitionDedup:
         conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="SANDBOX_BANK",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Sandbox Bank|PL",
             institution_name="Sandbox Bank",
-            external_reference="req-dedup",
+            external_reference="session-dedup",
             status=ConnectionStatus.PENDING,
         )
         db_session.add(conn)
@@ -465,7 +438,7 @@ class TestPollRequisitionDedup:
         db_session.commit()
 
         mock_provider = MagicMock()
-        mock_provider.get_requisition.return_value = {"status": "LN"}
+        mock_provider.get_requisition.return_value = {"status": "AUTHORIZED"}
         mock_provider.fetch_accounts.return_value = [
             ProviderAccount(
                 external_account_id="ext-dup-1",

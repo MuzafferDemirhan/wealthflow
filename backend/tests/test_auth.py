@@ -5,7 +5,7 @@ Sprint 1 — JWT authentication endpoint tests.
 VALID_USER = {
     "email": "test@wealthflow.io",
     "password": "SuperSecret123",
-    "full_name": "Müzaffer Demirhan",
+    "full_name": "Test User",
 }
 
 

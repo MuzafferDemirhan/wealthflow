@@ -10,7 +10,7 @@ from app.models.bank_connection import BankConnection, BankProvider, ConnectionS
 from app.models.transaction import Transaction, TransactionStatus
 from app.models.user import User, UserRole
 from app.services.providers.base import ProviderTransaction
-from app.services.providers.nordigen import ProviderError
+from app.services.providers.enable_banking import ProviderError
 from app.tasks.ingestion import (
     _compute_since,
     _upsert_transaction,
@@ -38,8 +38,8 @@ def db_with_account(db_session):
     conn = BankConnection(
         id=uuid.uuid4(),
         user_id=user.id,
-        provider=BankProvider.NORDIGEN,
-        institution_id="TEST",
+        provider=BankProvider.ENABLE_BANKING,
+        institution_id="Test Bank|PL",
         institution_name="Test Bank",
         external_reference="ref-ingest-1",
         status=ConnectionStatus.LINKED,
@@ -175,7 +175,7 @@ class TestSyncAccountTransactions:
 
         mock_raw_txns = [
             ProviderTransaction(
-                external_id="nord-txn-1",
+                external_id="eb-txn-1",
                 amount=Decimal("-120.00"),
                 currency="PLN",
                 booking_date=date(2026, 7, 1),
@@ -185,7 +185,7 @@ class TestSyncAccountTransactions:
                 counterparty_name="RESTAURACJA U DOMINIKA",
             ),
             ProviderTransaction(
-                external_id="nord-txn-2",
+                external_id="eb-txn-2",
                 amount=Decimal("-45.99"),
                 currency="PLN",
                 booking_date=date(2026, 7, 2),
@@ -338,8 +338,8 @@ class TestSyncAllDueConnections:
         stale_conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="T1",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test 1|PL",
             institution_name="Test 1",
             external_reference="ref-fan-1",
             status=ConnectionStatus.LINKED,
@@ -348,8 +348,8 @@ class TestSyncAllDueConnections:
         fresh_conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.NORDIGEN,
-            institution_id="T2",
+            provider=BankProvider.ENABLE_BANKING,
+            institution_id="Test 2|PL",
             institution_name="Test 2",
             external_reference="ref-fan-2",
             status=ConnectionStatus.LINKED,
@@ -410,7 +410,7 @@ class TestSyncAccountTransactionsEdgeCases:
         db_session.refresh(account)
         assert account.current_balance == Decimal("0")
 
-    def test_non_nordigen_provider_skipped(self, db_with_account):
+    def test_unsupported_provider_skipped(self, db_with_account):
         db_session, user, conn, account = db_with_account
         conn.provider = "plaid"
         db_session.add(conn)

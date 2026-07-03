@@ -12,14 +12,14 @@
 
 ## What is this?
 
-WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem (Poland and EU).
+WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem.
 
 **Core features:**
--  Bank account connection via Open Banking (Plaid / Nordigen)
+-  Bank account connection via Open Banking (Nordigen)
 -  Automatic transaction categorization (scikit-learn ML model)
 -  Investment portfolio tracker with real-time market data
 -  Budget planning with smart alerts
--  AI financial advisor chatbot (Claude API)
+-  AI financial advisor chatbot (API)
 -  PDF & CSV report export
 
 ---

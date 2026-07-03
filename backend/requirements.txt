@@ -6,7 +6,7 @@ uvicorn[standard]==0.30.6
 sqlalchemy==2.0.35
 alembic==1.13.3
 pyodbc==5.1.0
-aioodbc==0.5.0
+
 
 # Validation & settings
 pydantic==2.9.2
@@ -18,7 +18,9 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1  # passlib 1.7.4's backend detection breaks on bcrypt>=4.1
 python-multipart==0.0.12
-PyJWT==2.7.0  # used directly in tests to decode/inspect tokens issued via python-jose
+
+# Open Banking — Enable Banking uses JWT (RS256) for auth
+PyJWT[crypto]==2.7.0
 
 # Cache & queue
 redis==5.1.1
@@ -27,18 +29,12 @@ celery==5.4.0
 # HTTP client
 httpx==0.27.2
 
-# Open Banking
-plaid-python==40.1.0
 
 # ML
 scikit-learn==1.5.2
-pandas==2.2.3
 
-# Reports
-reportlab==4.2.5
 
-# AI
-anthropic==0.34.2
+
 
 # Testing
 pytest==8.3.3
