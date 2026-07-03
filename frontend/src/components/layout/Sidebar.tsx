@@ -38,9 +38,9 @@ export function Sidebar({ onNav }: SidebarProps) {
   };
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="flex h-14 items-center gap-2 border-b border-zinc-200 px-5 dark:border-zinc-800">
-        <span className="text-lg font-bold tracking-tight">WealthFlow</span>
+    <aside className="flex h-full w-64 flex-col border-r border-border bg-surface-dim">
+      <div className="flex h-14 items-center gap-2 border-b border-border-light px-5">
+        <span className="text-lg font-bold tracking-tight text-text-primary">WealthFlow</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
@@ -49,7 +49,7 @@ export function Sidebar({ onNav }: SidebarProps) {
             const open = item.children.some((c) => isActive(c.href));
             return (
               <div key={item.label}>
-                <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-500">
+                <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-muted">
                   <span className="w-5 text-center">{item.icon}</span>
                   {item.label}
                 </div>
@@ -61,8 +61,8 @@ export function Sidebar({ onNav }: SidebarProps) {
                       onClick={onNav}
                       className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm transition-colors ${
                         isActive(child.href)
-                          ? "bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                          : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+                          ? "bg-brand/10 font-medium text-brand"
+                          : "text-text-muted hover:text-text-primary hover:bg-surface-container-low"
                       }`}
                     >
                       {child.label}
@@ -80,8 +80,8 @@ export function Sidebar({ onNav }: SidebarProps) {
               onClick={onNav}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                 isActive(item.href!)
-                  ? "bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                  : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+                  ? "bg-brand/10 font-medium text-brand"
+                  : "text-text-muted hover:text-text-primary hover:bg-surface-container-low"
               }`}
             >
               <span className="w-5 text-center">{item.icon}</span>
@@ -91,18 +91,20 @@ export function Sidebar({ onNav }: SidebarProps) {
         })}
       </nav>
 
-      <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
+      <div className="border-t border-border-light p-3">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{user?.full_name}</p>
-            <p className="truncate text-xs text-zinc-500">{user?.email}</p>
+            <p className="truncate text-sm font-medium text-text-primary">{user?.full_name}</p>
+            <p className="truncate text-xs text-text-muted">{user?.email}</p>
           </div>
           <button
             onClick={logout}
-            className="rounded-lg px-2 py-1 text-xs text-zinc-500 hover:text-red-600 transition-colors"
+            className="rounded-lg px-2 py-1 text-xs text-text-muted hover:text-error transition-colors"
             title="Sign out"
           >
-            ✕
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
           </button>
         </div>
       </div>

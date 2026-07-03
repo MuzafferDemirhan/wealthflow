@@ -65,8 +65,8 @@ export default function AccountsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Accounts</h1>
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Accounts</h1>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">
           {error}
           <button onClick={load} className="ml-2 underline">Retry</button>
         </div>
@@ -80,13 +80,13 @@ export default function AccountsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Accounts</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Accounts</h1>
         <Button variant="secondary" onClick={load}>Refresh</Button>
       </div>
 
       {accounts.length === 0 && (
         <Card>
-          <p className="text-sm text-zinc-500">No accounts connected. Connect a bank to get started.</p>
+          <p className="text-sm text-text-muted">No accounts connected. Connect a bank to get started.</p>
         </Card>
       )}
 
@@ -96,15 +96,15 @@ export default function AccountsPage() {
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium">{acc.display_name}</p>
-                  <p className="text-xs text-zinc-500">{acc.account_type.replace(/_/g, " ")} · {acc.currency}</p>
+                  <p className="font-medium text-text-primary">{acc.display_name}</p>
+                  <p className="text-xs text-text-muted">{acc.account_type.replace(/_/g, " ")} · {acc.currency}</p>
                 </div>
                 <Badge variant={acc.is_active ? "success" : "error"}>
                   {acc.is_active ? "Active" : "Inactive"}
                 </Badge>
               </div>
 
-              <p className="text-2xl font-bold">{formatCurrency(acc.current_balance)}</p>
+              <p className="text-2xl font-bold text-text-primary">{formatCurrency(acc.current_balance)}</p>
 
               <div className="flex gap-2">
                 <Button

@@ -54,14 +54,14 @@ export default function IncomeVsExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Income vs Expenses</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Income vs Expenses</h1>
 
       <Card>
         <div className="flex flex-wrap items-end gap-4">
           <Input label="From" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           <Input label="To" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={monthly} onChange={(e) => setMonthly(e.target.checked)} />
+          <label className="flex items-center gap-2 text-sm text-text-primary">
+            <input type="checkbox" checked={monthly} onChange={(e) => setMonthly(e.target.checked)} className="accent-brand" />
             Monthly breakdown
           </label>
           <Button onClick={handleApply} loading={loading}>Apply</Button>
@@ -71,22 +71,22 @@ export default function IncomeVsExpensesPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       ) : data ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-xs text-zinc-500">Income</p>
-                <p className="text-lg font-semibold text-emerald-600">{formatCurrency(data.total_income)}</p>
+                <p className="text-xs text-text-muted">Income</p>
+                <p className="text-lg font-semibold text-success">{formatCurrency(data.total_income)}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Expenses</p>
-                <p className="text-lg font-semibold text-red-600">{formatCurrency(data.total_expenses)}</p>
+                <p className="text-xs text-text-muted">Expenses</p>
+                <p className="text-lg font-semibold text-error">{formatCurrency(data.total_expenses)}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Net</p>
-                <p className={`text-lg font-semibold ${data.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>{formatCurrency(data.net)}</p>
+                <p className="text-xs text-text-muted">Net</p>
+                <p className={`text-lg font-semibold ${data.net >= 0 ? "text-success" : "text-error"}`}>{formatCurrency(data.net)}</p>
               </div>
             </div>
             <div className="mt-4">
@@ -100,12 +100,12 @@ export default function IncomeVsExpensesPage() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} />
-                  <Legend />
-                  <Bar dataKey="Income" fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Expenses" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94A3B8' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#94A3B8' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F8FAFC' }} formatter={(value) => formatCurrency(Number(value ?? 0))} />
+                  <Legend wrapperStyle={{ color: '#94A3B8' }} />
+                  <Bar dataKey="Income" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Expenses" fill="#EF4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

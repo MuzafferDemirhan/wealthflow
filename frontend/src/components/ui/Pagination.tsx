@@ -22,36 +22,36 @@ export function Pagination({ offset, limit, total, onChange }: PaginationProps) 
 
   return (
     <div className="flex items-center justify-between px-4 py-3">
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-text-muted">
         {offset + 1}–{Math.min(offset + limit, total)} of {total}
       </p>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onChange(0)}
           disabled={currentPage === 1}
-          className="rounded px-2 py-1 text-sm text-zinc-500 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-50"
+          className="rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
         >
           First
         </button>
         <button
           onClick={() => onChange(offset - limit)}
           disabled={currentPage === 1}
-          className="rounded px-2 py-1 text-sm text-zinc-500 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-50"
+          className="rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
         >
           Prev
         </button>
-        <span className="px-2 text-sm font-medium">{currentPage}</span>
+        <span className="px-2 text-sm font-medium text-text-primary">{currentPage}</span>
         <button
           onClick={() => onChange(offset + limit)}
           disabled={currentPage >= totalPages}
-          className="rounded px-2 py-1 text-sm text-zinc-500 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-50"
+          className="rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
         >
           Next
         </button>
         <button
           onClick={() => onChange((totalPages - 1) * limit)}
           disabled={currentPage >= totalPages}
-          className="rounded px-2 py-1 text-sm text-zinc-500 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-50"
+          className="rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
         >
           Last
         </button>

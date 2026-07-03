@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import type { HoldingRead, PortfolioSummary, HoldingCreate, AssetType } from "@/lib/types";
 
-const COLORS = ["#059669", "#2563eb", "#d97706", "#dc2626", "#7c3aed", "#0891b2", "#be123c"];
+const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899"];
 
 const assetTypeLabels: Record<string, string> = {
   stock: "Stocks", etf: "ETFs", mutual_fund: "Mutual Funds",
@@ -103,8 +103,8 @@ export default function PortfolioPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Portfolio</h1>
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Portfolio</h1>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function PortfolioPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Portfolio</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Portfolio</h1>
         <Button onClick={() => setShowAdd(true)}>Add Holding</Button>
       </div>
 
@@ -120,16 +120,16 @@ export default function PortfolioPage() {
       {summary && (
         <div className="grid gap-4 sm:grid-cols-4">
           <Card>
-            <p className="text-xs text-zinc-500">Market Value</p>
-            <p className="text-xl font-bold">{formatCurrency(summary.total_market_value)}</p>
+            <p className="text-xs text-text-muted">Market Value</p>
+            <p className="text-xl font-bold text-text-primary">{formatCurrency(summary.total_market_value)}</p>
           </Card>
           <Card>
-            <p className="text-xs text-zinc-500">Cost Basis</p>
-            <p className="text-xl font-bold">{formatCurrency(summary.total_cost_basis)}</p>
+            <p className="text-xs text-text-muted">Cost Basis</p>
+            <p className="text-xl font-bold text-text-primary">{formatCurrency(summary.total_cost_basis)}</p>
           </Card>
           <Card>
-            <p className="text-xs text-zinc-500">Gain / Loss</p>
-            <p className={`text-xl font-bold ${(summary.total_gain_loss ?? 0) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+            <p className="text-xs text-text-muted">Gain / Loss</p>
+            <p className={`text-xl font-bold ${(summary.total_gain_loss ?? 0) >= 0 ? "text-success" : "text-error"}`}>
               {formatCurrency(summary.total_gain_loss)}
               {summary.total_gain_loss_pct != null && (
                 <span className="ml-1 text-sm">({(summary.total_gain_loss_pct >= 0 ? "+" : "")}{summary.total_gain_loss_pct.toFixed(1)}%)</span>
@@ -137,8 +137,8 @@ export default function PortfolioPage() {
             </p>
           </Card>
           <Card>
-            <p className="text-xs text-zinc-500">Holdings</p>
-            <p className="text-xl font-bold">{summary.holdings_count}</p>
+            <p className="text-xs text-text-muted">Holdings</p>
+            <p className="text-xl font-bold text-text-primary">{summary.holdings_count}</p>
           </Card>
         </div>
       )}
@@ -149,13 +149,13 @@ export default function PortfolioPage() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={allocationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                <Pie data={allocationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={{ fill: '#94A3B8', fontSize: 12 }}>
                   {allocationData.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+                <Tooltip contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F8FAFC' }} />
+                <Legend wrapperStyle={{ color: '#94A3B8' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -165,20 +165,20 @@ export default function PortfolioPage() {
       {/* Holdings Table */}
       <Card title="Holdings">
         {holdings.length === 0 ? (
-          <p className="text-sm text-zinc-500">No holdings yet. Add your first investment.</p>
+          <p className="text-sm text-text-muted">No holdings yet. Add your first investment.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="px-4 py-3 font-medium text-zinc-500">Symbol</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Name</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Type</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Qty</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Avg Cost</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Price</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500">Market Value</th>
-                  <th className="px-4 py-3 font-medium text-zinc-500"></th>
+                <tr className="border-b border-border-light">
+                  <th className="px-4 py-3 font-medium text-text-muted">Symbol</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Name</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Type</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Qty</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Avg Cost</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Price</th>
+                  <th className="px-4 py-3 font-medium text-text-muted">Market Value</th>
+                  <th className="px-4 py-3 font-medium text-text-muted"></th>
                 </tr>
               </thead>
               <tbody>
@@ -187,16 +187,20 @@ export default function PortfolioPage() {
                     ? h.market_value - h.cost_basis * h.quantity
                     : null;
                   return (
-                    <tr key={h.id} className="border-b border-zinc-100 dark:border-zinc-800/50">
-                      <td className="px-4 py-3 font-medium">{h.symbol}</td>
-                      <td className="px-4 py-3">{h.name}</td>
-                      <td className="px-4 py-3"><Badge>{assetTypeLabels[h.asset_type] ?? h.asset_type}</Badge></td>
-                      <td className="px-4 py-3">{h.quantity}</td>
-                      <td className="px-4 py-3">{formatCurrency(h.cost_basis)}</td>
-                      <td className="px-4 py-3">{formatCurrency(h.current_price)}</td>
-                      <td className="px-4 py-3 font-semibold">{formatCurrency(h.market_value)}</td>
+                    <tr key={h.id} className="border-b border-border-light">
+                      <td className="px-4 py-3 font-medium text-text-primary">{h.symbol}</td>
+                      <td className="px-4 py-3 text-text-primary">{h.name}</td>
+                      <td className="px-4 py-3"><Badge variant="neutral">{assetTypeLabels[h.asset_type] ?? h.asset_type}</Badge></td>
+                      <td className="px-4 py-3 text-text-primary">{h.quantity}</td>
+                      <td className="px-4 py-3 text-text-primary">{formatCurrency(h.cost_basis)}</td>
+                      <td className="px-4 py-3 text-text-primary">{formatCurrency(h.current_price)}</td>
+                      <td className="px-4 py-3 font-semibold text-text-primary">{formatCurrency(h.market_value)}</td>
                       <td className="px-4 py-3">
-                        <Button size="sm" variant="ghost" onClick={() => handleDelete(h.id, h.symbol)}>✕</Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDelete(h.id, h.symbol)}>
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </Button>
                       </td>
                     </tr>
                   );

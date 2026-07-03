@@ -10,12 +10,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary:
-    "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200",
-  secondary:
-    "border border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800",
-  ghost: "hover:bg-zinc-100 dark:hover:bg-zinc-800",
-  danger: "bg-red-600 text-white hover:bg-red-700",
+  primary: "bg-brand text-brand-foreground hover:bg-brand-hover",
+  secondary: "border border-border text-text-primary hover:bg-surface-container-low",
+  ghost: "text-text-secondary hover:text-text-primary hover:bg-surface-container-low",
+  danger: "bg-error text-white hover:bg-red-600",
 };
 
 const sizes = {
@@ -36,7 +34,7 @@ export function Button({
   return (
     <button
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-surface disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         sizes[size],
         className,

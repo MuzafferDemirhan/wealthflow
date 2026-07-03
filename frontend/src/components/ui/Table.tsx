@@ -37,7 +37,7 @@ export function Table<T>({
 
   if (data.length === 0) {
     return (
-      <div className="py-12 text-center text-sm text-zinc-500">{emptyMessage}</div>
+      <div className="py-12 text-center text-sm text-text-muted">{emptyMessage}</div>
     );
   }
 
@@ -45,11 +45,11 @@ export function Table<T>({
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-zinc-200 dark:border-zinc-800">
+          <tr className="border-b border-border-light">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={clsx("px-4 py-3 font-medium text-zinc-500", col.className)}
+                className={clsx("px-4 py-3 font-medium text-text-muted", col.className)}
               >
                 {col.header}
               </th>
@@ -62,8 +62,8 @@ export function Table<T>({
               key={keyExtractor(item)}
               onClick={() => onRowClick?.(item)}
               className={clsx(
-                "border-b border-zinc-100 transition-colors dark:border-zinc-800/50",
-                onRowClick && "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/30",
+                "border-b border-border-light transition-colors",
+                onRowClick && "cursor-pointer hover:bg-surface-container-low",
               )}
             >
               {columns.map((col) => (

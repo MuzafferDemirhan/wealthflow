@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { ApiError } from "@/lib/api-client";
+import { Card } from "@/components/ui/Card";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -50,13 +51,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
-      <p className="mt-1 text-sm text-zinc-500">Join WealthFlow today</p>
+    <Card>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Create Account</h1>
+      <p className="mt-1 text-sm text-text-secondary">Join WealthFlow today</p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4" autoComplete="off">
         {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <div className="rounded-lg bg-error/10 p-3 text-sm text-error">
             {error}
           </div>
         )}
@@ -75,6 +76,7 @@ export default function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
+          autoComplete="off"
           required
         />
 
@@ -83,6 +85,7 @@ export default function RegisterPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
+          autoComplete="new-password"
           required
         />
 
@@ -91,6 +94,7 @@ export default function RegisterPage() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Repeat your password"
+          autoComplete="off"
           required
         />
 
@@ -99,12 +103,12 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-zinc-500">
+      <p className="mt-4 text-center text-sm text-text-secondary">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-zinc-900 underline dark:text-zinc-50">
+        <Link href="/login" className="font-medium text-brand hover:text-brand-hover">
           Sign in
         </Link>
       </p>
-    </div>
+    </Card>
   );
 }

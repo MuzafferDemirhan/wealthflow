@@ -81,33 +81,33 @@ export default function InstitutionsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Connect a Bank</h1>
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Connect a Bank</h1>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Connect a Bank</h1>
-      <p className="text-sm text-zinc-500">Select your country and bank to connect via Open Banking (PSD2).</p>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Connect a Bank</h1>
+      <p className="text-sm text-text-secondary">Select your country and bank to connect via Open Banking (PSD2).</p>
 
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-zinc-700">Country:</label>
+        <label className="text-sm font-medium text-text-secondary">Country:</label>
         <select
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+          className="rounded-lg border border-border bg-surface-bright text-text-primary px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
         >
           {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>{c.name}</option>
+            <option key={c.code} value={c.code} className="bg-surface-bright">{c.name}</option>
           ))}
         </select>
       </div>
 
       {institutions.length === 0 ? (
         <Card>
-          <p className="text-sm text-zinc-500">No institutions available for your region.</p>
+          <p className="text-sm text-text-muted">No institutions available for your region.</p>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -123,8 +123,8 @@ export default function InstitutionsPage() {
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{inst.name}</p>
-                  <p className="text-xs text-zinc-500">{inst.country}</p>
+                  <p className="font-medium truncate text-text-primary">{inst.name}</p>
+                  <p className="text-xs text-text-muted">{inst.country}</p>
                 </div>
                 <Button
                   size="sm"

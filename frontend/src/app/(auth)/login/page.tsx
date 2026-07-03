@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Spinner } from "@/components/ui/Spinner";
 import { ApiError } from "@/lib/api-client";
+import { Card } from "@/components/ui/Card";
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
@@ -51,13 +52,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight">Sign In</h1>
-      <p className="mt-1 text-sm text-zinc-500">Access your WealthFlow account</p>
+    <Card>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Sign In</h1>
+      <p className="mt-1 text-sm text-text-secondary">Access your WealthFlow account</p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4" autoComplete="off">
         {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <div className="rounded-lg bg-error/10 p-3 text-sm text-error">
             {error}
           </div>
         )}
@@ -68,6 +69,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
+          autoComplete="off"
           required
         />
 
@@ -76,6 +78,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
+          autoComplete="new-password"
           required
         />
 
@@ -84,12 +87,12 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-zinc-500">
+      <p className="mt-4 text-center text-sm text-text-secondary">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="font-medium text-zinc-900 underline dark:text-zinc-50">
+        <Link href="/register" className="font-medium text-brand hover:text-brand-hover">
           Create one
         </Link>
       </p>
-    </div>
+    </Card>
   );
 }

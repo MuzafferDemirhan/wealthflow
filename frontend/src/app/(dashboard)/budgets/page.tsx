@@ -111,8 +111,8 @@ export default function BudgetsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Budgets</h1>
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Budgets</h1>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       </div>
     );
   }
@@ -120,13 +120,13 @@ export default function BudgetsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Budgets</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Budgets</h1>
         <Button onClick={() => setShowCreate(true)}>Create Budget</Button>
       </div>
 
       {budgets.length === 0 && (
         <Card>
-          <p className="text-sm text-zinc-500">No budgets yet. Create one to start tracking your spending.</p>
+          <p className="text-sm text-text-muted">No budgets yet. Create one to start tracking your spending.</p>
         </Card>
       )}
 
@@ -134,36 +134,40 @@ export default function BudgetsPage() {
         {budgets.map((b) => {
           const cat = categories.find((c) => c.id === b.category_id);
           const progressColor =
-            b.progress_pct >= 100 ? "bg-red-500" : b.progress_pct >= 80 ? "bg-amber-500" : "bg-emerald-500";
+            b.progress_pct >= 100 ? "bg-error" : b.progress_pct >= 80 ? "bg-warning" : "bg-success";
 
           return (
             <Card key={b.id}>
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium">{cat?.name ?? "Uncategorized"}</p>
-                    <p className="text-xs text-zinc-500">{b.period_month}</p>
+                    <p className="font-medium text-text-primary">{cat?.name ?? "Uncategorized"}</p>
+                    <p className="text-xs text-text-muted">{b.period_month}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button size="sm" variant="ghost" onClick={() => { setEditing(b); setEditForm({ amount_limit: String(b.amount_limit), category_id: b.category_id ?? "" }); }}>
                       Edit
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDelete(b)}>✕</Button>
+                    <Button size="sm" variant="ghost" onClick={() => handleDelete(b)}>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span>{formatCurrency(b.spent)}</span>
-                    <span className="text-zinc-500">of {formatCurrency(b.amount_limit)}</span>
+                    <span className="text-text-primary">{formatCurrency(b.spent)}</span>
+                    <span className="text-text-muted">of {formatCurrency(b.amount_limit)}</span>
                   </div>
-                  <div className="mt-1 h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-800">
+                  <div className="mt-1 h-2 w-full rounded-full bg-surface-container-low">
                     <div
                       className={`h-2 rounded-full transition-all ${progressColor}`}
                       style={{ width: `${Math.min(b.progress_pct, 100)}%` }}
                     />
                   </div>
-                  <div className="mt-1 flex justify-between text-xs text-zinc-500">
+                  <div className="mt-1 flex justify-between text-xs text-text-muted">
                     <span>{b.progress_pct.toFixed(0)}% used</span>
                     <span>{formatCurrency(b.remaining)} remaining</span>
                   </div>

@@ -81,7 +81,6 @@ export default function TransactionsPage() {
       };
       const data = await api.get<TransactionRead[]>("/transactions", params);
       setTransactions(data);
-      // Total is approximated via response headers or count — use data.length < limit heuristic
       setTotal(data.length < limit ? offset + data.length : offset + limit + 1);
     } catch (e) {
       setError(e instanceof ApiError ? e.detail : "Failed to load transactions");
@@ -101,13 +100,13 @@ export default function TransactionsPage() {
     { key: "booking_date", header: "Date", render: (t) => t.booking_date },
     {
       key: "description", header: "Description",
-      render: (t) => <span className="font-medium">{t.description || "—"}</span>,
+      render: (t) => <span className="font-medium text-text-primary">{t.description || "—"}</span>,
     },
     { key: "counterparty_name", header: "Counterparty" },
     {
       key: "amount", header: "Amount",
       render: (t) => (
-        <span className={`font-semibold ${t.amount < 0 ? "text-red-600" : "text-emerald-600"}`}>
+        <span className={`font-semibold ${t.amount < 0 ? "text-error" : "text-success"}`}>
           {formatCurrency(Math.abs(t.amount))}
         </span>
       ),
@@ -116,7 +115,7 @@ export default function TransactionsPage() {
       key: "category_id", header: "Category",
       render: (t) => {
         const cat = categories.find((c) => c.id === t.category_id);
-        return cat ? <Badge>{cat.name}</Badge> : <Badge variant="neutral">Uncategorized</Badge>;
+        return cat ? <Badge variant="info">{cat.name}</Badge> : <Badge variant="neutral">Uncategorized</Badge>;
       },
     },
     {
@@ -125,7 +124,6 @@ export default function TransactionsPage() {
     },
   ];
 
-  // ── Edit category ──
   const openDetail = (tx: TransactionRead) => {
     setSelectedTx(tx);
     setEditCategoryId(tx.category_id ?? "");
@@ -149,7 +147,6 @@ export default function TransactionsPage() {
     }
   };
 
-  // ── Add manual transaction ──
   const handleAdd = async () => {
     if (!addForm.account_id || !addForm.amount || !addForm.booking_date) {
       toast("Account, amount, and date are required", "error");
@@ -182,7 +179,7 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Transactions</h1>
         <Button onClick={() => setShowAdd(true)}>Add Manual</Button>
       </div>
 
@@ -204,7 +201,7 @@ export default function TransactionsPage() {
       {/* Table */}
       <Card>
         {error ? (
-          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+          <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
         ) : (
           <>
             <Table
@@ -225,17 +222,17 @@ export default function TransactionsPage() {
         {selectedTx && (
           <div className="space-y-4">
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-zinc-500">Date</span><span>{selectedTx.booking_date}</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Description</span><span>{selectedTx.description || "—"}</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Counterparty</span><span>{selectedTx.counterparty_name || "—"}</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Amount</span><span className={selectedTx.amount < 0 ? "text-red-600" : "text-emerald-600"}>{formatCurrency(Math.abs(selectedTx.amount))}</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Status</span><Badge>{selectedTx.status}</Badge></div>
+              <div className="flex justify-between"><span className="text-text-muted">Date</span><span className="text-text-primary">{selectedTx.booking_date}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Description</span><span className="text-text-primary">{selectedTx.description || "—"}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Counterparty</span><span className="text-text-primary">{selectedTx.counterparty_name || "—"}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Amount</span><span className={selectedTx.amount < 0 ? "text-error" : "text-success"}>{formatCurrency(Math.abs(selectedTx.amount))}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={statusVariant[selectedTx.status] ?? "neutral"}>{selectedTx.status}</Badge></div>
               {selectedTx.category_source && (
-                <div className="flex justify-between"><span className="text-zinc-500">Source</span><span>{selectedTx.category_source}</span></div>
+                <div className="flex justify-between"><span className="text-text-muted">Source</span><span className="text-text-primary">{selectedTx.category_source}</span></div>
               )}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
+              <label className="text-sm font-medium text-text-secondary">Category</label>
               <Select
                 options={categoryOpts}
                 placeholder="Select category"

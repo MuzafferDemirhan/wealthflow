@@ -43,10 +43,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             onClick={() => removeToast(t.id)}
             className={clsx(
-              "cursor-pointer rounded-lg px-4 py-3 text-sm font-medium shadow-lg transition-all animate-in slide-in-from-right",
-              t.variant === "success" && "bg-emerald-600 text-white",
-              t.variant === "error" && "bg-red-600 text-white",
-              t.variant === "info" && "bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900",
+              "cursor-pointer rounded-lg px-4 py-3 text-sm font-medium shadow-lg transition-all",
+              t.variant === "success" && "bg-success text-white",
+              t.variant === "error" && "bg-error text-white",
+              t.variant === "info" && "bg-surface-bright text-text-primary border border-border",
             )}
           >
             {t.message}

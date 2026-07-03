@@ -30,10 +30,10 @@ describe("Button", () => {
 
   it("applies variant classes", () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-zinc-900");
+    expect(screen.getByRole("button")).toHaveClass("bg-brand");
 
     rerender(<Button variant="danger">Danger</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-red-600");
+    expect(screen.getByRole("button")).toHaveClass("bg-error");
   });
 
   it("applies size classes", () => {

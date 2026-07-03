@@ -11,31 +11,31 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Profile</h1>
 
       <Card className="max-w-lg">
         <div className="space-y-4">
           <div>
-            <p className="text-xs text-zinc-500">Full Name</p>
-            <p className="font-medium">{user.full_name}</p>
+            <p className="text-xs text-text-muted">Full Name</p>
+            <p className="font-medium text-text-primary">{user.full_name}</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-500">Email</p>
-            <p className="font-medium">{user.email}</p>
+            <p className="text-xs text-text-muted">Email</p>
+            <p className="font-medium text-text-primary">{user.email}</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-500">Role</p>
+            <p className="text-xs text-text-muted">Role</p>
             <Badge variant="info">{user.role}</Badge>
           </div>
           <div>
-            <p className="text-xs text-zinc-500">Account Status</p>
+            <p className="text-xs text-text-muted">Account Status</p>
             <Badge variant={user.is_active ? "success" : "error"}>
               {user.is_active ? "Active" : "Inactive"}
             </Badge>
           </div>
           <div>
-            <p className="text-xs text-zinc-500">Member Since</p>
-            <p className="font-medium">{new Date(user.created_at).toLocaleDateString()}</p>
+            <p className="text-xs text-text-muted">Member Since</p>
+            <p className="font-medium text-text-primary">{new Date(user.created_at).toLocaleDateString()}</p>
           </div>
         </div>
       </Card>

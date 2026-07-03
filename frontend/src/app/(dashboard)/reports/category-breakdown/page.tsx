@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import type { ReportCategoryBreakdown } from "@/lib/types";
 
-const COLORS = ["#059669", "#2563eb", "#d97706", "#dc2626", "#7c3aed", "#0891b2", "#be123c", "#84cc16", "#f97316", "#14b8a6", "#e11d48", "#8b5cf6"];
+const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4", "#EC4899", "#84CC16", "#F97316", "#14B8A6", "#E11D48", "#A855F7"];
 
 export default function CategoryBreakdownPage() {
   const today = new Date();
@@ -42,7 +42,7 @@ export default function CategoryBreakdownPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Category Breakdown</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Category Breakdown</h1>
 
       <Card>
         <div className="flex items-end gap-4">
@@ -55,20 +55,20 @@ export default function CategoryBreakdownPage() {
       {loading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">{error}</div>
+        <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       ) : data ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={data.categories} dataKey="total_amount" nameKey="category_name" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie data={data.categories} dataKey="total_amount" nameKey="category_name" cx="50%" cy="50%" outerRadius={100} label={{ fill: '#94A3B8', fontSize: 12 }}>
                     {data.categories.map((_, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} />
-                  <Legend />
+                  <Tooltip contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F8FAFC' }} formatter={(value) => formatCurrency(Number(value ?? 0))} />
+                  <Legend wrapperStyle={{ color: '#94A3B8' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -76,25 +76,25 @@ export default function CategoryBreakdownPage() {
           <Card>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Total Income</span>
-                <span className="font-semibold text-emerald-600">{formatCurrency(data.total_income)}</span>
+                <span className="text-text-muted">Total Income</span>
+                <span className="font-semibold text-success">{formatCurrency(data.total_income)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Total Expenses</span>
-                <span className="font-semibold text-red-600">{formatCurrency(data.total_expenses)}</span>
+                <span className="text-text-muted">Total Expenses</span>
+                <span className="font-semibold text-error">{formatCurrency(data.total_expenses)}</span>
               </div>
-              <div className="flex justify-between text-sm border-t pt-2 dark:border-zinc-800">
-                <span className="text-zinc-500">Net</span>
-                <span className={`font-semibold ${data.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>{formatCurrency(data.net)}</span>
+              <div className="flex justify-between text-sm border-t pt-2 border-border-light">
+                <span className="text-text-muted">Net</span>
+                <span className={`font-semibold ${data.net >= 0 ? "text-success" : "text-error"}`}>{formatCurrency(data.net)}</span>
               </div>
               <div className="mt-4 space-y-2">
                 {data.categories.map((cat, i) => (
                   <div key={i} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                      <span>{cat.category_name}</span>
+                      <span className="text-text-primary">{cat.category_name}</span>
                     </div>
-                    <span className="font-medium">{formatCurrency(cat.total_amount)} ({cat.percentage.toFixed(1)}%)</span>
+                    <span className="font-medium text-text-primary">{formatCurrency(cat.total_amount)} ({cat.percentage.toFixed(1)}%)</span>
                   </div>
                 ))}
               </div>
