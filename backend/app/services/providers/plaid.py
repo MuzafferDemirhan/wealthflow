@@ -208,6 +208,24 @@ class PlaidAdapter(ProviderAdapter):
     def fetch_balances(
         self, external_account_id: str
     ) -> tuple[Decimal, Optional[datetime]]:
+        if "::" in external_account_id:
+            access_token, account_id = external_account_id.split("::", 1)
+        else:
+            access_token = external_account_id
+            account_id = None
+
+        try:
+            response = self._client.accounts_get(AccountsGetRequest(access_token=access_token))
+        except plaid.ApiException as exc:
+            raise PlaidProviderError(f"accounts/get failed: {exc.body}") from exc
+
+        for acc in response["accounts"]:
+            if account_id and acc["account_id"] != account_id:
+                continue
+            balance = acc["balances"]
+            current = Decimal(str(balance.get("current") or 0))
+            return current, datetime.now(timezone.utc)
+
         return Decimal("0"), None
 
     def create_requisition(

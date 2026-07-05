@@ -29,15 +29,15 @@ export default function InstitutionsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Connect a Bank</h1>
-      <p className="text-sm text-text-secondary">Connect your bank accounts securely via Plaid.</p>
+    <div className="space-y-8">
+      <h1 className="text-3xl font-medium tracking-tight text-on-surface">Connect a Bank</h1>
+      <p className="text-sm text-on-surface-variant">Connect your bank accounts securely via Plaid.</p>
 
       <Card>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-text-primary">Plaid</p>
-            <p className="text-xs text-text-muted">Connect via Plaid Link SDK</p>
+            <p className="font-medium text-on-surface">Plaid</p>
+            <p className="text-xs text-on-surface-variant">Connect via Plaid Link SDK</p>
           </div>
           <PlaidLinkButton onSuccess={handlePlaidSuccess} />
         </div>

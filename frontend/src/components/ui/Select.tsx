@@ -20,9 +20,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const selectId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
-          <label htmlFor={selectId} className="block text-sm font-medium text-text-secondary">
+          <label htmlFor={selectId} className="block text-sm font-medium text-on-surface-variant">
             {label}
           </label>
         )}
@@ -30,17 +30,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={clsx(
-            "block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50 bg-surface-bright text-text-primary",
+            "block w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 bg-surface text-on-surface",
             error
-              ? "border-error focus:border-error focus:ring-error/50"
-              : "border-border",
+              ? "border-error focus:border-error focus:ring-error/30"
+              : "border-outline focus:border-primary focus:ring-primary/30",
             className,
           )}
           {...props}
         >
-          {placeholder && <option value="" className="bg-surface-bright">{placeholder}</option>}
+          {placeholder && <option value="">{placeholder}</option>}
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-surface-bright">
+            <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}

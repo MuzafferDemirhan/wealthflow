@@ -1,5 +1,7 @@
+import json
 from typing import List
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -41,6 +43,15 @@ class Settings(BaseSettings):
 
     # Market data
     ALPHA_VANTAGE_KEY: str = ""
+
+    @field_validator("PLAID_PRODUCTS", "PLAID_COUNTRY_CODES", "ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_list(cls, v: object) -> object:
+        if isinstance(v, str):
+            if v.startswith("["):
+                return json.loads(v)
+            return [x.strip() for x in v.split(",") if x.strip()]
+        return v
 
 
 settings = Settings()

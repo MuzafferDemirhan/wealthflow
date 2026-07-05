@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -10,10 +10,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Table, type Column } from "@/components/ui/Table";
 import { Pagination } from "@/components/ui/Pagination";
-import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import type {
-  TransactionRead, TransactionStatus, CategoryRead, AccountRead,
+  TransactionRead, CategoryRead, AccountRead,
 } from "@/lib/types";
 
 const statusVariant: Record<string, "success" | "warning" | "neutral"> = {
@@ -24,7 +24,6 @@ const statusVariant: Record<string, "success" | "warning" | "neutral"> = {
 export default function TransactionsPage() {
   const { toast } = useToast();
 
-  // Filters
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [accountId, setAccountId] = useState("");
@@ -34,7 +33,6 @@ export default function TransactionsPage() {
   const [offset, setOffset] = useState(0);
   const limit = 50;
 
-  // Data
   const [transactions, setTransactions] = useState<TransactionRead[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -42,12 +40,10 @@ export default function TransactionsPage() {
   const [categories, setCategories] = useState<CategoryRead[]>([]);
   const [error, setError] = useState("");
 
-  // Detail modal
   const [selectedTx, setSelectedTx] = useState<TransactionRead | null>(null);
   const [editCategoryId, setEditCategoryId] = useState("");
   const [savingCategory, setSavingCategory] = useState(false);
 
-  // Manual add modal
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({
     account_id: "",
@@ -59,39 +55,38 @@ export default function TransactionsPage() {
   });
   const [adding, setAdding] = useState(false);
 
-  // Load filter options
   useEffect(() => {
     api.get<AccountRead[]>("/accounts").then(setAccounts).catch(() => {});
     api.get<CategoryRead[]>("/categories").then(setCategories).catch(() => {});
   }, []);
 
-  // Load transactions
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params: Record<string, string | number | undefined> = {
-        offset, limit,
-        search: search || undefined,
-        status: status || undefined,
-        account_id: accountId || undefined,
-        category_id: categoryId || undefined,
-        date_from: dateFrom || undefined,
-        date_to: dateTo || undefined,
-      };
-      const data = await api.get<TransactionRead[]>("/transactions", params);
-      setTransactions(data);
-      setTotal(data.length < limit ? offset + data.length : offset + limit + 1);
-    } catch (e) {
-      setError(e instanceof ApiError ? e.detail : "Failed to load transactions");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const params: Record<string, string | number | undefined> = {
+          offset, limit,
+          search: search || undefined,
+          status: status || undefined,
+          account_id: accountId || undefined,
+          category_id: categoryId || undefined,
+          date_from: dateFrom || undefined,
+          date_to: dateTo || undefined,
+        };
+        const data = await api.get<TransactionRead[]>("/transactions", params);
+        setTransactions(data);
+        setTotal(data.length < limit ? offset + data.length : offset + limit + 1);
+      } catch (e) {
+        setError(e instanceof ApiError ? e.detail : "Failed to load transactions");
+      } finally {
+        setLoading(false);
+      }
     }
+    load();
   }, [offset, limit, search, status, accountId, categoryId, dateFrom, dateTo]);
 
-  useEffect(() => { load(); }, [load]);
-
-  const handleFilter = () => { setOffset(0); load(); };
+  const handleFilter = () => { setOffset(0); };
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
@@ -100,7 +95,7 @@ export default function TransactionsPage() {
     { key: "booking_date", header: "Date", render: (t) => t.booking_date },
     {
       key: "description", header: "Description",
-      render: (t) => <span className="font-medium text-text-primary">{t.description || "-"}</span>,
+      render: (t) => <span className="font-medium text-on-surface">{t.description || "-"}</span>,
     },
     { key: "counterparty_name", header: "Counterparty" },
     {
@@ -147,6 +142,25 @@ export default function TransactionsPage() {
     }
   };
 
+  const reload = async () => {
+    try {
+      const params: Record<string, string | number | undefined> = {
+        offset, limit,
+        search: search || undefined,
+        status: status || undefined,
+        account_id: accountId || undefined,
+        category_id: categoryId || undefined,
+        date_from: dateFrom || undefined,
+        date_to: dateTo || undefined,
+      };
+      const data = await api.get<TransactionRead[]>("/transactions", params);
+      setTransactions(data);
+      setTotal(data.length < limit ? offset + data.length : offset + limit + 1);
+    } catch (e) {
+      toast(e instanceof ApiError ? e.detail : "Failed to refresh transactions", "error");
+    }
+  };
+
   const handleAdd = async () => {
     if (!addForm.account_id || !addForm.amount || !addForm.booking_date) {
       toast("Account, amount and date are required", "error");
@@ -165,7 +179,7 @@ export default function TransactionsPage() {
       toast("Transaction added", "success");
       setShowAdd(false);
       setAddForm({ account_id: "", amount: "", currency: "PLN", booking_date: "", description: "", counterparty_name: "" });
-      load();
+      reload();
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to add transaction", "error");
     } finally {
@@ -177,9 +191,9 @@ export default function TransactionsPage() {
   const categoryOpts = categories.map((c) => ({ value: c.id, label: c.name }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Transactions</h1>
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Transactions</h1>
         <Button onClick={() => setShowAdd(true)}>Add Manual</Button>
       </div>
 
@@ -193,7 +207,7 @@ export default function TransactionsPage() {
           <Input label="From" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           <Input label="To" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
         </div>
-        <div className="mt-3 flex justify-end">
+        <div className="mt-4 flex justify-end">
           <Button variant="secondary" onClick={handleFilter}>Apply Filters</Button>
         </div>
       </Card>
@@ -204,14 +218,21 @@ export default function TransactionsPage() {
           <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
         ) : (
           <>
-            <Table
-              columns={columns}
-              data={transactions}
-              loading={loading}
-              onRowClick={openDetail}
-              keyExtractor={(t) => t.id}
-              emptyMessage="No transactions found"
-            />
+            {loading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <Table
+                columns={columns}
+                data={transactions}
+                onRowClick={openDetail}
+                keyExtractor={(t) => t.id}
+                emptyMessage="No transactions found"
+              />
+            )}
             <Pagination offset={offset} limit={limit} total={total} onChange={setOffset} />
           </>
         )}
@@ -221,18 +242,18 @@ export default function TransactionsPage() {
       <Modal open={!!selectedTx} onClose={() => setSelectedTx(null)} title="Transaction Detail">
         {selectedTx && (
           <div className="space-y-4">
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-text-muted">Date</span><span className="text-text-primary">{selectedTx.booking_date}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Description</span><span className="text-text-primary">{selectedTx.description || "-"}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Counterparty</span><span className="text-text-primary">{selectedTx.counterparty_name || "-"}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Amount</span><span className={selectedTx.amount < 0 ? "text-error" : "text-success"}>{formatCurrency(Math.abs(selectedTx.amount))}</span></div>
-              <div className="flex justify-between"><span className="text-text-muted">Status</span><Badge variant={statusVariant[selectedTx.status] ?? "neutral"}>{selectedTx.status}</Badge></div>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-on-surface-variant">Date</span><span className="text-on-surface">{selectedTx.booking_date}</span></div>
+              <div className="flex justify-between"><span className="text-on-surface-variant">Description</span><span className="text-on-surface">{selectedTx.description || "-"}</span></div>
+              <div className="flex justify-between"><span className="text-on-surface-variant">Counterparty</span><span className="text-on-surface">{selectedTx.counterparty_name || "-"}</span></div>
+              <div className="flex justify-between"><span className="text-on-surface-variant">Amount</span><span className={selectedTx.amount < 0 ? "text-error" : "text-success"}>{formatCurrency(Math.abs(selectedTx.amount))}</span></div>
+              <div className="flex justify-between"><span className="text-on-surface-variant">Status</span><Badge variant={statusVariant[selectedTx.status] ?? "neutral"}>{selectedTx.status}</Badge></div>
               {selectedTx.category_source && (
-                <div className="flex justify-between"><span className="text-text-muted">Source</span><span className="text-text-primary">{selectedTx.category_source}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Source</span><span className="text-on-surface">{selectedTx.category_source}</span></div>
               )}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-text-secondary">Category</label>
+              <label className="text-sm font-medium text-on-surface-variant">Category</label>
               <Select
                 options={categoryOpts}
                 placeholder="Select category"

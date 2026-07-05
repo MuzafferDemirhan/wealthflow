@@ -65,7 +65,7 @@ def sync_account_transactions(self, account_id: str) -> dict:
                 new_ids.append(str(txn_id))
 
         try:
-            balance, balance_as_of = provider.fetch_balances(account.external_account_id)
+            balance, balance_as_of = provider.fetch_balances(f"{access_token}::{account.external_account_id}")
             account.current_balance = balance
             account.balance_as_of = balance_as_of
         except PlaidProviderError:

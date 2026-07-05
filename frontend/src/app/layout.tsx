@@ -9,21 +9,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WealthFlow - Personal Finance & Investment Platform",
+  title: "Kinetic Finance - Personal Finance & Investment Platform",
   description: "Track your finances, connect bank accounts, manage budgets and monitor investments.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-surface text-text-primary font-sans">
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-background text-on-surface font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>

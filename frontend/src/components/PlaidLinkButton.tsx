@@ -1,60 +1,41 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
-import { api, ApiError } from "@/lib/api-client";
+import { usePlaidLink, type PlaidLinkOnSuccess } from "react-plaid-link";
+import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
-import { useToast } from "@/components/ui/Toast";
 
-interface Props {
-  onSuccess: (publicToken: string, institutionId: string, institutionName: string) => void;
-  onError?: (error: string) => void;
+interface PlaidLinkButtonProps {
+  onSuccess: (publicToken: string, institutionId: string, institutionName: string) => Promise<void>;
 }
 
-export function PlaidLinkButton({ onSuccess, onError }: Props) {
-  const { toast } = useToast();
+export function PlaidLinkButton({ onSuccess }: PlaidLinkButtonProps) {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    api
-      .post<{ link_token: string }>("/connect/plaid/link-token", {})
-      .then((res) => setLinkToken(res.link_token))
-      .catch(() => {
-        const msg = "Failed to initialize bank connection";
-        onError?.(msg);
-        toast(msg, "error");
-      })
-      .finally(() => setLoading(false));
-  }, [onError, toast]);
+    api.post<{ link_token: string }>("/connect/plaid/create-link-token")
+      .then((data) => setLinkToken(data.link_token))
+      .catch(() => {});
+  }, []);
 
-  const handleOnSuccess = useCallback(
-    (publicToken: string, metadata: { institution?: { institution_id?: string; name?: string } | null }) => {
-      const inst = metadata.institution;
-      onSuccess(publicToken, inst?.institution_id ?? "", inst?.name ?? "Unknown");
+  const onPlaidSuccess: PlaidLinkOnSuccess = useCallback(
+    (publicToken, metadata) => {
+      const institutionId = metadata.institution?.institution_id ?? "";
+      const institutionName = metadata.institution?.name ?? "Unknown";
+      setLoading(true);
+      onSuccess(publicToken, institutionId, institutionName).finally(() => setLoading(false));
     },
     [onSuccess],
   );
 
   const { open, ready } = usePlaidLink({
-    token: linkToken ?? "",
-    onSuccess: handleOnSuccess,
-    onExit: (err) => {
-      if (err) {
-        const msg = "Connection cancelled or failed";
-        onError?.(msg);
-        toast(msg, "error");
-      }
-    },
+    token: linkToken,
+    onSuccess: onPlaidSuccess,
   });
 
   return (
-    <Button
-      onClick={() => open()}
-      loading={loading}
-      disabled={!ready || !linkToken}
-    >
+    <Button onClick={() => open()} disabled={!ready || !linkToken} loading={loading}>
       Connect with Plaid
     </Button>
   );

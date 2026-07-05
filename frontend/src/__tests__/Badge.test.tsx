@@ -19,9 +19,9 @@ describe("Badge", () => {
     expect(screen.getByText("Warning")).toHaveClass("bg-warning/15");
 
     rerender(<Badge variant="info">Info</Badge>);
-    expect(screen.getByText("Info")).toHaveClass("bg-info/15");
+    expect(screen.getByText("Info")).toHaveClass("bg-primary/10");
 
     rerender(<Badge variant="neutral">Neutral</Badge>);
-    expect(screen.getByText("Neutral")).toHaveClass("bg-surface-bright");
+    expect(screen.getByText("Neutral")).toHaveClass("bg-surface-container-high");
   });
 });

@@ -13,9 +13,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-text-secondary">
+          <label htmlFor={inputId} className="block text-sm font-medium text-on-surface-variant">
             {label}
           </label>
         )}
@@ -23,10 +23,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={clsx(
-            "block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/50 bg-surface-bright text-text-primary",
+            "block w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 bg-surface text-on-surface",
             error
-              ? "border-error focus:border-error focus:ring-error/50"
-              : "border-border",
+              ? "border-error focus:border-error focus:ring-error/30"
+              : "border-outline focus:border-primary focus:ring-primary/30",
             className,
           )}
           {...props}

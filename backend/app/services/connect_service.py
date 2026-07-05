@@ -5,6 +5,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.celery_app import celery_app
 from app.core.config import settings
 from app.core.encryption import decrypt_token as _decrypt_token
 from app.core.encryption import encrypt_token as _encrypt_token
@@ -87,6 +88,12 @@ def exchange_plaid_public_token(
     db.refresh(conn)
 
     accounts_created = _sync_plaid_accounts(db, conn, provider, access_token)
+
+    for account_id in accounts_created:
+        celery_app.send_task(
+            "ingestion.sync_account_transactions",
+            args=[str(account_id)],
+        )
 
     return {
         "id": conn.id,

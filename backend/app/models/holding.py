@@ -31,7 +31,7 @@ class Holding(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("user_account.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
