@@ -41,7 +41,6 @@ export enum ConnectionStatus {
 }
 
 export enum BankProvider {
-  ENABLE_BANKING = "enable_banking",
   PLAID = "plaid",
 }
 

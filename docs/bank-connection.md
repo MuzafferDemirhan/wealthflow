@@ -1021,3 +1021,4 @@ After implementation, verify end-to-end in sandbox:
 5. `GET /connect/connections` → new connection appears with `status: linked` and `provider: plaid`
 6. Celery ingestion task picks up the connection → transactions synced
 7. `DELETE /connect/connections/{id}` → Plaid item revoked, connection set to revoked
+

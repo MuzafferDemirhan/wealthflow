@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
 import { Card } from "@/components/ui/Card";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
-import type { ConnectionRead, RequisitionRead } from "@/lib/types";
+import type { ConnectionRead } from "@/lib/types";
 
 const statusVariant: Record<string, "success" | "warning" | "error" | "info" | "neutral"> = {
   linked: "success",
@@ -19,14 +18,10 @@ const statusVariant: Record<string, "success" | "warning" | "error" | "info" | "
   error: "error",
 };
 
-const STATUS_KEY = "eb_conn_status";
-
 export default function ConnectPage() {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
   const [connections, setConnections] = useState<ConnectionRead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authorizing, setAuthorizing] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -43,33 +38,8 @@ export default function ConnectPage() {
   }, []);
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    const pending = sessionStorage.getItem(STATUS_KEY);
-
-    if (code && pending) {
-      const { id } = JSON.parse(pending);
-      sessionStorage.removeItem(STATUS_KEY);
-      setAuthorizing(true);
-
-      api.post<RequisitionRead>(`/connect/requisitions/${id}/authorize`, { code })
-        .then((result) => {
-          if (result.status === "linked") {
-            toast("Bank connected successfully!", "success");
-          } else {
-            toast(`Connection status: ${result.status}`, "info");
-          }
-        })
-        .catch((e) => {
-          toast(e instanceof ApiError ? e.detail : "Failed to complete connection", "error");
-        })
-        .finally(() => {
-          setAuthorizing(false);
-          load();
-        });
-    } else {
-      load();
-    }
-  }, [searchParams, load, toast]);
+    load();
+  }, [load]);
 
   const handleDisconnect = async (id: string, institution: string) => {
     if (!window.confirm(`Disconnect from "${institution}"? Accounts from this bank will be deactivated.`)) return;
@@ -82,11 +52,10 @@ export default function ConnectPage() {
     }
   };
 
-  if (loading || authorizing) {
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
         <Spinner size="lg" />
-        {authorizing && <p className="text-sm text-text-muted">Completing bank connection...</p>}
       </div>
     );
   }

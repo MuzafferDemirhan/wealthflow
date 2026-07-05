@@ -7,39 +7,30 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.bank_connection import ConnectionStatus
 
 
-class InstitutionRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    name: str
-    logo: Optional[str] = None
-    country: str
+# ── Plaid schemas ──────────────────────────────────────────────
 
 
-class RequisitionCreate(BaseModel):
+class PlaidLinkTokenRequest(BaseModel):
+    redirect_uri: Optional[str] = None
+
+
+class PlaidLinkTokenResponse(BaseModel):
+    link_token: str
+
+
+class PlaidExchangeRequest(BaseModel):
+    public_token: str = Field(..., min_length=1)
     institution_id: str = Field(..., min_length=1)
-    redirect_uri: str = Field(..., min_length=1)
+    institution_name: str = Field(..., min_length=1)
 
 
-class RequisitionCreateResponse(BaseModel):
+class PlaidExchangeResponse(BaseModel):
     id: uuid.UUID
-    requisition_id: str
-    link: str
-    status: ConnectionStatus
-    state: str
-
-
-class AuthorizeRequest(BaseModel):
-    code: str = Field(..., min_length=1)
-
-
-class RequisitionRead(BaseModel):
-    id: uuid.UUID
-    requisition_id: str
-    status: ConnectionStatus
+    status: str
     institution_id: str
     institution_name: str
-    accounts_created: list[uuid.UUID] = []
+    accounts_created: list[uuid.UUID]
+    item_id: str
 
 
 class ConnectionRead(BaseModel):

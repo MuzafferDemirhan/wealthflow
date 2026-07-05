@@ -26,9 +26,15 @@ class Settings(BaseSettings):
     # CORS
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
 
-    # Enable Banking (https://enablebanking.com)
-    ENABLE_BANKING_APP_ID: str = ""
-    ENABLE_BANKING_PRIVATE_KEY: str = ""
+    # Plaid (https://plaid.com)
+    PLAID_CLIENT_ID: str = ""
+    PLAID_SECRET: str = ""
+    PLAID_ENV: str = "sandbox"
+    PLAID_PRODUCTS: list[str] = ["transactions"]
+    PLAID_COUNTRY_CODES: list[str] = ["US", "GB", "NL", "PL"]
+
+    # Token encryption
+    TOKEN_ENCRYPTION_KEY: str = ""
 
     # Anthropic
     CLAUDE_API_KEY: str = ""

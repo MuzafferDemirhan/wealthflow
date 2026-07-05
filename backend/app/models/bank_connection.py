@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class BankProvider(str, enum.Enum):
     """Open banking aggregator behind a connection."""
 
-    ENABLE_BANKING = "enable_banking"
     PLAID = "plaid"
 
 

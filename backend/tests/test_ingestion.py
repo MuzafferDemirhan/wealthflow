@@ -10,7 +10,7 @@ from app.models.bank_connection import BankConnection, BankProvider, ConnectionS
 from app.models.transaction import Transaction, TransactionStatus
 from app.models.user import User, UserRole
 from app.services.providers.base import ProviderTransaction
-from app.services.providers.enable_banking import ProviderError
+from app.services.providers.plaid import PlaidProviderError
 from app.tasks.ingestion import (
     _compute_since,
     _upsert_transaction,
@@ -38,7 +38,7 @@ def db_with_account(db_session):
     conn = BankConnection(
         id=uuid.uuid4(),
         user_id=user.id,
-        provider=BankProvider.ENABLE_BANKING,
+        provider=BankProvider.PLAID,
         institution_id="Test Bank|PL",
         institution_name="Test Bank",
         external_reference="ref-ingest-1",
@@ -200,7 +200,7 @@ class TestSyncAccountTransactions:
         mock_provider.fetch_transactions.return_value = mock_raw_txns
         mock_provider.fetch_balances.return_value = (Decimal("5000.00"), datetime.now(timezone.utc))
 
-        with patch("app.tasks.ingestion._build_provider", return_value=mock_provider):
+        with patch("app.tasks.ingestion._build_adapter_for_connection", return_value=(mock_provider, conn.external_reference)):
             with patch("app.tasks.ingestion.celery_app.send_task") as mock_send:
                 result = sync_account_transactions(str(account.id))
 
@@ -280,7 +280,7 @@ class TestSyncAccountTransactions:
         mock_provider.fetch_transactions.return_value = [raw_same, raw_new]
         mock_provider.fetch_balances.return_value = (Decimal("1000.00"), datetime.now(timezone.utc))
 
-        with patch("app.tasks.ingestion._build_provider", return_value=mock_provider):
+        with patch("app.tasks.ingestion._build_adapter_for_connection", return_value=(mock_provider, conn.external_reference)):
             with patch("app.tasks.ingestion.celery_app.send_task"):
                 result = sync_account_transactions(str(account.id))
 
@@ -317,10 +317,10 @@ class TestSyncAccountTransactions:
         db_session, user, conn, account = db_with_account
 
         mock_provider = MagicMock()
-        mock_provider.fetch_transactions.side_effect = ProviderError("API down")
+        mock_provider.fetch_transactions.side_effect = PlaidProviderError("API down")
 
-        with patch("app.tasks.ingestion._build_provider", return_value=mock_provider):
-            with pytest.raises(ProviderError, match="API down"):
+        with patch("app.tasks.ingestion._build_adapter_for_connection", return_value=(mock_provider, conn.external_reference)):
+            with pytest.raises(PlaidProviderError, match="API down"):
                 sync_account_transactions(str(account.id))
 
 
@@ -338,7 +338,7 @@ class TestSyncAllDueConnections:
         stale_conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.ENABLE_BANKING,
+            provider=BankProvider.PLAID,
             institution_id="Test 1|PL",
             institution_name="Test 1",
             external_reference="ref-fan-1",
@@ -348,7 +348,7 @@ class TestSyncAllDueConnections:
         fresh_conn = BankConnection(
             id=uuid.uuid4(),
             user_id=user.id,
-            provider=BankProvider.ENABLE_BANKING,
+            provider=BankProvider.PLAID,
             institution_id="Test 2|PL",
             institution_name="Test 2",
             external_reference="ref-fan-2",
@@ -398,9 +398,9 @@ class TestSyncAccountTransactionsEdgeCases:
 
         mock_provider = MagicMock()
         mock_provider.fetch_transactions.return_value = mock_raw_txns
-        mock_provider.fetch_balances.side_effect = ProviderError("Balance API down")
+        mock_provider.fetch_balances.side_effect = PlaidProviderError("Balance API down")
 
-        with patch("app.tasks.ingestion._build_provider", return_value=mock_provider):
+        with patch("app.tasks.ingestion._build_adapter_for_connection", return_value=(mock_provider, conn.external_reference)):
             with patch("app.tasks.ingestion.celery_app.send_task"):
                 result = sync_account_transactions(str(account.id))
 
@@ -411,13 +411,18 @@ class TestSyncAccountTransactionsEdgeCases:
         assert account.current_balance == Decimal("0")
 
     def test_unsupported_provider_skipped(self, db_with_account):
-        db_session, user, conn, account = db_with_account
-        conn.provider = "plaid"
-        db_session.add(conn)
-        db_session.commit()
+        """sync_account_transactions returns an error for providers we do not support."""
+        from app.tasks.ingestion import _build_adapter_for_connection
 
-        result = sync_account_transactions(str(account.id))
+        db_session, user, conn, account = db_with_account
+        # Patch _build_adapter_for_connection to raise ValueError so we can
+        # verify the task handles it gracefully.
+        with patch(
+            "app.tasks.ingestion._build_adapter_for_connection",
+            side_effect=ValueError("Unsupported provider: unknown_provider"),
+        ):
+            result = sync_account_transactions(str(account.id))
         assert result["ok"] is False
-        assert "unsupported provider" in result["error"].lower()
+        assert "Unsupported provider" in result["error"]
 
 

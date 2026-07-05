@@ -1,58 +1,37 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.connect import (
-    AuthorizeRequest,
     ConnectionRead,
-    InstitutionRead,
-    RequisitionCreate,
-    RequisitionCreateResponse,
-    RequisitionRead,
+    PlaidExchangeRequest,
+    PlaidExchangeResponse,
+    PlaidLinkTokenRequest,
+    PlaidLinkTokenResponse,
 )
 from app.services import connect_service
 
 router = APIRouter()
 
 
-@router.get("/institutions", response_model=list[InstitutionRead])
-async def list_institutions(
-    country: str = Query("PL", min_length=2, max_length=2),
+@router.post("/plaid/link-token", response_model=PlaidLinkTokenResponse)
+async def create_plaid_link_token(
+    payload: PlaidLinkTokenRequest,
     current_user: User = Depends(get_current_active_user),
 ):
-    """List supported banks/institutions available for linking."""
+    """
+    Step 1: Create a Plaid link_token for the frontend Plaid Link SDK.
+    The link_token is short-lived (30 min) and single-use.
+    """
     try:
-        return connect_service.list_institutions(country=country)
-    except connect_service.ConnectError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=str(exc),
-        )
-
-
-@router.post("/requisitions", response_model=RequisitionCreateResponse, status_code=status.HTTP_201_CREATED)
-async def create_requisition(
-    payload: RequisitionCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
-):
-    """Initiate a bank link session - returns a redirect URL."""
-    try:
-        return connect_service.create_requisition(
-            db,
+        return connect_service.create_plaid_link_token(
             user_id=current_user.id,
-            institution_id=payload.institution_id,
             redirect_uri=payload.redirect_uri,
         )
-    except connect_service.InstitutionNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Institution '{payload.institution_id}' not found",
-        )
     except connect_service.ConnectError as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -60,50 +39,24 @@ async def create_requisition(
         )
 
 
-@router.post("/requisitions/{connection_id}/authorize", response_model=RequisitionRead)
-async def authorize_requisition(
-    connection_id: uuid.UUID,
-    payload: AuthorizeRequest,
+@router.post("/plaid/exchange", response_model=PlaidExchangeResponse, status_code=status.HTTP_201_CREATED)
+async def exchange_plaid_token(
+    payload: PlaidExchangeRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Exchange authorization code for a session after bank auth redirect."""
+    """
+    Step 2: Exchange the public_token received from Plaid Link for an access_token.
+    The public_token is EPHEMERAL - it must be exchanged immediately.
+    The access_token is stored encrypted; it is never returned to the client.
+    """
     try:
-        return connect_service.authorize_requisition(
+        return connect_service.exchange_plaid_public_token(
             db,
-            connection_id=connection_id,
             user_id=current_user.id,
-            code=payload.code,
-        )
-    except connect_service.RequisitionNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requisition not found",
-        )
-    except connect_service.ConnectError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=str(exc),
-        )
-
-
-@router.get("/requisitions/{connection_id}", response_model=RequisitionRead)
-async def get_requisition(
-    connection_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
-):
-    """Poll a requisition status and complete linking if bank reports LINKED."""
-    try:
-        return connect_service.poll_requisition(
-            db,
-            connection_id=connection_id,
-            user_id=current_user.id,
-        )
-    except connect_service.RequisitionNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requisition not found",
+            public_token=payload.public_token,
+            institution_id=payload.institution_id,
+            institution_name=payload.institution_name,
         )
     except connect_service.ConnectError as exc:
         raise HTTPException(
