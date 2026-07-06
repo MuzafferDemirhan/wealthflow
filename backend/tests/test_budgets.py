@@ -252,7 +252,7 @@ class TestDeleteBudget:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/budget"
+API_PREFIX = "/api/v1/budgets"
 
 
 class TestBudgetAPI:

@@ -246,7 +246,7 @@ class TestCreateManualTransaction:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/transaction"
+API_PREFIX = "/api/v1/transactions"
 
 
 class TestTransactionAPI:

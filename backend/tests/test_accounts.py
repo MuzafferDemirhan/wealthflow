@@ -62,7 +62,7 @@ def token_header(client, user):
 # Integration: Account API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/account"
+API_PREFIX = "/api/v1/accounts"
 
 
 class TestAccountAPI:

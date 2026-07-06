@@ -364,7 +364,7 @@ class TestNetWorth:
 # Integration: API endpoints
 # ------------------------------------------------------------------
 
-API_PREFIX = "/api/v1/report"
+API_PREFIX = "/api/v1/reports"
 
 
 class TestReportsAPI:
