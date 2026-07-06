@@ -17,6 +17,7 @@ function getStoredTheme(): Theme | null {
 }
 
 function applyTheme(theme: Theme) {
+  if (typeof window === "undefined") return;
   document.documentElement.setAttribute("data-theme", theme);
 }
 
