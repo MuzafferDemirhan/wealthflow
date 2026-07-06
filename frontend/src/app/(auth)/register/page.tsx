@@ -42,7 +42,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, fullName);
-      router.replace("/login");
+      router.replace("/");
     } catch (err) {
       setError(err instanceof ApiError ? err.detail : "Registration failed. Please try again.");
     } finally {
@@ -59,7 +59,7 @@ export default function RegisterPage() {
           </svg>
         </div>
         <h1 className="text-2xl font-semibold text-on-surface">Create your account</h1>
-        <p className="mt-1 text-sm text-on-surface-variant">Join Kinetic Finance today</p>
+        <p className="mt-1 text-sm text-on-surface-variant">Join WealthFlow today</p>
       </div>
 
       <Card>

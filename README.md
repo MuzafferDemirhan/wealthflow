@@ -136,10 +136,10 @@ wealthflow/
 - [x] Sprint 1 - Backend core (auth, accounts, categories, budgets, transactions)
 - [x] Sprint 2 - Open Banking integration + ML classifier + portfolio + reports + connect
 - [x] Sprint 3 - Frontend dashboard
-- [ ] Feature - Banking connection + verification
+- [x] Feature - Banking connection + verification
 - [ ] Sprint 4 - AI chatbot + reports + deployment
 
-> Detailed sprint summaries: [`docs/sprint-0.md`](./docs/sprint-0.md), [`docs/sprint-1.md`](./docs/sprint-1.md), [`docs/sprint-2.md`](./docs/sprint-2.md), ['docs/sprint-3.md'](./docs/sprint-3.md)
+> Detailed sprint summaries: [`docs/sprint-0.md`](./docs/sprint-0.md), [`docs/sprint-1.md`](./docs/sprint-1.md), [`docs/sprint-2.md`](./docs/sprint-2.md), [`docs/sprint-3.md`](./docs/sprint-3.md), [`docs/bank-connection.md`](./docs/bank-connection.md)
 
 ---
 

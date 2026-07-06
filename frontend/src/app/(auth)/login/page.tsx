@@ -21,7 +21,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace("/accounts");
+      router.replace("/");
     }
   }, [isLoading, isAuthenticated, router]);
 
@@ -43,7 +43,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
-      router.replace("/accounts");
+      router.replace("/");
     } catch (err) {
       setError(err instanceof ApiError ? err.detail : "Login failed. Please try again.");
     } finally {
@@ -60,7 +60,7 @@ export default function LoginPage() {
           </svg>
         </div>
         <h1 className="text-2xl font-semibold text-on-surface">Welcome back</h1>
-        <p className="mt-1 text-sm text-on-surface-variant">Sign in to your Kinetic Finance account</p>
+        <p className="mt-1 text-sm text-on-surface-variant">Sign in to your WealthFlow account</p>
       </div>
 
       <Card>

@@ -8,8 +8,8 @@ test.describe("Dashboard", () => {
     await expect(page.getByText("WealthFlow")).toBeVisible();
   });
 
-  test("dashboard content sections exist", async ({ page }) => {
+  test("landing page shows hero heading", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("Personal Finance")).toBeVisible();
+    await expect(page.getByText("Take control of your financial future")).toBeVisible();
   });
 });
