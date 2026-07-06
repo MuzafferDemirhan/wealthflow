@@ -25,11 +25,12 @@ export default function MonthlyTrendsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Intentional: load once on mount; user changes month count via buttons which call load() directly
     api.get<ReportMonthlyTrends>("/reports/monthly-trends", { months })
       .then(setData)
       .catch((e) => setError(e.detail ?? "Failed to load"))
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);

@@ -26,13 +26,14 @@ export default function IncomeVsExpensesPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Intentional: load once on mount with default dates; user triggers reload via Apply button
     api.get<ReportIncomeVsExpenses>("/reports/income-vs-expenses", {
       date_from: dateFrom, date_to: dateTo, monthly: monthly ? "true" : "false",
     })
       .then(setData)
       .catch((e) => setError(e.detail ?? "Failed to load"))
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleApply = () => {
     setLoading(true);

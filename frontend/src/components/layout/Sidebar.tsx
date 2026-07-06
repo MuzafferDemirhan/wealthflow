@@ -64,6 +64,7 @@ function getLastName(fullName: string): string {
   return parts.length > 1 ? parts[parts.length - 1] : "";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Sidebar({ isOpen, onNav, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();

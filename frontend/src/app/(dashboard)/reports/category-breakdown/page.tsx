@@ -26,11 +26,12 @@ export default function CategoryBreakdownPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Intentional: load once on mount with default dates; user triggers reload via Apply button
     api.get<ReportCategoryBreakdown>("/reports/category-breakdown", { date_from: dateFrom, date_to: dateTo })
       .then(setData)
       .catch((e) => setError(e.detail ?? "Failed to load"))
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleApply = () => {
     setLoading(true);
