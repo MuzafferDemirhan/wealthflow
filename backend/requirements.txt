@@ -19,6 +19,9 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1  # passlib 1.7.4's backend detection breaks on bcrypt>=4.1
 python-multipart==0.0.12
 
+# Open Banking - Enable Banking uses JWT (RS256) for auth
+PyJWT[crypto]==2.7.0
+
 # Cache & queue
 redis==5.1.1
 celery==5.4.0
