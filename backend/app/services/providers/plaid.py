@@ -29,7 +29,11 @@ from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUse
 from plaid.model.products import Products
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
-from app.services.providers.base import ProviderAccount, ProviderAdapter, ProviderTransaction
+from app.services.providers.base import (
+    ProviderAccount,
+    ProviderAdapter,
+    ProviderTransaction,
+)
 
 logger = logging.getLogger(__name__)
 
