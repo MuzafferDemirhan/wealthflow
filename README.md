@@ -7,6 +7,8 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![MS SQL Server](https://img.shields.io/badge/MS%20SQL%20Server-2022-blue)
+[![Tests](https://img.shields.io/badge/Tests-259%20backend%20%7C%2055%20frontend-green)]()
+[![Docs](https://img.shields.io/badge/Docs-📖-blue)](./docs/README.md)
 
 ---
 
@@ -15,11 +17,11 @@
 WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem.
 
 **Core features:**
--  Bank account connection via Open Banking (Nordigen)
+-  Bank account connection via Open Banking (Nordigen / Plaid)
 -  Automatic transaction categorization (scikit-learn ML model)
 -  Investment portfolio tracker with real-time market data
 -  Budget planning with smart alerts
--  AI financial advisor chatbot (API)
+-  AI financial advisor chatbot
 -  PDF & CSV report export
 
 ---
@@ -64,8 +66,8 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/MuzafferDemirhan/Example.git
-cd Example
+git clone https://github.com/MuzafferDemirhan/WealthFlow.git
+cd WealthFlow
 ```
 
 ### 2. Set up environment variables
@@ -123,23 +125,52 @@ wealthflow/
 │       ├── components/   # Reusable UI components
 │       └── lib/          # API client, utilities
 ├── docs/
-│   └── SRS.md            # Software Requirements Specification
+│   ├── README.md          # Documentation index
+│   ├── sprint-0.md        # Sprint summaries
+│   ├── sprint-1.md
+│   ├── sprint-2.md
+│   ├── sprint-3.md
+│   ├── SRS/               # Software Requirements Specification
+│   ├── architecture/      # System architecture diagrams
+│   └── ER diagram/        # Entity Relationship diagrams
 ├── docker-compose.yml
 └── .github/workflows/    # CI/CD pipelines
 ```
 
 ---
 
+## Test Distribution
+
+```mermaid
+pie title Test Distribution
+    "Backend Unit Tests" : 259
+    "Frontend Unit Tests" : 40
+    "E2E Tests (Playwright)" : 15
+```
+
+---
+
+## Documentation
+
+- [Documentation Index](./docs/README.md) — central hub for all docs
+- [SRS](./docs/SRS/SRS.md) — Software Requirements Specification
+- [Sprint Summaries](./docs/README.md#sprint-summaries) — sprint-0 through sprint-3
+- [Architecture](./docs/architecture/architecture.md) — system architecture (Mermaid)
+- [ER Diagram](./docs/ER%20diagram/erd.md) — database schema (Mermaid)
+
+---
+
 ## Roadmap
 
-- [x] Sprint 0 - Project scaffolding (Docker, DB, CI/CD, SRS)
-- [x] Sprint 1 - Backend core (auth, accounts, categories, budgets, transactions)
-- [x] Sprint 2 - Open Banking integration + ML classifier + portfolio + reports + connect
-- [x] Sprint 3 - Frontend dashboard
-- [x] Feature - Banking connection + verification
-- [ ] Sprint 4 - AI chatbot + reports + deployment
+| Sprint | Status | Description |
+|--------|--------|-------------|
+| Sprint 0 | ✅ | Project scaffolding (Docker, DB, CI/CD, SRS) |
+| Sprint 1 | ✅ | Backend core (auth, accounts, categories, budgets, transactions) |
+| Sprint 2 | ✅ | Open Banking + ML classifier + portfolio + reports + connect |
+| Sprint 3 | ✅ | Frontend dashboard (14 pages, 40 unit + 15 E2E tests) |
+| Sprint 4 | ⬜ | AI chatbot + reports + deployment |
 
-> Detailed sprint summaries: [`docs/sprint-0.md`](./docs/sprint-0.md), [`docs/sprint-1.md`](./docs/sprint-1.md), [`docs/sprint-2.md`](./docs/sprint-2.md), [`docs/sprint-3.md`](./docs/sprint-3.md), [`docs/bank-connection.md`](./docs/bank-connection.md)
+> See [sprint-0.md](./docs/sprint-0.md), [sprint-1.md](./docs/sprint-1.md), [sprint-2.md](./docs/sprint-2.md), [sprint-3.md](./docs/sprint-3.md) for details.
 
 ---
 

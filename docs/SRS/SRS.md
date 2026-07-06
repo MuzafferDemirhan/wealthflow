@@ -7,6 +7,12 @@
 | 1.0.0 | First draft including core functional requirements and system architecture. | Muzaffer Demirhan | 29.06.2026 |
 | 1.1.0 | Reformatted document structure for improved readability. Added System Architecture and ER Diagram. | Muzaffer Demirhan | 30.06.2026 |
 
+[![Status](https://img.shields.io/badge/Status-WIP-yellow)]()
+[![Version](https://img.shields.io/badge/Version-1.1.0-blue)]()
+[![Sprints](https://img.shields.io/badge/Sprints-0%E2%80%933%20complete-green)]()
+[![Architecture](https://img.shields.io/badge/Architecture-%E2%9C%93-blue)](../architecture/architecture.md)
+[![ERD](https://img.shields.io/badge/ERD-%E2%9C%93-blue)](../ER%20diagram/erd.md)
+
 **Date:** 2026-06-29  
 **Status:** Working in Progress (WIP) Draft  
 
@@ -143,11 +149,13 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 | NFR-10 | API rate limiting | 100 req/min per user |
 
 ## 5. System Architecture
-*(System Architecture Diagram Placeholder - A comprehensive infrastructure and CI/CD map covering the Client Layer, API Gateway, Async Workers, App Modules, Data Layer, and External Services.)*
+
+See the [System Architecture Diagram](../architecture/architecture.md) (Mermaid code) or the [PNG version](../architecture/WealthFlow_SystemArchitecture.png) for a comprehensive infrastructure and CI/CD map covering the Client Layer, API Gateway, Async Workers, App Modules, Data Layer, and External Services.
 
 ## 6. Database Schema
 ### 6.1 Entity Relationship Diagram
-*(Entity Relationship Diagram Placeholder)*
+
+See the [ER Diagram](../ER%20diagram/erd.md) (Mermaid code) or the [PNG version](../ER%20diagram/WealthFlow_ERDiagram.png) for the complete entity relationship model.
 
 ### 6.2 Core Tables
 These are SQL codes that has been created within MS SQL Server 2022.
@@ -290,48 +298,80 @@ These are SQL codes that has been created within MS SQL Server 2022.
 | Deployment | Railway | Simple PaaS, free tier |
 | Testing | pytest + React Testing Library | >80% coverage target |
 
-## 9. Scrum Plan
-### Sprint 0 - Foundation (Week 1)
+## 9. Sprint Timeline
+
+```mermaid
+gantt
+    title Sprint Schedule
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Sprint 0
+    Foundation      :done, 2026-06-01, 7d
+
+    section Sprint 1
+    Backend Core    :done, 2026-06-08, 14d
+
+    section Sprint 2
+    Data Layer + ML :done, 2026-06-22, 14d
+
+    section Sprint 3
+    Frontend        :done, 2026-07-06, 14d
+
+    section Sprint 4
+    AI + Polish     :active, 2026-07-20, 14d
+
+    section Launch
+    Ship            :2026-08-03, 7d
+```
+
+## 10. Scrum Plan
+
+### Sprint 0 — Foundation (Week 1) ✅
+See [sprint-0.md](../sprint-0.md) for details.
 - [x] SRS document
 - [x] System architecture diagram
 - [x] Database ERD
 - [x] Project scaffolding (repo structure, Docker Compose)
 
-### Sprint 1 - Backend Core (Weeks 2-3)
-- [ ] FastAPI project setup with folder structure
-- [ ] MS SQL Server 2022+ Alembic migrations
-- [ ] User model + JWT auth endpoints
-- [ ] Docker Compose (FastAPI + MS SQL Server 2022 + Redis)
-- [ ] GitHub Actions CI (lint + test)
+### Sprint 1 — Backend Core (Weeks 2-3) ✅
+See [sprint-1.md](../sprint-1.md) for details.
+- [x] FastAPI project setup with folder structure
+- [x] MS SQL Server 2022 + Alembic migrations
+- [x] User model + JWT auth endpoints
+- [x] Docker Compose (FastAPI + MS SQL Server 2022 + Redis)
+- [x] GitHub Actions CI (lint + test)
 
-### Sprint 2 - Data Layer (Weeks 4-5)
-- [ ] Plaid/Nordigen integration (sandbox)
-- [ ] Transaction ingestion pipeline
-- [ ] ML classifier for categories (scikit-learn)
-- [ ] Celery worker setup
-- [ ] REST endpoints: accounts, transactions, budgets
+### Sprint 2 — Data Layer (Weeks 4-5) ✅
+See [sprint-2.md](../sprint-2.md) for details.
+- [x] Nordigen integration (sandbox)
+- [x] Transaction ingestion pipeline
+- [x] ML classifier for categories (scikit-learn)
+- [x] Celery worker setup
+- [x] REST endpoints: accounts, transactions, budgets, portfolio, reports, connect
 
-### Sprint 3 - Frontend (Weeks 6-7)
-- [ ] Next.js project setup + Tailwind
-- [ ] Auth pages (login, register)
-- [ ] Dashboard with Recharts
-- [ ] Transactions list + filter
-- [ ] Portfolio view
+### Sprint 3 — Frontend (Weeks 6-7) ✅
+See [sprint-3.md](../sprint-3.md) for details.
+- [x] Next.js project setup + Tailwind
+- [x] Auth pages (login, register)
+- [x] Dashboard with Recharts
+- [x] 14 pages (accounts, transactions, budgets, portfolio, reports, connect, profile)
+- [x] 55 tests (40 unit + 15 E2E)
 
-### Sprint 4 - AI & Polish (Week 8)
+### Sprint 4 — AI & Polish (Week 8) ⬜
 - [ ] Claude API chatbot integration
 - [ ] WebSocket notifications
 - [ ] PDF report generation (ReportLab)
 - [ ] Railway deployment
 - [ ] End-to-end tests
 
-### Launch (Week 9)
+### Launch (Week 9) ⬜
 - [ ] English README with screenshots
 - [ ] Demo GIF
 - [ ] GitHub profile pinning
 - [ ] LinkedIn post
 
-## 10. Risks & Mitigations
+## 11. Risks & Mitigations
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 | Open Banking API rate limits | Medium | High | Cache responses in Redis, use webhooks |
