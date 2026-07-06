@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = loadTokens();
     if (!stored.access) {
-      setIsLoading(false);
+      setIsLoading(false); // eslint-disable-line react-hooks/set-state-in-effect
       return;
     }
 
@@ -99,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearTokens();
       })
       .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

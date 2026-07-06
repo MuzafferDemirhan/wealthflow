@@ -2,40 +2,36 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
-  if (!user) return null;
+  if (isLoading || !user) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-9 w-32" />
+        <div className="rounded-xl border border-outline-variant bg-surface p-6 space-y-4">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-5 w-60" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-text-primary">Profile</h1>
+    <div className="space-y-8">
+      <h1 className="text-3xl font-medium tracking-tight text-on-surface">Profile</h1>
 
-      <Card className="max-w-lg">
+      <Card>
         <div className="space-y-4">
           <div>
-            <p className="text-xs text-text-muted">Full Name</p>
-            <p className="font-medium text-text-primary">{user.full_name}</p>
+            <p className="text-xs text-on-surface-variant">Full Name</p>
+            <p className="text-sm font-medium text-on-surface">{user.full_name}</p>
           </div>
           <div>
-            <p className="text-xs text-text-muted">Email</p>
-            <p className="font-medium text-text-primary">{user.email}</p>
-          </div>
-          <div>
-            <p className="text-xs text-text-muted">Role</p>
-            <Badge variant="info">{user.role}</Badge>
-          </div>
-          <div>
-            <p className="text-xs text-text-muted">Account Status</p>
-            <Badge variant={user.is_active ? "success" : "error"}>
-              {user.is_active ? "Active" : "Inactive"}
-            </Badge>
-          </div>
-          <div>
-            <p className="text-xs text-text-muted">Member Since</p>
-            <p className="font-medium text-text-primary">{new Date(user.created_at).toLocaleDateString()}</p>
+            <p className="text-xs text-on-surface-variant">Email</p>
+            <p className="text-sm font-medium text-on-surface">{user.email}</p>
           </div>
         </div>
       </Card>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import type { AccountRead } from "@/lib/types";
 
@@ -16,20 +16,32 @@ export default function AccountsPage() {
   const [error, setError] = useState("");
   const { toast } = useToast();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const data = await api.get<AccountRead[]>("/accounts");
+        if (!cancelled) setAccounts(data);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof ApiError ? e.detail : "Failed to load accounts");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const refreshAccounts = async () => {
     try {
       const data = await api.get<AccountRead[]>("/accounts");
       setAccounts(data);
     } catch (e) {
-      setError(e instanceof ApiError ? e.detail : "Failed to load accounts");
-    } finally {
-      setLoading(false);
+      toast(e instanceof ApiError ? e.detail : "Failed to refresh accounts", "error");
     }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  };
 
   const handleSync = async (id: string) => {
     setSyncing((prev) => new Set(prev).add(id));
@@ -48,16 +60,35 @@ export default function AccountsPage() {
     try {
       await api.del(`/accounts/${id}`);
       toast("Account disconnected", "success");
-      load();
+      refreshAccounts();
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to disconnect", "error");
     }
   };
 
+  const formatCurrency = (n: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner size="lg" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-40" />
+          <Skeleton className="h-10 w-24" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-outline-variant bg-surface p-6 space-y-4">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-28" />
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-16" />
+                <Skeleton className="h-9 w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -65,46 +96,43 @@ export default function AccountsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Accounts</h1>
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Accounts</h1>
         <div className="rounded-lg bg-error/10 p-4 text-sm text-error">
           {error}
-          <button onClick={load} className="ml-2 underline">Retry</button>
+          <button onClick={refreshAccounts} className="ml-2 underline">Retry</button>
         </div>
       </div>
     );
   }
 
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Accounts</h1>
-        <Button variant="secondary" onClick={load}>Refresh</Button>
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Accounts</h1>
+        <Button variant="secondary" onClick={refreshAccounts}>Refresh</Button>
       </div>
 
       {accounts.length === 0 && (
         <Card>
-          <p className="text-sm text-text-muted">No accounts connected. Connect a bank to get started.</p>
+          <p className="text-sm text-on-surface-variant">No accounts connected. Connect a bank to get started.</p>
         </Card>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {accounts.map((acc) => (
           <Card key={acc.id}>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-text-primary">{acc.display_name}</p>
-                  <p className="text-xs text-text-muted">{acc.account_type.replace(/_/g, " ")} · {acc.currency}</p>
+                  <p className="font-medium text-on-surface">{acc.display_name}</p>
+                  <p className="text-xs text-on-surface-variant">{acc.account_type.replace(/_/g, " ")} · {acc.currency}</p>
                 </div>
                 <Badge variant={acc.is_active ? "success" : "error"}>
                   {acc.is_active ? "Active" : "Inactive"}
                 </Badge>
               </div>
 
-              <p className="text-2xl font-bold text-text-primary">{formatCurrency(acc.current_balance)}</p>
+              <p className="text-3xl font-semibold text-on-surface">{formatCurrency(acc.current_balance)}</p>
 
               <div className="flex gap-2">
                 <Button

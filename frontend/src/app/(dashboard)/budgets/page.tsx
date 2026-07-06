@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Modal } from "@/components/ui/Modal";
-import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import type { BudgetRead, CategoryRead, BudgetCreate, BudgetUpdate } from "@/lib/types";
 
@@ -18,19 +18,35 @@ export default function BudgetsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Create modal
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({ category_id: "", period_month: "", amount_limit: "", currency: "PLN" });
   const [creating, setCreating] = useState(false);
 
-  // Edit modal
   const [editing, setEditing] = useState<BudgetRead | null>(null);
   const [editForm, setEditForm] = useState({ amount_limit: "", category_id: "" });
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const [b, c] = await Promise.all([
+          api.get<BudgetRead[]>("/budgets"),
+          api.get<CategoryRead[]>("/categories"),
+        ]);
+        setBudgets(b);
+        setCategories(c);
+      } catch (e) {
+        setError(e instanceof ApiError ? e.detail : "Failed to load budgets");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const refresh = async () => {
     try {
       const [b, c] = await Promise.all([
         api.get<BudgetRead[]>("/budgets"),
@@ -39,13 +55,9 @@ export default function BudgetsPage() {
       setBudgets(b);
       setCategories(c);
     } catch (e) {
-      setError(e instanceof ApiError ? e.detail : "Failed to load budgets");
-    } finally {
-      setLoading(false);
+      toast(e instanceof ApiError ? e.detail : "Failed to refresh budgets", "error");
     }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  };
 
   const handleCreate = async () => {
     if (!createForm.amount_limit || !createForm.period_month) {
@@ -64,7 +76,7 @@ export default function BudgetsPage() {
       toast("Budget created", "success");
       setShowCreate(false);
       setCreateForm({ category_id: "", period_month: "", amount_limit: "", currency: "PLN" });
-      load();
+      refresh();
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to create budget", "error");
     } finally {
@@ -82,7 +94,7 @@ export default function BudgetsPage() {
       await api.put(`/budgets/${editing.id}`, body);
       toast("Budget updated", "success");
       setEditing(null);
-      load();
+      refresh();
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to update budget", "error");
     } finally {
@@ -95,7 +107,7 @@ export default function BudgetsPage() {
     try {
       await api.del(`/budgets/${budget.id}`);
       toast("Budget deleted", "success");
-      load();
+      refresh();
     } catch (e) {
       toast(e instanceof ApiError ? e.detail : "Failed to delete budget", "error");
     }
@@ -106,31 +118,50 @@ export default function BudgetsPage() {
 
   const catOpts = categories.map((c) => ({ value: c.id, label: c.name }));
 
-  if (loading) return <div className="flex items-center justify-center py-24"><Spinner size="lg" /></div>;
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-36" />
+          <Skeleton className="h-10 w-36" />
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-outline-variant bg-surface p-6 space-y-4">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-2 w-full" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Budgets</h1>
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Budgets</h1>
         <div className="rounded-lg bg-error/10 p-4 text-sm text-error">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Budgets</h1>
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Budgets</h1>
         <Button onClick={() => setShowCreate(true)}>Create Budget</Button>
       </div>
 
       {budgets.length === 0 && (
         <Card>
-          <p className="text-sm text-text-muted">No budgets yet. Create one to start tracking your spending.</p>
+          <p className="text-sm text-on-surface-variant">No budgets yet. Create one to start tracking your spending.</p>
         </Card>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {budgets.map((b) => {
           const cat = categories.find((c) => c.id === b.category_id);
           const progressColor =
@@ -138,11 +169,11 @@ export default function BudgetsPage() {
 
           return (
             <Card key={b.id}>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-text-primary">{cat?.name ?? "Uncategorized"}</p>
-                    <p className="text-xs text-text-muted">{b.period_month}</p>
+                    <p className="font-medium text-on-surface">{cat?.name ?? "Uncategorized"}</p>
+                    <p className="text-xs text-on-surface-variant">{b.period_month}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button size="sm" variant="ghost" onClick={() => { setEditing(b); setEditForm({ amount_limit: String(b.amount_limit), category_id: b.category_id ?? "" }); }}>
@@ -158,16 +189,16 @@ export default function BudgetsPage() {
 
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-text-primary">{formatCurrency(b.spent)}</span>
-                    <span className="text-text-muted">of {formatCurrency(b.amount_limit)}</span>
+                    <span className="text-on-surface">{formatCurrency(b.spent)}</span>
+                    <span className="text-on-surface-variant">of {formatCurrency(b.amount_limit)}</span>
                   </div>
-                  <div className="mt-1 h-2 w-full rounded-full bg-surface-container-low">
+                  <div className="mt-2 h-2.5 w-full rounded-full bg-surface-container-high">
                     <div
-                      className={`h-2 rounded-full transition-all ${progressColor}`}
+                      className={`h-2.5 rounded-full transition-all ${progressColor}`}
                       style={{ width: `${Math.min(b.progress_pct, 100)}%` }}
                     />
                   </div>
-                  <div className="mt-1 flex justify-between text-xs text-text-muted">
+                  <div className="mt-2 flex justify-between text-xs text-on-surface-variant">
                     <span>{b.progress_pct.toFixed(0)}% used</span>
                     <span>{formatCurrency(b.remaining)} remaining</span>
                   </div>

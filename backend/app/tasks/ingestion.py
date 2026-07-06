@@ -11,12 +11,13 @@ from sqlalchemy.orm import joinedload
 
 from app.core.celery_app import celery_app
 from app.core.config import settings
+from app.core.encryption import decrypt_token
 from app.db.session import SessionLocal
 from app.models.account import Account
 from app.models.bank_connection import BankConnection, ConnectionStatus
 from app.models.transaction import Transaction, TransactionStatus
 from app.services.providers.base import ProviderTransaction
-from app.services.providers.enable_banking import EnableBankingAdapter, ProviderError
+from app.services.providers.plaid import PlaidAdapter, PlaidProviderError
 from app.services.transaction_service import compute_dedupe_hash
 
 _INITIAL_LOOKBACK_DAYS = 90
@@ -44,16 +45,17 @@ def sync_account_transactions(self, account_id: str) -> dict:
         if conn.status != ConnectionStatus.LINKED:
             return {"ok": False, "error": f"connection status is {conn.status.value}, not LINKED"}
 
-        if conn.provider.value != "enable_banking":
-            return {"ok": False, "error": f"unsupported provider: {conn.provider.value}"}
-
-        provider = _build_provider()
+        try:
+            provider, access_token = _build_adapter_for_connection(conn)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
 
         since = _compute_since(conn.last_synced_at)
 
         try:
-            raw_txns = provider.fetch_transactions(account.external_account_id, since)
-        except ProviderError as exc:
+            encoded_id = f"{access_token}::{account.external_account_id}"
+            raw_txns = provider.fetch_transactions(encoded_id, since)
+        except PlaidProviderError as exc:
             raise self.retry(exc=exc)
 
         new_ids: list[str] = []
@@ -63,10 +65,10 @@ def sync_account_transactions(self, account_id: str) -> dict:
                 new_ids.append(str(txn_id))
 
         try:
-            balance, balance_as_of = provider.fetch_balances(account.external_account_id)
+            balance, balance_as_of = provider.fetch_balances(f"{access_token}::{account.external_account_id}")
             account.current_balance = balance
             account.balance_as_of = balance_as_of
-        except ProviderError:
+        except PlaidProviderError:
             pass
 
         conn.last_synced_at = datetime.now(timezone.utc)
@@ -124,10 +126,14 @@ def sync_all_due_connections() -> dict:
         db.close()
 
 
-def _build_provider() -> EnableBankingAdapter:
-    return EnableBankingAdapter(
-        app_id=settings.ENABLE_BANKING_APP_ID,
-        private_key_pem=settings.ENABLE_BANKING_PRIVATE_KEY,
+def _build_adapter_for_connection(conn: BankConnection):
+    return (
+        PlaidAdapter(
+            client_id=settings.PLAID_CLIENT_ID,
+            secret=settings.PLAID_SECRET,
+            env=settings.PLAID_ENV,
+        ),
+        decrypt_token(conn.external_reference),
     )
 
 

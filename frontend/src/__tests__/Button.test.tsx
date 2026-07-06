@@ -30,7 +30,7 @@ describe("Button", () => {
 
   it("applies variant classes", () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-brand");
+    expect(screen.getByRole("button")).toHaveClass("bg-primary");
 
     rerender(<Button variant="danger">Danger</Button>);
     expect(screen.getByRole("button")).toHaveClass("bg-error");
@@ -38,6 +38,6 @@ describe("Button", () => {
 
   it("applies size classes", () => {
     render(<Button size="lg">Large</Button>);
-    expect(screen.getByRole("button")).toHaveClass("px-6");
+    expect(screen.getByRole("button")).toHaveClass("px-7");
   });
 });

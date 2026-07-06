@@ -51,7 +51,7 @@ class Account(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     # query convenience (denormalized owner), not as a cleanup path.
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("user.id"),
+        ForeignKey("user_account.id"),
         nullable=False,
         index=True,
     )

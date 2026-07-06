@@ -29,7 +29,7 @@ export function Table<T>({
 }: TableProps<T>) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-16">
         <Spinner />
       </div>
     );
@@ -37,7 +37,7 @@ export function Table<T>({
 
   if (data.length === 0) {
     return (
-      <div className="py-12 text-center text-sm text-text-muted">{emptyMessage}</div>
+      <div className="py-16 text-center text-sm text-on-surface-variant">{emptyMessage}</div>
     );
   }
 
@@ -45,11 +45,11 @@ export function Table<T>({
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-border-light">
+          <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={clsx("px-4 py-3 font-medium text-text-muted", col.className)}
+                className={clsx("pb-3 text-xs font-semibold uppercase tracking-wider text-on-surface-variant", col.className)}
               >
                 {col.header}
               </th>
@@ -62,12 +62,12 @@ export function Table<T>({
               key={keyExtractor(item)}
               onClick={() => onRowClick?.(item)}
               className={clsx(
-                "border-b border-border-light transition-colors",
+                "border-t border-outline-variant/50 transition-colors",
                 onRowClick && "cursor-pointer hover:bg-surface-container-low",
               )}
             >
               {columns.map((col) => (
-                <td key={col.key} className={clsx("px-4 py-3", col.className)}>
+                <td key={col.key} className={clsx("py-3 pr-4", col.className)}>
                   {col.render
                     ? col.render(item)
                     : (item as Record<string, unknown>)[col.key] as React.ReactNode}

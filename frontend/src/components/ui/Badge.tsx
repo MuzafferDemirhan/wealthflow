@@ -7,8 +7,8 @@ const variantStyles: Record<BadgeVariant, string> = {
   success: "bg-success/15 text-success",
   warning: "bg-warning/15 text-warning",
   error: "bg-error/15 text-error",
-  info: "bg-info/15 text-info",
-  neutral: "bg-surface-bright text-text-secondary",
+  info: "bg-primary/10 text-primary",
+  neutral: "bg-surface-container-high text-on-surface-variant",
 };
 
 interface BadgeProps {

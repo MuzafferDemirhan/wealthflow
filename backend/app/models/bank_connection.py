@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class BankProvider(str, enum.Enum):
     """Open banking aggregator behind a connection."""
 
-    ENABLE_BANKING = "enable_banking"
     PLAID = "plaid"
 
 
@@ -39,7 +38,7 @@ class BankConnection(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("user_account.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

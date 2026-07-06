@@ -48,7 +48,7 @@ class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         Uuid(as_uuid=True),
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("user_account.id", ondelete="CASCADE"),
         nullable=True,
         index=True,
     )
