@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ChartTooltip } from "@/components/charts/ChartTooltip";
+import { ExportDialog } from "@/components/export/ExportDialog";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid,
 } from "recharts";
@@ -19,6 +20,7 @@ const MONTH_OPTIONS = [
 ];
 
 export default function MonthlyTrendsPage() {
+  const [showExport, setShowExport] = useState(false);
   const [months, setMonths] = useState(12);
   const [data, setData] = useState<ReportMonthlyTrends | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,8 +62,11 @@ export default function MonthlyTrendsPage() {
               {opt.label}
             </Button>
           ))}
+          <Button variant="tonal" onClick={() => setShowExport(true)} className="ml-auto">Export</Button>
         </div>
       </Card>
+
+      <ExportDialog open={showExport} onClose={() => setShowExport(false)} defaultReportType="monthly_trends" />
 
       {loading ? (
         <Card>

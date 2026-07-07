@@ -365,6 +365,74 @@ export interface ReportNetWorth {
 }
 
 // ──────────────────────────────────────────────
+// Export
+// ──────────────────────────────────────────────
+
+export interface ExportCreateRequest {
+  report_type: string;
+  format: "pdf" | "csv";
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface ExportRead {
+  id: string;
+  format: string;
+  report_type: string;
+  status: string;
+  filename?: string;
+  params?: Record<string, unknown>;
+  error_message?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ──────────────────────────────────────────────
+// Notifications
+// ──────────────────────────────────────────────
+
+export interface NotificationRead {
+  id: string;
+  type: string;
+  title: string;
+  body?: string;
+  payload?: Record<string, unknown>;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationUnreadCount {
+  count: number;
+}
+
+export interface MarkReadRequest {
+  notification_ids: string[];
+}
+
+// ──────────────────────────────────────────────
+// Chat / AI Advisor
+// ──────────────────────────────────────────────
+
+export interface ChatMessageRead {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+export interface SendMessageRequest {
+  message: string;
+  conversation_id?: string;
+}
+
+export interface ChatResponse {
+  conversation_id: string;
+  reply: string;
+  message_id: string;
+}
+
+// ──────────────────────────────────────────────
 // API Error
 // ──────────────────────────────────────────────
 

@@ -40,6 +40,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: "AI",
+    items: [
+      { label: "AI Advisor", href: "/chat", subtitle: "Financial assistant" },
+    ],
+  },
+  {
     label: "ACCOUNT",
     hasSeparator: true,
     items: [

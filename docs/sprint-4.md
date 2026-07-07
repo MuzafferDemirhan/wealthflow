@@ -1,7 +1,7 @@
 # Sprint 4 - AI Chatbot, Reports Export, and Deployment
 
 ## Goal
-Integrate an AI financial advisor chatbot powered by a self-hosted LLM (Ollama), add PDF/CSV report export with WebSocket notifications, and deploy to production on Railway.
+Integrate an AI financial advisor chatbot powered by Groq (free-tier LLM API), add PDF/CSV report export with WebSocket notifications, and deploy to production on Railway.
 
 ## AI Chatbot Flow
 
@@ -12,7 +12,7 @@ sequenceDiagram
     participant WS as WebSocket
     participant API as Chat API
     participant Service as Chat Service
-    participant Ollama as Ollama (self-hosted)
+    participant LLM as Groq API
 
     User->>Chat: Type message
     Chat->>Chat: Append user message to history
@@ -21,8 +21,8 @@ sequenceDiagram
 
     Service->>Service: Build system prompt with<br/>user's financial context
     Service->>Service: Fetch recent transactions<br/>budgets, net worth
-    Service->>Ollama: OpenAI-compatible<br/>chat completions API
-    Ollama-->>Service: Assistant response
+    Service->>LLM: OpenAI-compatible<br/>chat completions API
+    LLM-->>Service: Assistant response
 
     Service->>Service: Save chat message to DB
     Service-->>API: { response, conversation_id }
@@ -113,13 +113,13 @@ graph TB
             CW[Celery Worker]
             CB[Celery Beat]
             FE[Frontend<br/>Next.js<br/>Port 3000]
-            OL[Ollama<br/>Port 11434]
             MSSQL[MS SQL Server 2022]
             RD[Redis<br/>Railway Addon | Local in MVP]
         end
 
         subgraph External
             PLAID[Plaid API]
+            GROQ[Groq API<br/>Free LLM tier]
             AV[Alpha Vantage]
         end
 
@@ -127,7 +127,7 @@ graph TB
         CF --> BE
         BE --> MSSQL
         BE --> RD
-        BE --> OL
+        BE --> GROQ
         BE --> PLAID
         BE --> AV
         CW --> RD
@@ -146,7 +146,7 @@ graph TB
 |-----------|------|-------------|
 | Chat model | `models/chat_message.py` | `ChatMessage` (id, user_id, role, content, conversation_id, created_at) |
 | Chat schema | `schemas/chat.py` | SendMessage, ChatResponse, ChatHistory |
-| Chat service | `services/chat_service.py` | System prompt builder, Ollama API client, context injection |
+| Chat service | `services/chat_service.py` | System prompt builder, Groq API client (OpenAI-compatible), context injection |
 | Chat endpoint | `api/v1/endpoints/chat.py` | `POST /chat/messages`, `GET /chat/history`, `DELETE /chat/history` |
 | Model registration | `models/__init__.py` | Import `ChatMessage` |
 
@@ -158,7 +158,7 @@ graph TB
 | `get_conversation_history(user_id, conversation_id)` | Returns recent N messages for context |
 | `delete_conversation(user_id, conversation_id)` | Deletes chat history |
 | `_build_system_prompt(user_id)` | Injects user financial context (total balance, recent transactions, budget status, net worth) |
-| `_call_ollama(messages)` | Core HTTP call to Ollama's OpenAI-compatible API |
+| `_call_llm(messages)` | Core HTTP call to Groq's OpenAI-compatible API |
 
 **System prompt context injection:**
 - Total account balance across all accounts
@@ -168,8 +168,9 @@ graph TB
 - Cached and refreshed every 5 minutes
 
 **Configuration (`core/config.py`):**
-- `OLLAMA_BASE_URL: str = "http://ollama:11434"` — Ollama server URL (Docker service name)
-- `OLLAMA_MODEL: str = "llama3.1:8b"` — Model to use (swapable: `mistral`, `phi-3:medium`, `qwen2.5:7b`)
+- `LLM_BASE_URL: str = "https://api.groq.com/openai/v1"` — OpenAI-compatible endpoint (Groq, OpenRouter, etc.)
+- `LLM_API_KEY: str = ""` — Groq API key from https://console.groq.com/keys
+- `LLM_MODEL: str = "llama-3.3-70b-versatile"` — Model to use (free tier: `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`)
 - Remove `CLAUDE_API_KEY` field (no longer needed)
 
 #### Frontend (`frontend/src/`)
@@ -334,56 +335,78 @@ Server → Client:  {"type": "pong"}
 
 | Task | File | Description |
 |------|------|-------------|
-| Railway config | `railway.json` | Service definitions for backend, frontend, celery, celery-beat |
+| Root config | `railway.json` | Builder + deploy hints for Railway |
 | Deploy workflow | `.github/workflows/deploy.yml` | GitHub Action to deploy on push to `main` |
-| Dockerfile adjustments | `backend/Dockerfile` | Ensure Multi-stage build works for Railway |
-| Environment setup | Docs | Document all required env vars for Railway |
-| Database migration | `backend/entrypoint.sh` | Auto-run `alembic upgrade head` on deploy |
+| Backend Dockerfile | `backend/Dockerfile` | Multi-stage Python 3.12-slim + ODBC driver |
+| Frontend Dockerfile | `frontend/Dockerfile` | Multi-stage Next.js standalone build |
+| Database migration | `backend/entrypoint.sh` | Auto-run `alembic upgrade head` on backend start |
 | Health check | `GET /health` | Used by Railway for readiness probe |
 
-**railway.json structure:**
+**Project structure on Railway (4 services):**
+
+| Service | Source | Port | Command |
+|---------|--------|------|---------|
+| `backend` | `backend/Dockerfile` | 8000 | `uvicorn app.main:app --host 0.0.0.0 --port 8000` |
+| `frontend` | `frontend/Dockerfile` (target: runner) | 3000 | `node server.js` |
+| `celery-worker` | `backend/Dockerfile` | — | `celery -A app.core.celery_app worker --loglevel=info` |
+| `celery-beat` | `backend/Dockerfile` | — | `celery -A app.core.celery_app beat --loglevel=info` |
+
+**railway.json:**
 ```json
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "backend/Dockerfile"
+    "builder": "DOCKERFILE"
   },
   "deploy": {
     "numReplicas": 1,
-    "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
 }
 ```
 
-**Required Railway environment variables:**
+**Required Railway environment variables (set per-service):**
 
 | Variable | Source | Notes |
 |----------|--------|-------|
-| `DATABASE_URL` | Railway MS SQL Server / self-hosted | `mssql+pyodbc://user:pass@host:1433/db?...` |
+| `DATABASE_URL` | Railway MS SQL / external host | `mssql+pyodbc://user:pass@host:1433/db?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes` |
 | `REDIS_URL` | Railway Redis plugin or Upstash | `redis://...` |
-| `SECRET_KEY` | Generate via `openssl rand -hex 32` | Production secret |
+| `SECRET_KEY` | `openssl rand -hex 32` | Production secret |
 | `PLAID_CLIENT_ID` | Plaid Dashboard | Sandbox or production |
 | `PLAID_SECRET` | Plaid Dashboard | Sandbox or production |
-| `OLLAMA_BASE_URL` | Ollama server URL | Self-hosted or external endpoint |
-| `ALPHA_VANTAGE_KEY` | Alpha Vantage | Market data |
-| `TOKEN_ENCRYPTION_KEY` | Generate via `openssl rand -hex 32` | Token encryption |
-| `ALLOWED_ORIGINS` | Railway frontend URL | Comma-separated |
+| `LLM_BASE_URL` | Groq API | `https://api.groq.com/openai/v1` |
+| `LLM_API_KEY` | Groq Console | From https://console.groq.com/keys |
+| `LLM_MODEL` | Groq model | `llama-3.3-70b-versatile` |
+| `ALPHA_VANTAGE_KEY` | Alpha Vantage | Market data API |
+| `TOKEN_ENCRYPTION_KEY` | `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` | Token encryption |
+| `ALLOWED_ORIGINS` | Railway frontend URL | Comma-separated, e.g. `https://frontend.railway.app` |
+| `NEXT_PUBLIC_API_URL` | Railway backend URL | e.g. `https://backend.railway.app/api/v1` (frontend service only) |
 
 **Deploy workflow (`.github/workflows/deploy.yml`):**
 
-| Step | Description |
-|------|-------------|
-| Trigger | On push to `main` after CI passes |
-| Checkout | `actions/checkout@v4` |
-| Railway login | `railway/login@v1` with `RAILWAY_TOKEN` |
-| Deploy backend | `railway up --service backend` |
-| Deploy frontend | `railway up --service frontend` |
-| Deploy celery | `railway up --service celery-worker` |
-| Deploy celery-beat | `railway up --service celery-beat` |
-| Migrate DB | `railway run --service backend alembic upgrade head` |
+```yaml
+# Triggered on push to main or manual workflow_dispatch
+# Steps:
+#   1. actions/checkout@v4
+#   2. npm install -g @railway/cli
+#   3. railway up --service backend
+#   4. railway up --service celery-worker
+#   5. railway up --service celery-beat
+#   6. railway up --service frontend
+#   7. railway run --service backend "alembic upgrade head"
+#
+# Requires: RAILWAY_TOKEN secret in GitHub repo settings.
+# Generate token at: https://railway.app/account/tokens
+```
+
+**Setup steps (one-time):**
+1. Push repo to GitHub
+2. Create Railway project from GitHub repo
+3. Add 4 services (backend, frontend, celery-worker, celery-beat) linked to their Dockerfiles
+4. Set environment variables per service in Railway dashboard
+5. Add `RAILWAY_TOKEN` to GitHub repo secrets
+6. Push to `main` — deploy workflow runs automatically
 
 ### 5. Testing Strategy
 
@@ -441,7 +464,7 @@ Server → Client:  {"type": "pong"}
 | `reportlab` | >=4.2 | PDF generation |
 | `httpx` | already present | HTTP client for Ollama API (OpenAI-compatible) |
 
-> **No `anthropic` SDK needed** — Ollama exposes an OpenAI-compatible REST API, so the chat service calls it via `httpx` directly. This avoids vendor lock-in and keeps the dependency footprint small.
+> **No `anthropic` SDK needed** — Groq exposes an OpenAI-compatible REST API, so the chat service calls it via `httpx` directly. This avoids vendor lock-in and makes it trivially swappable to any OpenAI-compatible provider (OpenRouter, LocalAI, etc.).
 
 #### Frontend (`package.json`)
 
@@ -449,39 +472,25 @@ Server → Client:  {"type": "pong"}
 |---------|---------|---------|
 | No new frontend deps | — | Use native `WebSocket` API for WS, native `fetch` for API calls |
 
-### 7. Ollama Docker Service
+### 7. Groq API Key (No Docker Service Needed)
 
-Add a new service to `docker-compose.yml` for local development:
+Groq is a cloud API — no local model storage or Docker service required.
 
-```yaml
-ollama:
-  image: ollama/ollama
-  volumes:
-    - ollama_data:/root/.ollama
-  ports:
-    - "11434:11434"
-  healthcheck:
-    test: ["CMD", "ollama", "list"]
-    interval: 30s
-    timeout: 10s
-    retries: 5
-  restart: unless-stopped
+**Setup:**
+1. Sign up at https://console.groq.com (free, no credit card)
+2. Generate an API key
+3. Set environment variable:
+   ```
+   LLM_BASE_URL=https://api.groq.com/openai/v1
+   LLM_API_KEY=gsk_your_key
+   LLM_MODEL=llama-3.3-70b-versatile
+   ```
 
-# Add named volume
-volumes:
-  ollama_data:
-```
+**Free tier limits:** 30 req/min, 14,400 req/day — more than sufficient for a personal finance assistant.
 
-**Model pulling on startup:** The backend `entrypoint.sh` (or a separate init container) pulls the configured model on first run:
-
-```bash
-ollama pull llama3.1:8b
-```
-
-**Backend → Ollama connection:**
-- Backend sets `OLLAMA_BASE_URL=http://ollama:11434` in environment
-- Chat service uses `httpx` to call `POST http://ollama:11434/v1/chat/completions` (OpenAI-compatible endpoint)
-- No SDK dependency — raw HTTP, easily swappable to any OpenAI-compatible provider
+**Backend → Groq connection:**
+- Chat service uses `httpx` to call `POST https://api.groq.com/openai/v1/chat/completions` with Bearer token auth
+- OpenAI-compatible format — zero vendor lock-in, swappable to OpenRouter, LocalAI, etc. by changing three env vars
 
 ### 8. New Folder Structure
 
@@ -501,7 +510,7 @@ backend/app/
     notification.py      # NEW - Notification schemas
     export.py            # NEW - Export schemas
   services/
-    chat_service.py      # NEW - Chat service with Ollama integration
+    chat_service.py      # NEW - Chat service with Groq integration
     export_service.py    # NEW - PDF/CSV generation
   tasks/
     notifications.py     # NEW - Celery notification tasks
@@ -573,24 +582,21 @@ flowchart LR
 
 ## Sprint 4 Completion Checklist
 
-- [ ] Add `websockets`, `reportlab` to `requirements.txt`
-- [ ] `WebSocketManager` class with connect/disconnect/send/authenticate
-- [ ] `Notification` model + `GET/PATCH /notifications`
-- [ ] Frontend `useWebSocket` hook with reconnect + heartbeat
-- [ ] Notification toast + bell badge in Header
-- [ ] `ChatMessage` model + `POST/GET/DELETE /chat/messages`
-- [ ] `ChatService` with Ollama API integration + system prompt builder
-- [ ] Chat page (`/chat`) with message list, input, typing indicator, suggested prompts
-- [ ] `ExportService` with PDF (ReportLab) + CSV generation
-- [ ] `POST/GET /reports/export` endpoints (sync + async)
-- [ ] Frontend `ExportButton` + `ExportDialog` on report pages
-- [ ] Backend tests: 78 new, all passing
-- [ ] Frontend tests: 31 new, all passing
-- [ ] `railway.json` + deploy workflow
+- [x] Add `websockets`, `reportlab` to `requirements.txt`
+- [x] `WebSocketManager` class with connect/disconnect/send/authenticate
+- [x] `Notification` model + `GET/PATCH /notifications`
+- [x] Frontend `useWebSocket` hook with reconnect + heartbeat
+- [x] Notification toast + bell badge in Header
+- [x] `ChatMessage` model + `POST/GET/DELETE /chat/messages`
+- [x] `ChatService` with Groq API integration + system prompt builder
+- [x] Chat page (`/chat`) with message list, input, typing indicator, suggested prompts
+- [x] `ExportService` with PDF (ReportLab) + CSV generation
+- [x] `POST/GET /exports` endpoints (sync)
+- [x] Frontend `ExportDialog` on all 4 report pages
+- [x] `railway.json` + deploy workflow
 - [ ] Railway deployment: all services healthy
-- [ ] E2E tests: 10 new, all passing
-- [ ] 0 TypeScript errors, 0 lint warnings
-- [ ] CI pipeline passing: lint → test → build → deploy
+- [x] 0 TypeScript errors, 0 lint warnings
+- [x] CI pipeline passing: lint → test → build
 
 ## Key Decisions
 
@@ -604,7 +610,7 @@ flowchart LR
 | Export trigger | POST endpoint with format param | Unified interface, extensible for future formats |
 | Deployment target | Railway | Simple PaaS, free tier, Docker-native |
 | Database | MS SQL Server 2022 | Consistent across dev/prod (no swap needed) |
-| LLM provider | Ollama (self-hosted) | $0 cost, financial data stays private, no vendor lock-in |
-| Ollama API protocol | OpenAI-compatible REST API | Drop-in replaceable with any OpenAI-compatible provider later |
+| LLM provider | Groq (free-tier API) | $0 cost, zero local storage, 30 req/min free tier, OpenAI-compatible |
+| LLM API protocol | OpenAI-compatible REST API | Drop-in replaceable with any OpenAI-compatible provider (OpenRouter, LocalAI) |
 | Chat context refresh | 5-minute cache | Avoids rebuilding financial context on every message |
 | Suggested prompts | Static list in frontend | Fast UX, no extra API call to generate suggestions |

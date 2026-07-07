@@ -49,7 +49,7 @@ WealthFlow allows users to:
 WealthFlow is a standalone web application with a REST API backend. It integrates with:
 - **Plaid / Nordigen** for bank account data.
 - **Alpha Vantage / Yahoo Finance** for market data.
-- **Anthropic Claude API** for the AI financial advisor chatbot.
+- **Groq API** (free tier, OpenAI-compatible) for the AI financial advisor chatbot.
 
 ### 2.2 User Classes
 | User Class | Description |
@@ -122,7 +122,7 @@ WealthFlow is a standalone web application with a REST API backend. It integrate
 ### 3.7 AI Financial Advisor
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| FR-30 | Chatbot powered by Claude API | Medium |
+| FR-30 | Chatbot powered by Groq API (free tier) | Medium |
 | FR-31 | Context-aware (knows user's transactions/budgets) | Medium |
 | FR-32 | Suggest savings opportunities | Low |
 | FR-33 | Persistent chat history | Low |
@@ -359,7 +359,7 @@ See [sprint-3.md](../sprint-3.md) for details.
 - [x] 55 tests (40 unit + 15 E2E)
 
 ### Sprint 4 — AI & Polish (Week 8) ⬜
-- [ ] Claude API chatbot integration
+- [ ] Groq API chatbot integration (free tier, OpenAI-compatible)
 - [ ] WebSocket notifications
 - [ ] PDF report generation (ReportLab)
 - [ ] Railway deployment

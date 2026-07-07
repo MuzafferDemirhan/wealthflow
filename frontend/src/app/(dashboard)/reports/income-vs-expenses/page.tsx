@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ChartTooltip } from "@/components/charts/ChartTooltip";
+import { ExportDialog } from "@/components/export/ExportDialog";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import type { ReportIncomeVsExpenses } from "@/lib/types";
 
 export default function IncomeVsExpensesPage() {
+  const [showExport, setShowExport] = useState(false);
   const today = new Date();
   const defaultFrom = new Date(today.getFullYear(), 0, 1).toISOString().split("T")[0];
   const defaultTo = today.toISOString().split("T")[0];
@@ -72,8 +74,11 @@ export default function IncomeVsExpensesPage() {
             Monthly breakdown
           </label>
           <Button onClick={handleApply} loading={loading}>Apply</Button>
+          <Button variant="tonal" onClick={() => setShowExport(true)}>Export</Button>
         </div>
       </Card>
+
+      <ExportDialog open={showExport} onClose={() => setShowExport(false)} defaultReportType="income_vs_expenses" />
 
       {loading ? (
         <div className="grid gap-6 lg:grid-cols-2">

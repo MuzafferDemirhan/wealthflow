@@ -18,7 +18,10 @@ from app.models.bank_connection import (  # noqa: F401
 )
 from app.models.budget import Budget  # noqa: F401
 from app.models.category import Category  # noqa: F401
+from app.models.chat_message import ChatMessage  # noqa: F401
+from app.models.export import Export, ExportFormat, ExportStatus  # noqa: F401
 from app.models.holding import AssetType, Holding  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
 from app.models.refresh_token import RefreshToken  # noqa: F401
 from app.models.transaction import (  # noqa: F401
     CategorySource,
@@ -44,4 +47,9 @@ __all__ = [
     "Budget",
     "Holding",
     "AssetType",
+    "ChatMessage",
+    "Export",
+    "ExportFormat",
+    "ExportStatus",
+    "Notification",
 ]

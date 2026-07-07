@@ -38,8 +38,13 @@ class Settings(BaseSettings):
     # Token encryption
     TOKEN_ENCRYPTION_KEY: str = ""
 
-    # Anthropic
-    CLAUDE_API_KEY: str = ""
+    # Export
+    EXPORT_DIR: str = "exports"
+
+    # LLM (OpenAI-compatible API — Groq, OpenRouter, etc.)
+    LLM_BASE_URL: str = "https://api.groq.com/openai/v1"
+    LLM_API_KEY: str = ""
+    LLM_MODEL: str = "llama-3.3-70b-versatile"
 
     # Market data
     ALPHA_VANTAGE_KEY: str = ""

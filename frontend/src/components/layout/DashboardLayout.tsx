@@ -1,12 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AuthGuard } from "@/components/layout/AuthGuard";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useAuth } from "@/lib/auth-context";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { useToast } from "@/components/ui/Toast";
+import type { NotificationRead } from "@/lib/types";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    addNotification,
+    fetchNotifications,
+  } = useNotifications();
+
+  const lastTokenRef = useRef<string | null>(null);
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("wf_access_token")
+      : null;
+
+  useEffect(() => {
+    if (isAuthenticated && token !== lastTokenRef.current) {
+      lastTokenRef.current = token;
+      fetchNotifications();
+    }
+  }, [isAuthenticated, token, fetchNotifications]);
+
+  const handleWsMessage = useCallback(
+    (data: Record<string, unknown>) => {
+      if (data.type === "notification" && data.notification_type) {
+        const n: NotificationRead = {
+          id: (data.payload as Record<string, unknown>)?.export_id as string ?? crypto.randomUUID(),
+          type: data.notification_type as string,
+          title: data.title as string,
+          body: data.body as string | undefined,
+          payload: data.payload as Record<string, unknown> | undefined,
+          is_read: false,
+          created_at: new Date().toISOString(),
+        };
+        addNotification(n);
+        toast(n.title, "info");
+      }
+    },
+    [addNotification, toast],
+  );
+
+  useWebSocket(isAuthenticated ? token : null, handleWsMessage);
 
   return (
     <AuthGuard>
@@ -67,6 +116,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </svg>
             </div>
             <span className="text-base font-semibold text-on-surface md:hidden">WealthFlow</span>
+
+            <div className="ml-auto flex items-center gap-1">
+              <NotificationBell
+                notifications={notifications}
+                unreadCount={unreadCount}
+                onMarkRead={markAsRead}
+              />
+            </div>
           </header>
 
           {/* Page content */}

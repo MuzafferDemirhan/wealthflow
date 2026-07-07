@@ -104,7 +104,7 @@ jobs:
           PLAID_CLIENT_ID: placeholder
           PLAID_SECRET: placeholder
           TOKEN_ENCRYPTION_KEY: placeholder
-          CLAUDE_API_KEY: placeholder
+          LLM_API_KEY: placeholder
           ALPHA_VANTAGE_KEY: placeholder
         run: |
           cd backend
