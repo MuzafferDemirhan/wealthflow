@@ -14,7 +14,7 @@ export function PlaidLinkButton({ onSuccess }: PlaidLinkButtonProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api.post<{ link_token: string }>("/connect/plaid/create-link-token")
+    api.post<{ link_token: string }>("/connect/plaid/link-token")
       .then((data) => setLinkToken(data.link_token))
       .catch(() => {});
   }, []);
