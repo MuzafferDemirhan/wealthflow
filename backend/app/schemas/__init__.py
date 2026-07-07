@@ -7,6 +7,17 @@ from app.schemas.auth import (  # noqa: F401
 )
 from app.schemas.budget import BudgetCreate, BudgetRead, BudgetUpdate  # noqa: F401
 from app.schemas.category import CategoryRead  # noqa: F401
+from app.schemas.chat import (  # noqa: F401
+    ChatMessageRead,
+    ChatResponse,
+    SendMessageRequest,
+)
+from app.schemas.export import ExportCreateRequest, ExportRead  # noqa: F401
+from app.schemas.notification import (  # noqa: F401
+    MarkReadRequest,
+    NotificationRead,
+    NotificationUnreadCount,
+)
 from app.schemas.transaction import (  # noqa: F401
     TransactionCreate,
     TransactionRead,
@@ -29,4 +40,12 @@ __all__ = [
     "BudgetCreate",
     "BudgetRead",
     "BudgetUpdate",
+    "ExportCreateRequest",
+    "ExportRead",
+    "ChatMessageRead",
+    "ChatResponse",
+    "SendMessageRequest",
+    "NotificationRead",
+    "NotificationUnreadCount",
+    "MarkReadRequest",
 ]

@@ -153,4 +153,42 @@ export const api = {
   del<T = void>(path: string): Promise<T> {
     return request<T>("DELETE", path);
   },
+
+  async blob(path: string, params?: Record<string, string | number | undefined>): Promise<Blob> {
+    let url = `${BASE_URL}${path}`;
+    if (params) {
+      const searchParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== null) searchParams.set(key, String(value));
+      }
+      const qs = searchParams.toString();
+      if (qs) url += `?${qs}`;
+    }
+
+    const headers: Record<string, string> = {};
+    const token = _getAccessToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(url, { method: "GET", headers });
+    if (res.status === 401 && _getRefreshToken()) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        headers["Authorization"] = `Bearer ${_getAccessToken()}`;
+        const retryRes = await fetch(url, { method: "GET", headers });
+        if (retryRes.ok) return retryRes.blob();
+        if (retryRes.status === 401) _onLogout();
+        const err = await parseError(retryRes);
+        throw new ApiError(err.status, err.detail);
+      } else {
+        _onLogout();
+      }
+    }
+
+    if (!res.ok) {
+      const err = await parseError(res);
+      throw new ApiError(err.status, err.detail);
+    }
+
+    return res.blob();
+  },
 };

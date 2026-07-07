@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ChartTooltip } from "@/components/charts/ChartTooltip";
+import { ExportDialog } from "@/components/export/ExportDialog";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
@@ -15,6 +16,7 @@ import type { ReportCategoryBreakdown } from "@/lib/types";
 const COLORS = ["#005bbf", "#34a853", "#fbbc04", "#ba1a1a", "#8B5CF6", "#06B6D4", "#EC4899", "#84CC16", "#F97316", "#14B8A6", "#E11D48", "#A855F7"];
 
 export default function CategoryBreakdownPage() {
+  const [showExport, setShowExport] = useState(false);
   const today = new Date();
   const defaultFrom = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
   const defaultTo = today.toISOString().split("T")[0];
@@ -54,8 +56,11 @@ export default function CategoryBreakdownPage() {
           <Input label="From" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           <Input label="To" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           <Button onClick={handleApply} loading={loading}>Apply</Button>
+          <Button variant="tonal" onClick={() => setShowExport(true)}>Export</Button>
         </div>
       </Card>
+
+      <ExportDialog open={showExport} onClose={() => setShowExport(false)} defaultReportType="category_breakdown" />
 
       {loading ? (
         <div className="grid gap-6 lg:grid-cols-2">

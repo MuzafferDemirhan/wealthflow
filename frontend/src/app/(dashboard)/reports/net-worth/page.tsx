@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ExportDialog } from "@/components/export/ExportDialog";
 import type { ReportNetWorth } from "@/lib/types";
 
 export default function NetWorthPage() {
+  const [showExport, setShowExport] = useState(false);
   const [data, setData] = useState<ReportNetWorth | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -43,7 +46,12 @@ export default function NetWorthPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-medium tracking-tight text-on-surface">Net Worth</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-medium tracking-tight text-on-surface">Net Worth</h1>
+        <Button variant="tonal" onClick={() => setShowExport(true)}>Export</Button>
+      </div>
+
+      <ExportDialog open={showExport} onClose={() => setShowExport(false)} defaultReportType="net_worth" />
 
       <div className="grid gap-5 sm:grid-cols-3">
         <Card>

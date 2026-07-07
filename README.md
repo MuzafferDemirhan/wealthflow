@@ -57,45 +57,31 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ---
 
-## How to Run
+## Quick Start
 
-### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+
-- Python 3.12+
-
-### 1. Clone the repository
 ```bash
 git clone https://github.com/MuzafferDemirhan/WealthFlow.git
 cd WealthFlow
-```
 
-### 2. Set up environment variables
-```bash
-copy backend\.env.example backend\.env
-# Fill in: DATABASE_URL, REDIS_URL, PLAID_CLIENT_ID, PLAID_SECRET, CLAUDE_API_KEY
-```
+# Windows
+.\setup.ps1
+# macOS / Linux
+# bash setup.sh
 
-### 3. Start with Docker Compose
-```bash
 docker compose up --build
 ```
 
-### 4. Run database migrations
-```bash
-docker compose exec backend alembic upgrade head
+Open **http://localhost:3000** — register an account and you're in.
 
-# Connect via SSMS: localhost,1433 | User: sa | Password: WealthFlow_2024!
-```
+> **AI chat** needs a free [Groq API key](https://console.groq.com/keys): set `LLM_API_KEY` in `backend\.env` after setup.  
+> **Plaid keys** are optional — everything except bank syncing works without them.
 
-### 5. Access the app
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| API docs | http://localhost:8000/docs |
-| SSMS (Windows) | localhost,1433 - sa / WealthFlow_2024! |
+### CI (forks)
 
-### 6. Run tests
+CI pipelines don't require any secrets — tests mock all third-party APIs.  
+If you want deploy to work, add `RAILWAY_TOKEN` in **Settings → Secrets and variables → Actions**.
+
+### Run tests
 ```bash
 # Backend
 docker compose exec backend pytest --cov=app --cov-report=term
@@ -145,7 +131,7 @@ wealthflow/
 pie title Test Distribution
     "Backend Unit Tests" : 259
     "Frontend Unit Tests" : 40
-    "E2E Tests (Playwright)" : 15
+    "E2E Tests (Playwright)" : 27
 ```
 
 ---
@@ -168,7 +154,7 @@ pie title Test Distribution
 | Sprint 1 | ✅ | Backend core (auth, accounts, categories, budgets, transactions) |
 | Sprint 2 | ✅ | Open Banking + ML classifier + portfolio + reports + connect |
 | Sprint 3 | ✅ | Frontend dashboard (14 pages, 40 unit + 15 E2E tests) |
-| Sprint 4 | 🔄 | AI chatbot (Ollama) + export + WebSockets + Railway deploy |
+| Sprint 4 | ✅ | AI chatbot (Groq) + PDF/CSV export + WebSockets + deploy config |
 
 > See [sprint-0.md](./docs/sprint-0.md), [sprint-1.md](./docs/sprint-1.md), [sprint-2.md](./docs/sprint-2.md), [sprint-3.md](./docs/sprint-3.md), [sprint-4.md](./docs/sprint-4.md) for details.
 

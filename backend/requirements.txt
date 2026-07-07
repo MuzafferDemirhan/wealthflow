@@ -26,6 +26,12 @@ celery==5.4.0
 # HTTP client
 httpx==0.27.2
 
+# WebSocket support
+websockets>=13.0
+
+# PDF report generation (Sprint 4)
+reportlab>=4.2
+
 # Plaid Open Banking
 plaid-python>=25.0.0
 

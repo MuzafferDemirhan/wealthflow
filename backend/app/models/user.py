@@ -9,6 +9,9 @@ from app.db.base_class import Base
 from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.chat_message import ChatMessage
+    from app.models.export import Export
+    from app.models.notification import Notification
     from app.models.refresh_token import RefreshToken
 
 
@@ -36,6 +39,18 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    chat_messages: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    exports: Mapped[list["Export"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
