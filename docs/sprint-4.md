@@ -21,6 +21,7 @@ sequenceDiagram
 
     Service->>Service: Build system prompt with<br/>user's financial context
     Service->>Service: Fetch recent transactions<br/>budgets, net worth
+    Service->>Ollama: OpenAI-compatible<br/>chat completions API
     Ollama-->>Service: Assistant response
 
     Service->>Service: Save chat message to DB
