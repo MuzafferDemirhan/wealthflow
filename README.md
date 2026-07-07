@@ -26,6 +26,33 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ---
 
+## Demo
+
+<!-- Record a 1-2 min Loom or GIF showing: login → connect bank (Plaid sandbox) → dashboard → transactions → AI chat -->
+<!-- Upload to docs/demo/ and replace the line below -->
+<!-- [![Demo](./docs/demo/demo.gif)](./docs/demo/demo.gif) -->
+
+> 🎬 **Live demo coming soon** — or clone and run locally in 2 minutes with `docker compose up --build`
+
+---
+
+## Screenshots
+
+<!-- After taking screenshots, save them to docs/screenshots/ and uncomment the lines below -->
+<!-- Suggested shots: dashboard overview, transactions page, Plaid connect flow, AI chat, reports -->
+
+<!--
+![Dashboard](./docs/screenshots/dashboard.png)
+![Transactions](./docs/screenshots/transactions.png)
+![Connect Bank](./docs/screenshots/connect.png)
+![AI Chat](./docs/screenshots/chat.png)
+![Reports](./docs/screenshots/reports.png)
+-->
+
+> 📸 Screenshots coming soon
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
