@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/MuzafferDemirhan/WealthFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/MuzafferDemirhan/WealthFlow/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
-[![Sprints](https://img.shields.io/badge/Sprints-0--3%20complete-green)]()
+[![Sprints](https://img.shields.io/badge/Sprints-0--3%20complete%2C%204%20active-yellow)]()
 [![SRS](https://img.shields.io/badge/SRS-v1.1.0-blue)](./SRS/SRS.md)
 
 Central hub for all WealthFlow project documentation.
@@ -50,6 +50,7 @@ gantt
 | [sprint-1.md](./sprint-1.md) | Backend core: auth, accounts, budgets, transactions | ✅ |
 | [sprint-2.md](./sprint-2.md) | Open Banking, ML classifier, portfolio, reports | ✅ |
 | [sprint-3.md](./sprint-3.md) | Next.js frontend, 14 pages, 55 tests | ✅ |
+| [sprint-4.md](./sprint-4.md) | AI chatbot (Ollama), export, WebSockets, Railway deploy | 🔄 Active |
 
 ---
 
@@ -78,6 +79,7 @@ graph LR
     click s1 "./sprint-1.md"
     click s2 "./sprint-2.md"
     click s3 "./sprint-3.md"
+    click s4 "./sprint-4.md"
     click ARCH "./architecture/architecture.md"
     click ERD "./ER%20diagram/erd.md"
 ```

@@ -1,7 +1,7 @@
 # Sprint 4 - AI Chatbot, Reports Export, and Deployment
 
 ## Goal
-Integrate the Claude-powered AI financial advisor chatbot, add PDF/CSV report export with WebSocket notifications, and deploy to production on Railway.
+Integrate an AI financial advisor chatbot powered by a self-hosted LLM (Ollama), add PDF/CSV report export with WebSocket notifications, and deploy to production on Railway.
 
 ## AI Chatbot Flow
 
@@ -12,7 +12,7 @@ sequenceDiagram
     participant WS as WebSocket
     participant API as Chat API
     participant Service as Chat Service
-    participant Claude as Claude API
+    participant Ollama as Ollama (self-hosted)
 
     User->>Chat: Type message
     Chat->>Chat: Append user message to history
@@ -21,8 +21,7 @@ sequenceDiagram
 
     Service->>Service: Build system prompt with<br/>user's financial context
     Service->>Service: Fetch recent transactions<br/>budgets, net worth
-    Service->>Claude: messages API (prompt + context)
-    Claude-->>Service: Assistant response
+    Ollama-->>Service: Assistant response
 
     Service->>Service: Save chat message to DB
     Service-->>API: { response, conversation_id }
@@ -113,25 +112,24 @@ graph TB
             CW[Celery Worker]
             CB[Celery Beat]
             FE[Frontend<br/>Next.js<br/>Port 3000]
-            PG[PostgreSQL<br/>Railway Addon]
-            RD[Redis<br/>Railway Addon]
+            OL[Ollama<br/>Port 11434]
+            MSSQL[MS SQL Server 2022]
+            RD[Redis<br/>Railway Addon | Local in MVP]
         end
 
         subgraph External
             PLAID[Plaid API]
-            CLAUDE[Claude API]
             AV[Alpha Vantage]
         end
 
         CF --> FE
         CF --> BE
-        BE --> PG
+        BE --> MSSQL
         BE --> RD
+        BE --> OL
         BE --> PLAID
-        BE --> CLAUDE
         BE --> AV
         CW --> RD
-        CW --> PG
         CB --> RD
         FE --> BE
     end
@@ -147,7 +145,7 @@ graph TB
 |-----------|------|-------------|
 | Chat model | `models/chat_message.py` | `ChatMessage` (id, user_id, role, content, conversation_id, created_at) |
 | Chat schema | `schemas/chat.py` | SendMessage, ChatResponse, ChatHistory |
-| Chat service | `services/chat_service.py` | System prompt builder, Claude API client, context injection |
+| Chat service | `services/chat_service.py` | System prompt builder, Ollama API client, context injection |
 | Chat endpoint | `api/v1/endpoints/chat.py` | `POST /chat/messages`, `GET /chat/history`, `DELETE /chat/history` |
 | Model registration | `models/__init__.py` | Import `ChatMessage` |
 
@@ -155,11 +153,11 @@ graph TB
 
 | Method | Description |
 |--------|-------------|
-| `process_message(user_id, message, conversation_id)` | Calls Claude, saves to DB, returns response |
+| `process_message(user_id, message, conversation_id)` | Calls Ollama, saves to DB, returns response |
 | `get_conversation_history(user_id, conversation_id)` | Returns recent N messages for context |
 | `delete_conversation(user_id, conversation_id)` | Deletes chat history |
 | `_build_system_prompt(user_id)` | Injects user financial context (total balance, recent transactions, budget status, net worth) |
-| `_call_claude(messages)` | Core Anthropic SDK invocation |
+| `_call_ollama(messages)` | Core HTTP call to Ollama's OpenAI-compatible API |
 
 **System prompt context injection:**
 - Total account balance across all accounts
@@ -169,8 +167,9 @@ graph TB
 - Cached and refreshed every 5 minutes
 
 **Configuration (`core/config.py`):**
-- `CLAUDE_API_KEY` (already exists, populate from env)
-- `CLAUDE_MODEL: str = "claude-sonnet-4-20250514"`
+- `OLLAMA_BASE_URL: str = "http://ollama:11434"` — Ollama server URL (Docker service name)
+- `OLLAMA_MODEL: str = "llama3.1:8b"` — Model to use (swapable: `mistral`, `phi-3:medium`, `qwen2.5:7b`)
+- Remove `CLAUDE_API_KEY` field (no longer needed)
 
 #### Frontend (`frontend/src/`)
 
@@ -186,7 +185,7 @@ graph TB
 |---------|-------------|
 | Message list | Scrollable container with auto-scroll to bottom |
 | User/assistant bubbles | Distinct styling for user vs assistant messages |
-| Typing indicator | Animated dots while waiting for Claude response |
+| Typing indicator | Animated dots while waiting for LLM response |
 | Conversation persistence | Messages saved and loaded from backend |
 | Clear history | Button to delete conversation |
 | Suggested prompts | Quick-action buttons ("How am I spending?", "Budget check", "Savings tips") |
@@ -362,16 +361,15 @@ Server → Client:  {"type": "pong"}
 
 | Variable | Source | Notes |
 |----------|--------|-------|
-| `DATABASE_URL` | Railway PostgreSQL plugin | `postgresql+psycopg2://...` |
-| `REDIS_URL` | Railway Redis plugin | `redis://...` |
+| `DATABASE_URL` | Railway MS SQL Server / self-hosted | `mssql+pyodbc://user:pass@host:1433/db?...` |
+| `REDIS_URL` | Railway Redis plugin or Upstash | `redis://...` |
 | `SECRET_KEY` | Generate via `openssl rand -hex 32` | Production secret |
 | `PLAID_CLIENT_ID` | Plaid Dashboard | Sandbox or production |
 | `PLAID_SECRET` | Plaid Dashboard | Sandbox or production |
-| `CLAUDE_API_KEY` | Anthropic Console | Required for chatbot |
+| `OLLAMA_BASE_URL` | Ollama server URL | Self-hosted or external endpoint |
 | `ALPHA_VANTAGE_KEY` | Alpha Vantage | Market data |
 | `TOKEN_ENCRYPTION_KEY` | Generate via `openssl rand -hex 32` | Token encryption |
 | `ALLOWED_ORIGINS` | Railway frontend URL | Comma-separated |
-| `CORS_ORIGINS` | Railway frontend URL | Comma-separated |
 
 **Deploy workflow (`.github/workflows/deploy.yml`):**
 
@@ -392,7 +390,7 @@ Server → Client:  {"type": "pong"}
 
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| Chat service | 15 | Message processing, system prompt building, Claude API call (mocked), conversation history, error handling |
+| Chat service | 15 | Message processing, system prompt building, Ollama API call (mocked), conversation history, error handling |
 | Chat endpoint | 10 | Send message, get history, delete history, auth scoping |
 | WebSocket manager | 10 | Connect/disconnect, authentication, send_to_user, broadcast, concurrent connections |
 | Notification model | 5 | CRUD, mark as read, unread count |
@@ -438,10 +436,11 @@ Server → Client:  {"type": "pong"}
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `anthropic` | >=0.45.0 | Claude API client |
 | `websockets` | >=13.0 | WebSocket server support |
 | `reportlab` | >=4.2 | PDF generation |
-| `httpx` | already present | HTTP client for external APIs |
+| `httpx` | already present | HTTP client for Ollama API (OpenAI-compatible) |
+
+> **No `anthropic` SDK needed** — Ollama exposes an OpenAI-compatible REST API, so the chat service calls it via `httpx` directly. This avoids vendor lock-in and keeps the dependency footprint small.
 
 #### Frontend (`package.json`)
 
@@ -449,7 +448,41 @@ Server → Client:  {"type": "pong"}
 |---------|---------|---------|
 | No new frontend deps | — | Use native `WebSocket` API for WS, native `fetch` for API calls |
 
-### 7. New Folder Structure
+### 7. Ollama Docker Service
+
+Add a new service to `docker-compose.yml` for local development:
+
+```yaml
+ollama:
+  image: ollama/ollama
+  volumes:
+    - ollama_data:/root/.ollama
+  ports:
+    - "11434:11434"
+  healthcheck:
+    test: ["CMD", "ollama", "list"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+  restart: unless-stopped
+
+# Add named volume
+volumes:
+  ollama_data:
+```
+
+**Model pulling on startup:** The backend `entrypoint.sh` (or a separate init container) pulls the configured model on first run:
+
+```bash
+ollama pull llama3.1:8b
+```
+
+**Backend → Ollama connection:**
+- Backend sets `OLLAMA_BASE_URL=http://ollama:11434` in environment
+- Chat service uses `httpx` to call `POST http://ollama:11434/v1/chat/completions` (OpenAI-compatible endpoint)
+- No SDK dependency — raw HTTP, easily swappable to any OpenAI-compatible provider
+
+### 8. New Folder Structure
 
 ```
 backend/app/
@@ -467,7 +500,7 @@ backend/app/
     notification.py      # NEW - Notification schemas
     export.py            # NEW - Export schemas
   services/
-    chat_service.py      # NEW - Chat service with Claude integration
+    chat_service.py      # NEW - Chat service with Ollama integration
     export_service.py    # NEW - PDF/CSV generation
   tasks/
     notifications.py     # NEW - Celery notification tasks
@@ -539,13 +572,13 @@ flowchart LR
 
 ## Sprint 4 Completion Checklist
 
-- [ ] Add `anthropic`, `websockets`, `reportlab` to `requirements.txt`
+- [ ] Add `websockets`, `reportlab` to `requirements.txt`
 - [ ] `WebSocketManager` class with connect/disconnect/send/authenticate
 - [ ] `Notification` model + `GET/PATCH /notifications`
 - [ ] Frontend `useWebSocket` hook with reconnect + heartbeat
 - [ ] Notification toast + bell badge in Header
 - [ ] `ChatMessage` model + `POST/GET/DELETE /chat/messages`
-- [ ] `ChatService` with Claude API integration + system prompt builder
+- [ ] `ChatService` with Ollama API integration + system prompt builder
 - [ ] Chat page (`/chat`) with message list, input, typing indicator, suggested prompts
 - [ ] `ExportService` with PDF (ReportLab) + CSV generation
 - [ ] `POST/GET /reports/export` endpoints (sync + async)
@@ -568,7 +601,9 @@ flowchart LR
 | PDF engine | ReportLab | Pure Python, no external HTML/CSS renderer, full layout control |
 | Async reports | Celery for large datasets, sync for small | Responsive UX for large reports without blocking |
 | Export trigger | POST endpoint with format param | Unified interface, extensible for future formats |
-| Deployment target | Railway | Simple PaaS, free tier, Docker-native, DB/Redis addons |
-| DB on Railway | PostgreSQL (Railway addon) | MS SQL Server not available on Railway; SQLAlchemy abstraction makes swap straightforward |
-| Chat context refresh | 5-minute cache | Redundant Claude API calls for context building |
+| Deployment target | Railway | Simple PaaS, free tier, Docker-native |
+| Database | MS SQL Server 2022 | Consistent across dev/prod (no swap needed) |
+| LLM provider | Ollama (self-hosted) | $0 cost, financial data stays private, no vendor lock-in |
+| Ollama API protocol | OpenAI-compatible REST API | Drop-in replaceable with any OpenAI-compatible provider later |
+| Chat context refresh | 5-minute cache | Avoids rebuilding financial context on every message |
 | Suggested prompts | Static list in frontend | Fast UX, no extra API call to generate suggestions |

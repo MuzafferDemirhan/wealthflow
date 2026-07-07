@@ -168,9 +168,9 @@ pie title Test Distribution
 | Sprint 1 | ✅ | Backend core (auth, accounts, categories, budgets, transactions) |
 | Sprint 2 | ✅ | Open Banking + ML classifier + portfolio + reports + connect |
 | Sprint 3 | ✅ | Frontend dashboard (14 pages, 40 unit + 15 E2E tests) |
-| Sprint 4 | ⬜ | AI chatbot + reports + deployment |
+| Sprint 4 | 🔄 | AI chatbot (Ollama) + export + WebSockets + Railway deploy |
 
-> See [sprint-0.md](./docs/sprint-0.md), [sprint-1.md](./docs/sprint-1.md), [sprint-2.md](./docs/sprint-2.md), [sprint-3.md](./docs/sprint-3.md) for details.
+> See [sprint-0.md](./docs/sprint-0.md), [sprint-1.md](./docs/sprint-1.md), [sprint-2.md](./docs/sprint-2.md), [sprint-3.md](./docs/sprint-3.md), [sprint-4.md](./docs/sprint-4.md) for details.
 
 ---
 
