@@ -7,7 +7,7 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![MS SQL Server](https://img.shields.io/badge/MS%20SQL%20Server-2022-blue)
-[![Tests](https://img.shields.io/badge/Tests-259%20backend%20%7C%2055%20frontend-green)]()
+[![Tests](https://img.shields.io/badge/Tests-219%20backend%20%7C%2055%20frontend-green)]()
 [![Docs](https://img.shields.io/badge/Docs-📖-blue)](./docs/README.md)
 
 ---
@@ -17,7 +17,7 @@
 WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem.
 
 **Core features:**
--  Bank account connection via Open Banking (Nordigen / Plaid)
+-  Bank account connection via Plaid (PSD2-compliant Open Banking)
 -  Automatic transaction categorization (scikit-learn ML model)
 -  Investment portfolio tracker with real-time market data
 -  Budget planning with smart alerts
