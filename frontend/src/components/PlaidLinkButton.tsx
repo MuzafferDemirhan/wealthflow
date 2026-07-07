@@ -14,9 +14,9 @@ export function PlaidLinkButton({ onSuccess }: PlaidLinkButtonProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api.post<{ link_token: string }>("/connect/plaid/link-token")
+    api.post<{ link_token: string }>("/connect/plaid/link-token", {})
       .then((data) => setLinkToken(data.link_token))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to get Plaid link token", err));
   }, []);
 
   const onPlaidSuccess: PlaidLinkOnSuccess = useCallback(
