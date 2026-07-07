@@ -1,12 +1,3 @@
-from app.services import (
-    account_service,  # noqa: F401
-    auth_service,  # noqa: F401
-    budget_service,  # noqa: F401
-    category_service,  # noqa: F401
-    chat_service,  # noqa: F401
-    connect_service,  # noqa: F401
-    export_service,  # noqa: F401
-    portfolio_service,  # noqa: F401
-    report_service,  # noqa: F401
-    transaction_service,  # noqa: F401
-)
+# Services are imported on-demand by endpoint modules.
+# This file intentionally left empty to avoid eager-import failures
+# cascading across the entire service layer.
