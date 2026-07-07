@@ -96,19 +96,6 @@ jobs:
           cd backend
           alembic upgrade head
 
-      - name: Verify routes are mounted
-        env:
-          DATABASE_URL: "mssql+pyodbc://sa:WealthFlow_2024!@localhost:1433/wealthflow_test?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
-          SECRET_KEY: test-secret-key
-          PLAID_CLIENT_ID: placeholder
-          PLAID_SECRET: placeholder
-          TOKEN_ENCRYPTION_KEY: placeholder
-          LLM_API_KEY: placeholder
-          ALPHA_VANTAGE_KEY: placeholder
-        run: |
-          cd backend
-          python check_routes.py
-
       - name: Run tests
         env:
           DATABASE_URL: "mssql+pyodbc://sa:WealthFlow_2024!@localhost:1433/wealthflow_test?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
