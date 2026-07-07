@@ -66,7 +66,7 @@ cd WealthFlow
 # Windows
 .\setup.ps1
 # macOS / Linux
-# bash setup.sh
+bash setup.sh
 
 docker compose up --build
 ```
