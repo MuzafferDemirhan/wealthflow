@@ -34,3 +34,11 @@ Dockerfile  text eol=lf
 *.bat       text eol=crlf
 *.cmd       text eol=crlf
 *.ps1       text eol=crlf
+
+# GitHub Linguist — exclude generated/vendored files from language stats
+frontend/package-lock.json    linguist-generated=true
+frontend/yarn.lock            linguist-generated=true
+*.lock                        linguist-generated=true
+frontend/playwright-report/** linguist-generated=true
+frontend/test-results/**      linguist-generated=true
+migrations/versions/**        linguist-generated=true
