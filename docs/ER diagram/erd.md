@@ -9,18 +9,18 @@ erDiagram
         NVARCHAR_20  role "user | admin  DEFAULT user"
         BIT          is_active "DEFAULT 1"
         BIT          is_verified "DEFAULT 0"
-        DATETIME2    created_at "NOT NULL"
-        DATETIME2    updated_at "NOT NULL"
+        DATETIMEOFFSET_7    created_at "NOT NULL"
+        DATETIMEOFFSET_7    updated_at "NOT NULL"
     }
 
     REFRESH_TOKEN {
         UNIQUEIDENTIFIER id PK
         UNIQUEIDENTIFIER user_id FK
         NVARCHAR_255 token_hash "UNIQUE NOT NULL"
-        DATETIME2    expires_at "NOT NULL"
+        DATETIMEOFFSET_7    expires_at "NOT NULL"
         BIT          revoked "DEFAULT 0"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Open Banking ───────────────────────────────────────────────────────
@@ -33,9 +33,9 @@ erDiagram
         NVARCHAR_255 external_reference "UNIQUE NOT NULL"
         NVARCHAR_20  status "pending|linked|expired|revoked|error"
         DATE         consent_expires_at
-        DATETIME2    last_synced_at
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    last_synced_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     ACCOUNT {
@@ -48,10 +48,10 @@ erDiagram
         NVARCHAR_34  iban
         NVARCHAR_3   currency "NOT NULL"
         NUMERIC_19_4 current_balance "DEFAULT 0"
-        DATETIME2    balance_as_of
+        DATETIMEOFFSET_7    balance_as_of
         BIT          is_active "DEFAULT 1"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Transactions & categorisation ──────────────────────────────────────
@@ -71,8 +71,8 @@ erDiagram
         NVARCHAR_10  category_source "ml | rule | user"
         FLOAT        category_confidence "ML prob score 0-1"
         JSON         raw_payload "full provider payload"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     CATEGORY {
@@ -83,8 +83,8 @@ erDiagram
         NVARCHAR_100 slug "UNIQUE NOT NULL"
         NVARCHAR_50  icon "nullable"
         BIT          is_system "DEFAULT 0 — system rows not user-editable"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Budgets ────────────────────────────────────────────────────────────
@@ -95,8 +95,8 @@ erDiagram
         DATE         period_month "NOT NULL always 1st of month"
         NUMERIC_19_4 amount_limit "NOT NULL"
         NVARCHAR_3   currency "NOT NULL"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Portfolio ──────────────────────────────────────────────────────────
@@ -113,8 +113,8 @@ erDiagram
         NUMERIC_19_6 current_price "nullable"
         DATE         as_of_date "nullable"
         NVARCHAR_1000 notes "nullable"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Notifications ──────────────────────────────────────────────────────
@@ -126,8 +126,8 @@ erDiagram
         TEXT         body "nullable"
         JSON         payload "nullable"
         BIT          is_read "DEFAULT 0"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── AI Chat ────────────────────────────────────────────────────────────
@@ -137,8 +137,8 @@ erDiagram
         UNIQUEIDENTIFIER conversation_id "groups messages into sessions"
         NVARCHAR_20  role "user | assistant"
         TEXT         content "NOT NULL"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Exports ────────────────────────────────────────────────────────────
@@ -152,8 +152,8 @@ erDiagram
         NVARCHAR_512 file_path "nullable"
         JSON         params "nullable — report generation parameters"
         TEXT         error_message "nullable"
-        DATETIME2    created_at
-        DATETIME2    updated_at
+        DATETIMEOFFSET_7    created_at
+        DATETIMEOFFSET_7    updated_at
     }
 
     %% ── Relationships ──────────────────────────────────────────────────────
