@@ -1,89 +1,137 @@
 graph TD
-    %% Infrastructure & CI/CD Subgraph
+
+    %% ── Infrastructure & CI/CD ─────────────────────────────────────────────
     subgraph Infra ["Infrastructure & CI/CD"]
-        GHA["GitHub Actions <br> CI: lint · test · build <br> CD: deploy on merge"]
-        Railway["Railway <br> Production deployment <br> Auto-scaling"]
-        Docker["Docker · Docker Compose <br> Local dev environment"]
+        GHA["GitHub Actions\nCI: ruff · pytest · eslint · vitest\nCD: deploy on merge to main"]
+        Docker["Docker · Docker Compose\nLocal dev — 6-service stack"]
+        Railway["Railway (planned)\nProduction deployment"]
     end
 
-    %% Client Layer Subgraph
+    %% ── Client Layer ───────────────────────────────────────────────────────
     subgraph Client ["Client Layer"]
-        PWA["PWA / Mobile"]
-        Browser["Browser <br> Next.js 15 - TypeScript <br> Tailwind - Recharts"]
+        Browser["Browser\nNext.js 15 · TypeScript\nTailwind CSS · Recharts\nreact-plaid-link"]
     end
 
-    %% CDN / Edge Subgraph
-    subgraph CDN_Layer ["CDN / Edge"]
-        Vercel["Vercel Edge Network <br> Static assets - SSR cache"]
+    %% ── API Gateway ────────────────────────────────────────────────────────
+    subgraph Gateway ["API Gateway  ·  FastAPI 0.115 · Uvicorn · Python 3.12"]
+        CORS["CORS Middleware\nAllowlist origins"]
+        RateLimit["Rate Limiter\n100 req / min per user"]
+        FastAPI["REST  /api/v1/*\nWebSocket  /api/v1/ws\nHealth  /health\nOpenAPI  /docs"]
     end
 
-    %% API Gateway Subgraph
-    subgraph Gateway ["API Gateway"]
-        CORS["CORS Middleware <br> Rate Limiter <br> 100 req/min per user"]
-        FastAPI["FastAPI - Uvicorn <br> Python 3.12 <br> REST + WebSocket"]
+    %% ── Application Modules ────────────────────────────────────────────────
+    subgraph Modules ["Application Modules  (app/services/)"]
+        Auth["Auth Service\nJWT access + refresh tokens\nbcrypt · python-jose\nRBAC: user / admin"]
+        Connect["Connect Service\nPlaid link_token create\npublic_token exchange\nFernet token encryption"]
+        TxnSvc["Transaction Service\ndedupe hash (SHA-256)\ncategory override\nfilter / paginate"]
+        BudgetSvc["Budget Service\nmonthly progress calc\n80% threshold alert"]
+        PortfolioSvc["Portfolio Service\nHolding CRUD\nP&L · allocation %"]
+        ReportSvc["Report Service\nmonthly summary JSON\nCSV generation"]
+        ChatSvc["Chat Service\nfinancial context builder\nGroq API (OpenAI-compat)\npersist chat_message"]
+        ExportSvc["Export Service\nPDF · CSV via Celery\nstatus polling"]
+        NotifSvc["Notification Service\ncreate · mark read\nWebSocket push"]
     end
 
-    %% Async Workers Subgraph
-    subgraph Async ["Async Workers"]
-        Celery["Celery Worker <br> Task Queue"]
-        Tasks["Tasks <br> • PDF report generation <br> • Budget alert notifications <br> • Transaction sync <br> • ML re-training"]
+    %% ── ML Module ──────────────────────────────────────────────────────────
+    subgraph ML ["ML Module  (app/ml/)"]
+        Rules["Rule Engine\ncompiled regex\nPolish / EU merchants"]
+        Classifier["TransactionClassifier\nTF-IDF + Logistic Regression\nscikit-learn 1.5\ncalibrated probabilities"]
     end
 
-    %% Application Modules Subgraph
-    subgraph Modules ["Application Modules"]
-        AI_Adv["AI Advisor <br> Claude API <br> Context aware chat"]
-        Fin_Mod["Finance Module <br> Transactions <br> Budgets - Portfolio"]
-        Rep_Mod["Report Module <br> PDF - CSV <br> ReportLab"]
-        ML_Mod["ML Module <br> scikit-learn <br> Category Classifier"]
-        Auth_Mod["Auth Module <br> JWT - OAuth2 <br> passlib - python jose"]
+    %% ── Async Workers ──────────────────────────────────────────────────────
+    subgraph Async ["Async Workers  (Celery 5.4 + Redis broker)"]
+        Beat["Celery Beat\nSync schedule\nevery 4 h"]
+        Worker["Celery Worker\ntask_acks_late=True\nprefetch×4"]
+        T1["ingestion.sync_account_transactions\nPlaid /transactions/sync\ndedupe · insert · classify"]
+        T2["ingestion.sync_all_due_connections\nfan-out per active connection"]
+        T3["classification.reclassify_transactions\nbatch ML re-run"]
+        T4["export.generate_pdf_report\nReportLab 4.2"]
+        T5["budget_alert\ncreate Notification\nWebSocket push via Redis"]
     end
 
-    %% External Services Subgraph
-    subgraph External ["External Services"]
-        Claude["Anthropic Claude API <br> Financial Advisor <br> Context-aware responses"]
-        Alpha["Alpha Vantage <br> Market Data API <br> Stocks - Crypto prices"]
-        SMTP["SMTP / SendGrid <br> Email notifications <br> Report delivery"]
-        Plaid["Plaid / Nordigen <br> Open Banking API <br> PSD2 - EU Compliant"]
-    end
-
-    %% Data Layer Subgraph
+    %% ── Data Layer ─────────────────────────────────────────────────────────
     subgraph Data ["Data Layer"]
-        Redis["Redis 7 <br> Cache - Sessions <br> Rate limit counters <br> WebSocket pub/sub"]
-        MSSQL["MS SQL Server 2022 <br> Primary Database <br> users - accounts <br> transactions - budgets <br> portfolio - categories"]
+        MSSQL["MS SQL Server 2022\nSQLAlchemy 2.0 · Alembic\n11 tables · UUID PKs\nuser_account · bank_connection\naccount · transaction · category\nbudget · holding · notification\nchat_message · refresh_token · export"]
+        Redis["Redis 7\nCelery broker + result backend\nmarket price cache (5 min TTL)\nWebSocket pub/sub bridge"]
     end
 
-    %% Flows & Connections
-    GHA --> Railway
-    GHA --> Docker
-    Railway --> FastAPI
-    Docker --> FastAPI
+    %% ── External Services ──────────────────────────────────────────────────
+    subgraph External ["External Services"]
+        Plaid["Plaid API\nOpen Banking (AISP / PSD2)\nlink_token · public_token\n/accounts/get\n/transactions/sync\nCountries: US GB NL PL"]
+        Groq["Groq API\nOpenAI-compatible\nllama-3.3-70b-versatile\nAI financial advisor"]
+        AlphaV["Alpha Vantage\nReal-time market prices\nStocks · ETFs · Crypto"]
+    end
 
-    PWA -->|HTTPS| Vercel
-    Browser -->|"HTTPS / WebSocket"| Vercel
-    Vercel -->|Proxy| FastAPI
+    %% ── CI/CD flows ────────────────────────────────────────────────────────
+    GHA -->|"on push / PR"| Docker
+    GHA -->|"on merge"| Railway
+    Railway -->|"runs"| FastAPI
+    Docker -->|"runs"| FastAPI
 
-    CORS -.->|wraps| FastAPI
-    
-    FastAPI -->|enqueue jobs| Celery
-    Celery --- Tasks
-    Tasks -->|send email| SMTP
+    %% ── Client → Gateway ───────────────────────────────────────────────────
+    Browser -->|"HTTPS REST /api/v1/*"| FastAPI
+    Browser -->|"WSS /api/v1/ws?token=..."| FastAPI
 
-    FastAPI --- AI_Adv
-    FastAPI --- Fin_Mod
-    FastAPI --- Rep_Mod
-    FastAPI --- ML_Mod
-    FastAPI --- Auth_Mod
+    %% ── Gateway internals ──────────────────────────────────────────────────
+    CORS -.->|"wraps"| FastAPI
+    RateLimit -.->|"wraps"| FastAPI
 
-    AI_Adv -->|LLM inference| Claude
-    Fin_Mod -->|price fetch| Alpha
-    Plaid -->|bank data| Fin_Mod
+    %% ── Gateway → Modules ──────────────────────────────────────────────────
+    FastAPI --- Auth
+    FastAPI --- Connect
+    FastAPI --- TxnSvc
+    FastAPI --- BudgetSvc
+    FastAPI --- PortfolioSvc
+    FastAPI --- ReportSvc
+    FastAPI --- ChatSvc
+    FastAPI --- ExportSvc
+    FastAPI --- NotifSvc
 
-    FastAPI --> Redis
-    FastAPI --> MSSQL
-    Fin_Mod --> Redis
-    Fin_Mod --> MSSQL
-    Tasks --> Redis
-    Tasks --> MSSQL
-    ML_Mod --> MSSQL
-    Auth_Mod --> MSSQL
-    Rep_Mod --> MSSQL
+    %% ── Plaid Link flow ────────────────────────────────────────────────────
+    Connect -->|"1 link_token"| Plaid
+    Browser -->|"2 Plaid Link SDK (iframe)"| Plaid
+    Browser -->|"3 public_token POST"| Connect
+    Connect -->|"4 exchange → access_token (encrypted)"| MSSQL
+
+    %% ── ML pipeline ────────────────────────────────────────────────────────
+    TxnSvc -->|"classify"| Rules
+    Rules -->|"no match → ML"| Classifier
+    Classifier -->|"category + confidence"| TxnSvc
+
+    %% ── Celery flows ───────────────────────────────────────────────────────
+    Beat -->|"every 4 h"| T2
+    T2 -->|"fan-out"| T1
+    FastAPI -->|"enqueue"| T1
+    FastAPI -->|"enqueue"| T4
+    T1 -->|"classify"| Rules
+    T1 -->|"80% budget check"| T5
+    T3 -->|"batch classify"| Classifier
+    T4 -->|"ReportLab PDF"| ExportSvc
+    T5 -->|"push"| NotifSvc
+    Worker --- T1
+    Worker --- T2
+    Worker --- T3
+    Worker --- T4
+    Worker --- T5
+
+    %% ── External API calls ─────────────────────────────────────────────────
+    T1 -->|"transactions/sync"| Plaid
+    ChatSvc -->|"chat/completions"| Groq
+    PortfolioSvc -->|"price fetch"| AlphaV
+    AlphaV -->|"cached 5 min"| Redis
+
+    %% ── Data access ────────────────────────────────────────────────────────
+    Auth --- MSSQL
+    TxnSvc --- MSSQL
+    BudgetSvc --- MSSQL
+    PortfolioSvc --- MSSQL
+    ReportSvc --- MSSQL
+    ChatSvc --- MSSQL
+    ExportSvc --- MSSQL
+    NotifSvc --- MSSQL
+    Connect --- MSSQL
+    T1 --- MSSQL
+    T4 --- MSSQL
+    FastAPI --- Redis
+    T1 --- Redis
+    T5 --- Redis
