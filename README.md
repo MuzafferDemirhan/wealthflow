@@ -14,43 +14,34 @@
 
 ## Description
 
-WealthFlow is a full-stack personal finance and investment tracking platform. It connects to your bank accounts via Plaid (PSD2-compliant Open Banking), automatically categorizes transactions using a scikit-learn ML model, tracks your investment portfolio with real-time market data, and gives you an AI financial advisor powered by Groq LLM — all in one place.
+WealthFlow is a full-stack personal finance and investment tracking platform. It connects to your bank accounts via Plaid (PSD2-compliant Open Banking), automatically categorizes transactions using a scikit-learn ML model, tracks your investment portfolio with real-time market data, and gives you an AI financial advisor powered by Groq LLM.
 
-Built with a FastAPI backend, Next.js 15 frontend, MS SQL Server database, and Celery for background sync jobs. Designed for the European market with multi-currency support.
+Built with a FastAPI backend, Next.js 15 frontend, MS SQL Server database and Celery for background sync jobs. Designed for the European market with multi-currency support.
 
 **Core features:**
-- 🏦 Bank account connection via Plaid (Open Banking)
-- 🤖 Automatic transaction categorization (scikit-learn ML)
-- 📈 Investment portfolio tracker with real-time prices
-- 💰 Budget planning with smart alerts
-- 💬 AI financial advisor chatbot (Groq / LLaMA)
-- 📄 PDF & CSV report export
-- 🔔 Real-time WebSocket notifications
+-  Bank account connection via Plaid (Open Banking)
+-  Automatic transaction categorization (scikit-learn ML)
+-  Investment portfolio tracker with real-time prices
+-  Budget planning with smart alerts
+-  AI financial advisor chatbot (Groq / LLaMA)
+-  PDF & CSV report export
+-  Real-time WebSocket notifications
 
 ---
 
 ## Demo
 
-<!-- Record a 1-2 min GIF or Loom: login → connect bank (Plaid sandbox) → dashboard → transactions → AI chat -->
-<!-- Save to docs/demo/demo.gif and uncomment the line below -->
-<!-- [![Demo](./docs/demo/demo.gif)](./docs/demo/demo.gif) -->
-
-> 🎬 **Live demo coming soon** — or run locally in 2 minutes with `docker compose up --build`
+[![Demo](./docs/demo/demo.gif)](./docs/demo/demo.gif) 
 
 ---
 
 ## Screenshots
 
-<!-- Save screenshots to docs/screenshots/ and uncomment below -->
-<!--
 ![Dashboard](./docs/screenshots/dashboard.png)
 ![Transactions](./docs/screenshots/transactions.png)
 ![Connect Bank](./docs/screenshots/connect.png)
 ![AI Chat](./docs/screenshots/chat.png)
 ![Reports](./docs/screenshots/reports.png)
--->
-
-> 📸 Screenshots coming soon
 
 ---
 
@@ -58,7 +49,7 @@ Built with a FastAPI backend, Next.js 15 frontend, MS SQL Server database, and C
 
 ### Dependencies
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — runs everything (DB, Redis, backend, frontend)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) -> runs everything (DB, Redis, backend, frontend)
 - Git
 
 Optional (only if running without Docker):
@@ -68,9 +59,9 @@ Optional (only if running without Docker):
 - Redis 7
 
 Third-party API keys (all free tiers available):
-- [Plaid](https://dashboard.plaid.com) — bank connections (sandbox needs no approval)
-- [Groq](https://console.groq.com/keys) — AI chatbot
-- [Alpha Vantage](https://www.alphavantage.co/support/#api-key) — portfolio market data
+- [Plaid](https://dashboard.plaid.com) -> bank connections (sandbox needs no approval)
+- [Groq](https://console.groq.com/keys) -> AI chatbot
+- [Alpha Vantage](https://www.alphavantage.co/support/#api-key) -> portfolio market data
 
 ### Installing
 
@@ -136,7 +127,7 @@ Plaid sandbox credentials: username `user_good`, password `pass_good`, phone OTP
 Set `LLM_API_KEY` in `backend/.env` with a free [Groq key](https://console.groq.com/keys) and restart the backend.
 
 **Port conflict?**
-Change ports in `docker-compose.yml` — frontend defaults to `3000`, backend to `8000`.
+Change ports in `docker-compose.yml` - frontend defaults to `3000`, backend to `8000`.
 
 ```bash
 # Run backend tests with coverage
@@ -222,19 +213,19 @@ pie title Test Distribution
 ## Documentation
 
 - [Documentation Index](./docs/README.md)
-- [SRS](./docs/SRS/SRS.md) — Software Requirements Specification
-- [Architecture](./docs/architecture/architecture.md) — system architecture (Mermaid)
-- [ER Diagram](./docs/ER%20diagram/erd.md) — database schema (Mermaid)
-- [Sprint Summaries](./docs/README.md#sprint-summaries) — sprint-0 through sprint-4
+- [SRS](./docs/SRS/SRS.md) -> Software Requirements Specification
+- [Architecture](./docs/architecture/architecture.md) -> system architecture (Mermaid)
+- [ER Diagram](./docs/ER%20diagram/erd.md) -> database schema (Mermaid)
+- [Sprint Summaries](./docs/README.md#sprint-summaries) -> sprint-0 through sprint-4
 
 ---
 
 ## Version History
 
-- **v0.4** — AI chatbot (Groq), PDF/CSV export, WebSocket notifications
-- **v0.3** — Frontend dashboard (14 pages, Plaid connect flow, charts)
-- **v0.2** — Plaid Open Banking, ML transaction classifier, portfolio tracker, reports
-- **v0.1** — Backend core (auth, accounts, categories, budgets, transactions, CI/CD)
+- **v0.4** -> AI chatbot (Groq), PDF/CSV export, WebSocket notifications
+- **v0.3** -> Frontend dashboard (14 pages, Plaid connect flow, charts)
+- **v0.2** -> Plaid Open Banking, ML transaction classifier, portfolio tracker, reports
+- **v0.1** -> Backend core (auth, accounts, categories, budgets, transactions, CI/CD)
 
 ---
 
@@ -247,14 +238,14 @@ pie title Test Distribution
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Acknowledgments
 
-- [Plaid](https://plaid.com) — Open Banking API
-- [Groq](https://groq.com) — Fast LLM inference
-- [FastAPI](https://fastapi.tiangolo.com) — Python web framework
-- [Next.js](https://nextjs.org) — React framework
-- [scikit-learn](https://scikit-learn.org) — ML transaction classifier
+- [Plaid](https://plaid.com) -> Open Banking API
+- [Groq](https://groq.com) -> Fast LLM inference
+- [FastAPI](https://fastapi.tiangolo.com) -> Python web framework
+- [Next.js](https://nextjs.org) -> React framework
+- [scikit-learn](https://scikit-learn.org) -> ML transaction classifier
