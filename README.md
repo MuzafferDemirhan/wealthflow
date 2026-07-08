@@ -1,4 +1,4 @@
-# WealthFlow 
+# WealthFlow
 
 > A full-stack personal finance and investment tracking platform built for the European market.
 
@@ -7,43 +7,144 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![MS SQL Server](https://img.shields.io/badge/MS%20SQL%20Server-2022-blue)
-[![Tests](https://img.shields.io/badge/Tests-219%20backend%20%7C%2055%20frontend-green)]()
+[![Tests](https://img.shields.io/badge/Tests-219%20backend%20%7C%2055%20frontend-green)](https://github.com/MuzafferDemirhan/WealthFlow/actions)
 [![Docs](https://img.shields.io/badge/Docs-📖-blue)](./docs/README.md)
 
 ---
 
-## What is this?
+## Description
 
-WealthFlow connects your bank accounts, tracks your spending with ML-powered categorization and monitors your investment portfolio in one place. Built with a PSD2-compliant Open Banking integration, it targets the European financial ecosystem.
+WealthFlow is a full-stack personal finance and investment tracking platform. It connects to your bank accounts via Plaid (PSD2-compliant Open Banking), automatically categorizes transactions using a scikit-learn ML model, tracks your investment portfolio with real-time market data, and gives you an AI financial advisor powered by Groq LLM — all in one place.
+
+Built with a FastAPI backend, Next.js 15 frontend, MS SQL Server database, and Celery for background sync jobs. Designed for the European market with multi-currency support.
 
 **Core features:**
--  Bank account connection via Plaid (PSD2-compliant Open Banking)
--  Automatic transaction categorization (scikit-learn ML model)
--  Investment portfolio tracker with real-time market data
--  Budget planning with smart alerts
--  AI financial advisor chatbot
--  PDF & CSV report export
+- 🏦 Bank account connection via Plaid (Open Banking)
+- 🤖 Automatic transaction categorization (scikit-learn ML)
+- 📈 Investment portfolio tracker with real-time prices
+- 💰 Budget planning with smart alerts
+- 💬 AI financial advisor chatbot (Groq / LLaMA)
+- 📄 PDF & CSV report export
+- 🔔 Real-time WebSocket notifications
 
 ---
 
 ## Demo
 
+<!-- Record a 1-2 min GIF or Loom: login → connect bank (Plaid sandbox) → dashboard → transactions → AI chat -->
+<!-- Save to docs/demo/demo.gif and uncomment the line below -->
+<!-- [![Demo](./docs/demo/demo.gif)](./docs/demo/demo.gif) -->
 
-[![Demo](./docs/demo/demo.gif)](./docs/demo/demo.gif)
-
-
+> 🎬 **Live demo coming soon** — or run locally in 2 minutes with `docker compose up --build`
 
 ---
 
 ## Screenshots
 
-
+<!-- Save screenshots to docs/screenshots/ and uncomment below -->
+<!--
 ![Dashboard](./docs/screenshots/dashboard.png)
-![Transactions](./docs/screenshots/accounts.png)
+![Transactions](./docs/screenshots/transactions.png)
 ![Connect Bank](./docs/screenshots/connect.png)
 ![AI Chat](./docs/screenshots/chat.png)
 ![Reports](./docs/screenshots/reports.png)
+-->
 
+> 📸 Screenshots coming soon
+
+---
+
+## Getting Started
+
+### Dependencies
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — runs everything (DB, Redis, backend, frontend)
+- Git
+
+Optional (only if running without Docker):
+- Python 3.12+
+- Node.js 20+
+- MS SQL Server 2022 + [ODBC Driver 18](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
+- Redis 7
+
+Third-party API keys (all free tiers available):
+- [Plaid](https://dashboard.plaid.com) — bank connections (sandbox needs no approval)
+- [Groq](https://console.groq.com/keys) — AI chatbot
+- [Alpha Vantage](https://www.alphavantage.co/support/#api-key) — portfolio market data
+
+### Installing
+
+1. Clone the repo:
+```bash
+git clone https://github.com/MuzafferDemirhan/WealthFlow.git
+cd WealthFlow
+```
+
+2. Run the setup script — copies `.env.example` to `.env` for both backend and frontend:
+```bash
+# Windows
+.\setup.ps1
+
+# macOS / Linux
+bash setup.sh
+```
+
+3. *(Optional)* Add your API keys to `backend/.env`:
+```env
+# Plaid — for bank account connection
+PLAID_CLIENT_ID=your_client_id
+PLAID_SECRET=your_secret
+
+# Groq — for AI chatbot
+LLM_API_KEY=your_groq_key
+
+# Alpha Vantage — for portfolio prices
+ALPHA_VANTAGE_KEY=your_key
+
+# Token encryption key (required) — generate with:
+# python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+TOKEN_ENCRYPTION_KEY=your_generated_key
+```
+
+> Everything except bank syncing and AI chat works without API keys.
+
+### Executing Program
+
+Start all services with Docker Compose:
+```bash
+docker compose up --build
+```
+
+Open **http://localhost:3000** in your browser, register an account, and you're in.
+
+To run database migrations manually:
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+---
+
+## Help
+
+**Docker not starting?**
+Make sure Docker Desktop is running before `docker compose up`.
+
+**Bank connection not working?**
+Plaid sandbox credentials: username `user_good`, password `pass_good`, phone OTP `1234`.
+
+**AI chat not responding?**
+Set `LLM_API_KEY` in `backend/.env` with a free [Groq key](https://console.groq.com/keys) and restart the backend.
+
+**Port conflict?**
+Change ports in `docker-compose.yml` — frontend defaults to `3000`, backend to `8000`.
+
+```bash
+# Run backend tests with coverage
+docker compose exec backend pytest --cov=app --cov-report=term
+
+# Run frontend tests
+cd frontend && npm test
+```
 
 ---
 
@@ -58,7 +159,6 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 | Task Queue | Celery + Redis |
 | Auth | JWT (python-jose) + OAuth2 |
 | DevOps | Docker, Docker Compose, GitHub Actions |
-| Deployment | Railway |
 
 ---
 
@@ -66,7 +166,7 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ![WealthFlow System Architecture](./docs/architecture/WealthFlow_SystemArchitecture.png)
 
-> **Note:** You can access the code-based version of the architecture in the [architecture.md](./docs/architecture/architecture.md) file.
+> Code-based version: [architecture.md](./docs/architecture/architecture.md)
 
 ---
 
@@ -74,42 +174,7 @@ WealthFlow connects your bank accounts, tracks your spending with ML-powered cat
 
 ![WealthFlow Entity Relationship Diagram](./docs/ER%20diagram/WealthFlow_ERDiagram.png)
 
-> **Note:** You can access the code-based version of the architecture in the [erd.md](./docs/ER%20diagram/erd.md) file.
-
----
-
-## Quick Start
-
-```bash
-git clone https://github.com/MuzafferDemirhan/WealthFlow.git
-cd WealthFlow
-
-# Windows
-.\setup.ps1
-# macOS / Linux
-bash setup.sh
-
-docker compose up --build
-```
-
-Open **http://localhost:3000** — register an account and you're in.
-
-> **AI chat** needs a free [Groq API key](https://console.groq.com/keys): set `LLM_API_KEY` in `backend\.env` after setup.  
-> **Plaid keys** are optional — everything except bank syncing works without them.
-
-### CI (forks)
-
-CI pipelines don't require any secrets — tests mock all third-party APIs.  
-If you want deploy to work, add `RAILWAY_TOKEN` in **Settings → Secrets and variables → Actions**.
-
-### Run tests
-```bash
-# Backend
-docker compose exec backend pytest --cov=app --cov-report=term
-
-# Frontend
-cd frontend && npm test
-```
+> Code-based version: [erd.md](./docs/ER%20diagram/erd.md)
 
 ---
 
@@ -123,23 +188,20 @@ wealthflow/
 │   │   ├── core/         # Config, security, dependencies
 │   │   ├── models/       # SQLAlchemy models
 │   │   ├── schemas/      # Pydantic schemas
-│   │   └── services/     # Business logic
-│   ├── alembic/          # DB migrations
-│   └── tests/
+│   │   ├── services/     # Business logic
+│   │   ├── tasks/        # Celery background jobs
+│   │   └── ml/           # Transaction classifier
+│   ├── migrations/       # Alembic DB migrations
+│   └── tests/            # 219 tests
 ├── frontend/
 │   └── src/
 │       ├── app/          # Next.js App Router pages
 │       ├── components/   # Reusable UI components
 │       └── lib/          # API client, utilities
 ├── docs/
-│   ├── README.md          # Documentation index
-│   ├── sprint-0.md        # Sprint summaries
-│   ├── sprint-1.md
-│   ├── sprint-2.md
-│   ├── sprint-3.md
-│   ├── SRS/               # Software Requirements Specification
-│   ├── architecture/      # System architecture diagrams
-│   └── ER diagram/        # Entity Relationship diagrams
+│   ├── SRS/              # Software Requirements Specification
+│   ├── architecture/     # System architecture diagrams
+│   └── ER diagram/       # Entity Relationship diagrams
 ├── docker-compose.yml
 └── .github/workflows/    # CI/CD pipelines
 ```
@@ -150,7 +212,7 @@ wealthflow/
 
 ```mermaid
 pie title Test Distribution
-    "Backend Unit Tests" : 259
+    "Backend Unit Tests" : 219
     "Frontend Unit Tests" : 40
     "E2E Tests (Playwright)" : 27
 ```
@@ -159,28 +221,40 @@ pie title Test Distribution
 
 ## Documentation
 
-- [Documentation Index](./docs/README.md) — central hub for all docs
+- [Documentation Index](./docs/README.md)
 - [SRS](./docs/SRS/SRS.md) — Software Requirements Specification
-- [Sprint Summaries](./docs/README.md#sprint-summaries) — sprint-0 through sprint-3
 - [Architecture](./docs/architecture/architecture.md) — system architecture (Mermaid)
 - [ER Diagram](./docs/ER%20diagram/erd.md) — database schema (Mermaid)
+- [Sprint Summaries](./docs/README.md#sprint-summaries) — sprint-0 through sprint-4
 
 ---
 
-## Roadmap
+## Version History
 
-| Sprint | Status | Description |
-|--------|--------|-------------|
-| Sprint 0 | ✅ | Project scaffolding (Docker, DB, CI/CD, SRS) |
-| Sprint 1 | ✅ | Backend core (auth, accounts, categories, budgets, transactions) |
-| Sprint 2 | ✅ | Open Banking + ML classifier + portfolio + reports + connect |
-| Sprint 3 | ✅ | Frontend dashboard (14 pages, 40 unit + 15 E2E tests) |
-| Sprint 4 | ✅ | AI chatbot (Groq) + PDF/CSV export + WebSockets + deploy config |
+- **v0.4** — AI chatbot (Groq), PDF/CSV export, WebSocket notifications
+- **v0.3** — Frontend dashboard (14 pages, Plaid connect flow, charts)
+- **v0.2** — Plaid Open Banking, ML transaction classifier, portfolio tracker, reports
+- **v0.1** — Backend core (auth, accounts, categories, budgets, transactions, CI/CD)
 
-> See [sprint-0.md](./docs/sprint-0.md), [sprint-1.md](./docs/sprint-1.md), [sprint-2.md](./docs/sprint-2.md), [sprint-3.md](./docs/sprint-3.md), [sprint-4.md](./docs/sprint-4.md) for details.
+---
+
+## Authors
+
+**Muzaffer Demirhan**
+- GitHub: [@MuzafferDemirhan](https://github.com/MuzafferDemirhan)
 
 ---
 
 ## License
 
-MIT © [Muzaffer Demirhan](https://github.com/MuzafferDemirhan)
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- [Plaid](https://plaid.com) — Open Banking API
+- [Groq](https://groq.com) — Fast LLM inference
+- [FastAPI](https://fastapi.tiangolo.com) — Python web framework
+- [Next.js](https://nextjs.org) — React framework
+- [scikit-learn](https://scikit-learn.org) — ML transaction classifier
